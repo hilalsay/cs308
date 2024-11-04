@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Auth Frontend</title>
+</head>
+<body>
+
+<h2>Signup</h2>
+<form id="signup-form">
+    <label for="signup-username">Username:</label>
+    <input type="text" id="signup-username" name="username" required>
+    <label for="signup-password">Password:</label>
+    <input type="password" id="signup-password" name="password" required>
+    <button type="button" onclick="signup()">Signup</button>
+</form>
+
+<h2>Login</h2>
+<form id="login-form">
+    <label for="login-username">Username:</label>
+    <input type="text" id="login-username" name="username" required>
+    <label for="login-password">Password:</label>
+    <input type="password" id="login-password" name="password" required>
+    <button type="button" onclick="login()">Login</button>
+</form>
+
+<p id="response"></p>
+
+<script>
+    // Function to handle signup
+    async function signup() {
+        const username = document.getElementById('signup-username').value;
+        const password = document.getElementById('signup-password').value;
+
+        const response = await fetch('http://localhost:8080/api/auth/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        const result = await response.text();
+        document.getElementById('response').textContent = result;
+    }
+
+    // Function to handle login
+    async function login() {
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+
+        const response = await fetch('http://localhost:8080/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        const result = await response.text();
+        document.getElementById('response').textContent = result;
+    }
+</script>
+
+</body>
+</html>
