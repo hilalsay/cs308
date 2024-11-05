@@ -1,7 +1,7 @@
 package edu.sabanciuniv.cs308.controller;
 
-import edu.sabanciuniv.cs308.dto.User;
-import edu.sabanciuniv.cs308.dto.LoginRequest;
+import edu.sabanciuniv.cs308.model.User;
+import edu.sabanciuniv.cs308.model.LoginRequest;
 import edu.sabanciuniv.cs308.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

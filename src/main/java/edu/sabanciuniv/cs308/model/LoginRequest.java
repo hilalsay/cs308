@@ -1,4 +1,4 @@
-package edu.sabanciuniv.cs308.dto;
+package edu.sabanciuniv.cs308.model;
 
 public class LoginRequest {
     private String username;
