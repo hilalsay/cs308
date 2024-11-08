@@ -1,11 +1,9 @@
 package edu.sabanciuniv.cs308.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -17,10 +15,14 @@ public class Product {
     private UUID id;
     private String name;
     private String model;
-    private int serialNumber;
+    private String serialNumber;
     private String description;
-    private int stockQuantity;
-    private double price;
+    private Integer stockQuantity;
+    private BigDecimal price;
     private String warrantyStatus;
     private String distributorInformation;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 }
