@@ -18,7 +18,8 @@ public class ProductService {
     }
 
     public Product getProductById(UUID productId) {
-        return repo.findById(productId).orElse(new Product());
+        return repo.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
     public void addProduct(Product product) {
