@@ -24,7 +24,7 @@ public class User {
     private String homeAddress;   // Optional
     private LocalDateTime createdAt;  // Automatically set
 
-    // Constructors, getters, and setters
+    // Constructor
     public User(String name, String email, String password) {
         this.name = name;
         this.email = email;

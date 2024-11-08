@@ -23,6 +23,6 @@ public class UserController {
 
     @PostMapping("/login")
     public String login(@RequestBody LoginRequest loginRequest) {
-        return userService.loginUser(loginRequest);
+        return userService.loginUser(loginRequest.getUsername(),loginRequest.getPassword());
     }
 }

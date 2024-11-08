@@ -1,40 +1,50 @@
 package edu.sabanciuniv.cs308.service;
 
+import edu.sabanciuniv.cs308.repo.UserRepo;
 import edu.sabanciuniv.cs308.model.User;
-import edu.sabanciuniv.cs308.model.LoginRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.Optional;
 
 @Service
 public class UserService {
-    // until database comes, it stores users here
-    private List<User> users = new ArrayList<>();
+
+    @Autowired
+    private UserRepo userRepo;
 
     public String registerUser(User user) {
-        for (User existingUser : users) {
-            if (existingUser.getUsername().equals(user.getUsername()) && existingUser.getEmail().equals(user.getEmail())) {
-                return "User already exists!";
-            }
+        // Check if the username already exists
+        Optional<User> existingUser = userRepo.findByUsername(user.getUsername());
+        if (existingUser.isPresent()) {
+            return "Username is already taken!";
         }
 
-        // will add password hashing
+        // Check if the email already exists
+        Optional<User> existingEmail = userRepo.findByEmail(user.getEmail());
+        if (existingEmail.isPresent()) {
+            return "Email is already registered!";
+        }
 
-        users.add(user);
+        // If both username and email are unique, save the user
+        userRepo.save(user);
         return "User registered successfully!";
     }
 
-    public String loginUser(LoginRequest loginRequest) {
-        // will compare against hashed password
-        for (User user : users) {
-            if (user.getUsername().equals(loginRequest.getUsername())
-                    && user.getPassword().equals(loginRequest.getPassword())) {
-                return "Login successful! ID:" + user.getId();
-            }
+    public String loginUser(String username, String password) {
+        // Find user by username
+        Optional<User> user = userRepo.findByUsername(username);
+
+        // If the user doesn't exist, return an error message
+        if (user.isEmpty()) {
+            return "User not found!";
         }
-        return "Invalid username or password.";
+
+        // Check if the password matches
+        if (user.get().getPassword().equals(password)) {
+            return "Login successful!";
+        } else {
+            return "Invalid password!";
+        }
     }
-    // private String hashPassword(String password) {
-    //     will implement this
-    // }
 }
