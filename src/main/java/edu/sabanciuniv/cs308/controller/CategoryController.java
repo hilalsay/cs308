@@ -19,7 +19,7 @@ public class CategoryController {
     private CategoryService service;
 
     @GetMapping("/{categoryId}")
-    public List<Product> getProductByCategory(@PathVariable UUID categoryId){
-        return service.getProductsByCategory(categoryId);
+    public List<Product> getCategoryById(@PathVariable UUID categoryId){
+        return service.getCategoryById(categoryId);
     }
 }
