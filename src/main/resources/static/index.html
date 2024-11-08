@@ -11,8 +11,16 @@
 <form id="signup-form">
     <label for="signup-username">Username:</label>
     <input type="text" id="signup-username" name="username" required>
+
+    <label for="signup-email">Email:</label>
+    <input type="email" id="signup-email" name="email" required>
+
+    <label for="signup-name">Name:</label>
+    <input type="text" id="signup-name" name="name" required>
+
     <label for="signup-password">Password:</label>
     <input type="password" id="signup-password" name="password" required>
+
     <button type="button" onclick="signup()">Signup</button>
 </form>
 
@@ -20,8 +28,10 @@
 <form id="login-form">
     <label for="login-username">Username:</label>
     <input type="text" id="login-username" name="username" required>
+
     <label for="login-password">Password:</label>
     <input type="password" id="login-password" name="password" required>
+
     <button type="button" onclick="login()">Login</button>
 </form>
 
@@ -31,6 +41,8 @@
     // Function to handle signup
     async function signup() {
         const username = document.getElementById('signup-username').value;
+        const email = document.getElementById('signup-email').value;
+        const name = document.getElementById('signup-name').value;
         const password = document.getElementById('signup-password').value;
 
         const response = await fetch('http://localhost:8080/api/auth/signup', {
@@ -38,7 +50,7 @@
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify({ username, email, name, password })
         });
 
         const result = await response.text();

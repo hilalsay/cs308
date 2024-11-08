@@ -1,9 +1,6 @@
 package edu.sabanciuniv.cs308.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -11,18 +8,36 @@ import java.util.UUID;
 
 @Data
 @Entity
+@Table(name = "user")
 public class User {
+    @Column
+    private LocalDateTime createdAt;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+
+    @Column(nullable = false, unique = true)
     private String username;
-    private String name;
+
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(nullable = false)
     private String password;
-    private String taxId;         // Optional
-    private String homeAddress;   // Optional
-    private LocalDateTime createdAt;  // Automatically set
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column
+    private String homeAddress;
+
+    @Column
+    private String taxId;
+
+    public User() {
+        this.name = "No name";
+    }
 
     // Constructor
     public User(String name, String email, String password) {
