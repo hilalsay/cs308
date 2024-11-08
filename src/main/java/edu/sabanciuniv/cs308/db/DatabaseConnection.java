@@ -10,19 +10,17 @@ public class DatabaseConnection {
     private static final String USER = "admin02";
     private static final String PASSWORD = "Gathie.shopapp02";
 
-    public static Connection connect() {
-        Connection conn = null;
+    // Method to establish a connection to the database
+    public static Connection connect() throws SQLException {
         try {
-            conn = DriverManager.getConnection(URL, USER, PASSWORD);
-            System.out.println("Connection successful!");
-        } catch (SQLException e) {
-            System.out.println("Connection failed.");
-            e.printStackTrace();
-        }
-        return conn;
-    }
+            // Load the JDBC driver (optional in newer versions)
+            Class.forName("com.mysql.cj.jdbc.Driver");
 
-    public static void main(String[] args) {
-        connect();
+            // Return the connection to the MySQL database
+            return DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (ClassNotFoundException e) {
+            // Handle the error if JDBC Driver is not found
+            throw new SQLException("MySQL JDBC Driver not found.", e);
+        }
     }
 }
