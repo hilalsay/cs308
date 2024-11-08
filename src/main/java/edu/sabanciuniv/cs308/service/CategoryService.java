@@ -19,4 +19,27 @@ public class CategoryService {
                 .orElseThrow(() -> new RuntimeException("Category not found"));
         return category.getProducts();
     }
+
+    public Category addCategory(Category category) {
+        return repo.save(category);
+    }
+
+    public Category updateCategory(UUID id, Category categoryDetails) {
+        Category category = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        category.setName(categoryDetails.getName());
+        category.setDescription(categoryDetails.getDescription());
+        return repo.save(category);
+    }
+
+    public void deleteCategory(UUID id) {
+        Category category = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        repo.delete(category);
+    }
+
+    public List<Category> getAllCategories() {
+        return repo.findAll();
+    }
 }
