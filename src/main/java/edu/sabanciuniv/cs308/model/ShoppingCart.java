@@ -25,8 +25,8 @@ public class ShoppingCart {
     @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
 
-//    @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<CartItem> items;
+    @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> items;
 
-    // Optionally, you can add methods to update the total, add items, etc.
+
 }
