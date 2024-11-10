@@ -15,6 +15,14 @@ public class ProductController {
     @Autowired
     private ProductService service;
 
+    // Endpoint to get only in-stock products
+    @GetMapping("/in-stock")
+    public List<Product> getProductsInStock() {
+        return service.getProductsInStock();
+    }
+
+
+
     @GetMapping
     public List<Product> getProducts(){
         return service.getProducts();
