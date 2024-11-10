@@ -1,5 +1,6 @@
 package edu.sabanciuniv.cs308.model;
 
+import edu.sabanciuniv.cs308.repo.ProductRepo;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -33,5 +34,11 @@ public class CartItem {
     }
 
     public CartItem() {
+    }
+
+    // Method to get the actual Product object from the productId
+    public Product getProduct(ProductRepo productRepo) {
+        // Assuming ProductRepo is passed into this method
+        return productRepo.findById(this.productId).orElse(null);  // Fetch the product by productId, or return null if not found
     }
 }
