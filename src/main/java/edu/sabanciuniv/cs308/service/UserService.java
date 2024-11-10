@@ -45,7 +45,7 @@ public class UserService {
         }
 
         // Check if the password matches
-        if (user.get().getPassword().equals(encoder.encode(password))) {
+        if (encoder.matches(password, user.get().getPassword())) {
             return "Login successful!";
         } else {
             return "Invalid password!";
