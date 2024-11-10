@@ -3,6 +3,7 @@ package edu.sabanciuniv.cs308.service;
 import edu.sabanciuniv.cs308.repo.UserRepo;
 import edu.sabanciuniv.cs308.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -12,6 +13,8 @@ public class UserService {
 
     @Autowired
     private UserRepo userRepo;
+
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     public String registerUser(User user) {
         // Check if the username already exists
@@ -27,6 +30,7 @@ public class UserService {
         }
 
         // If both username and email are unique, save the user
+        user.setPassword(encoder.encode(user.getPassword()));
         userRepo.save(user);
         return "User registered successfully!";
     }
@@ -41,7 +45,7 @@ public class UserService {
         }
 
         // Check if the password matches
-        if (user.get().getPassword().equals(password)) {
+        if (user.get().getPassword().equals(encoder.encode(password))) {
             return "Login successful!";
         } else {
             return "Invalid password!";
