@@ -7,6 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -50,5 +51,10 @@ public class UserService {
         } else {
             return "Invalid password!";
         }
+    }
+
+    // Method for retrieving all users
+    public List<User> getAllUsers() {
+        return userRepo.findAll();
     }
 }

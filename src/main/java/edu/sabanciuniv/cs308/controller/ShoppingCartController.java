@@ -5,7 +5,6 @@ import edu.sabanciuniv.cs308.service.ShoppingCartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -21,25 +20,29 @@ public class ShoppingCartController {
 
     // Endpoint to view the user's shopping cart by user ID
     @GetMapping("/view/{userId}")
-    public Optional<ShoppingCart> viewCart(@PathVariable UUID userId) {
-        return shoppingCartService.getCartByUserId(userId);
+    public ShoppingCart viewCart(@PathVariable UUID userId) {
+        return shoppingCartService.getCartByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Cart not found for user " + userId));
     }
 
-//    // Endpoint to add an item to the cart (details of the item would be provided in the request body)
-//    @PostMapping("/add/{userId}")
-//    public String addItemToCart(@PathVariable Long userId, @RequestBody CartItemDto itemDto) {
-//        return shoppingCartService.addItemToCart(userId, itemDto);
-//    }
-//
-//    // Endpoint to update item quantity in the cart
-//    @PutMapping("/update/{userId}")
-//    public String updateItemQuantity(@PathVariable Long userId, @RequestBody CartItemDto itemDto) {
-//        return shoppingCartService.updateItemQuantity(userId, itemDto);
-//    }
-//
-//    // Endpoint to checkout and complete the order
-//    @PostMapping("/checkout/{userId}")
-//    public String checkout(@PathVariable Long userId) {
-//        return shoppingCartService.checkout(userId);
-//    }
+    // Endpoint to create a shopping cart for a user (if it doesn't exist)
+    @PostMapping("/create/{userId}")
+    public ShoppingCart createCart(@PathVariable UUID userId) {
+        return shoppingCartService.createShoppingCartForUser(userId);
+    }
+
+    // Endpoint to add an item to the cart
+    @PostMapping("/add/{userId}/{productId}/{quantity}")
+    public ShoppingCart addItemToCart(
+            @PathVariable UUID userId,
+            @PathVariable UUID productId,
+            @PathVariable Integer quantity) {
+        return shoppingCartService.addItemToCart(userId, productId, quantity);
+    }
+
+    // Endpoint to remove an item from the cart
+    @DeleteMapping("/remove/{userId}/{itemId}")
+    public ShoppingCart removeItemFromCart(@PathVariable UUID userId, @PathVariable UUID itemId) {
+        return shoppingCartService.removeItemFromCart(userId, itemId);
+    }
 }
