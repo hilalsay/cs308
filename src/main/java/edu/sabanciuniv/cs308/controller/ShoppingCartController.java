@@ -21,7 +21,7 @@ public class ShoppingCartController {
 
     // Endpoint to view the user's shopping cart by user ID
     @GetMapping("/view/{userId}")
-    public Optional<ShoppingCart> viewCart(@PathVariable Long userId) {
+    public Optional<ShoppingCart> viewCart(@PathVariable UUID userId) {
         return shoppingCartService.getCartByUserId(userId);
     }
 

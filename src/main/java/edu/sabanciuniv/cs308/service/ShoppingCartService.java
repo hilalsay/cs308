@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ShoppingCartService {
@@ -15,7 +16,7 @@ public class ShoppingCartService {
     private ShoppingCartRepo shoppingCartRepo;
 
     // Retrieves the shopping cart by user ID
-    public Optional<ShoppingCart> getCartByUserId(Long userId) {
+    public Optional<ShoppingCart> getCartByUserId(UUID userId) {
         return shoppingCartRepo.findByUserId(userId);
     }
 

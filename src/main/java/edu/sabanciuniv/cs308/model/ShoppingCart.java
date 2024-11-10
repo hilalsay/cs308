@@ -15,8 +15,7 @@ public class ShoppingCart {
     private UUID id;
 
     @Column(nullable = false)
-    private Long userId;
-
+    private UUID userId;
     private double total;
 
     @Column(name = "created_at", nullable = false)
