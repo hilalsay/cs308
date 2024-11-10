@@ -14,8 +14,10 @@ public class ShoppingCart {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(nullable = false)
-    private UUID userId;
+    @ManyToOne(fetch = FetchType.LAZY)  // Many shopping carts can belong to one user
+    @JoinColumn(name = "user_id", nullable = false)  // Foreign key to the User table
+    private User user;  // Reference to User
+
     private double total;
 
     @Column(name = "created_at", nullable = false)
