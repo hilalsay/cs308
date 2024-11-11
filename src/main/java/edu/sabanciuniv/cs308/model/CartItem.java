@@ -53,5 +53,5 @@ public class CartItem {
         this.quantity = quantity;
         this.modifiedAt = LocalDateTime.now(); // Update modifiedAt when quantity changes
     }
-    
+
 }

@@ -18,7 +18,7 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false) // Creates a foreign key to User
-    private User user;
+    private User user_id;
 
     @Column(name = "total_amount", nullable = false, precision = 38, scale = 2)
     private BigDecimal totalAmount;

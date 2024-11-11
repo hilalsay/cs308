@@ -5,6 +5,7 @@ import edu.sabanciuniv.cs308.service.ShoppingCartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -16,6 +17,12 @@ public class ShoppingCartController {
     @Autowired
     public ShoppingCartController(ShoppingCartService shoppingCartService) {
         this.shoppingCartService = shoppingCartService;
+    }
+
+
+    @GetMapping("/all")
+    public List<ShoppingCart> getAllCarts() {
+        return shoppingCartService.getAllCarts();
     }
 
     // Endpoint to view the user's shopping cart by user ID

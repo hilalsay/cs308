@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -102,5 +103,9 @@ public class ShoppingCartService {
 
         // Save the updated cart
         return shoppingCartRepo.save(cart);
+    }
+
+    public List<ShoppingCart> getAllCarts() {
+        return shoppingCartRepo.findAll();
     }
 }

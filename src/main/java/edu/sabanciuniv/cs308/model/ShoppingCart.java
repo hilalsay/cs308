@@ -21,7 +21,7 @@ public class ShoppingCart {
 
 
     @OneToMany(mappedBy = "shoppingCart")
-    @JsonManagedReference // Add this annotation to manage the serialization
+    @JsonManagedReference
     private List<CartItem> items;
 
     @Column(nullable = false)
