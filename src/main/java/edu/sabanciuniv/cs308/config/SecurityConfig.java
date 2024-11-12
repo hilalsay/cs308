@@ -3,7 +3,6 @@ package edu.sabanciuniv.cs308.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -33,7 +32,7 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/", "/api/auth/login","/api/products", "/api/cart/all","/api/cart/{cartId}/checkout", "/api/auth/signup", "/api/category")
+                        .requestMatchers("/", "/api/auth/login", "/api/auth/signup", "/api/products", "/api/category", "/api/products/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())

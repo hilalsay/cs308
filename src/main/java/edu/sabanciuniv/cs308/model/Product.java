@@ -24,12 +24,12 @@ public class Product {
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    private Category category;
+    private UUID category_id;
 
     public Product(String name, String model, String serialNumber,
                    String description, Integer stockQuantity,
                    BigDecimal price, String warrantyStatus,
-                   String distributorInformation, Category category) {
+                   String distributorInformation, UUID category) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.model = model;
@@ -39,7 +39,7 @@ public class Product {
         this.price = price;
         this.warrantyStatus = warrantyStatus;
         this.distributorInformation = distributorInformation;
-        this.category = category;
+        this.category_id = category;
     }
 
     public Product() {
@@ -57,7 +57,7 @@ public class Product {
                 ", price=" + price +
                 ", warrantyStatus='" + warrantyStatus + '\'' +
                 ", distributorInformation='" + distributorInformation + '\'' +
-                ", category=" + category +
+                ", category=" + category_id +
                 '}';
     }
 }
