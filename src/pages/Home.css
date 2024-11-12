@@ -1,0 +1,90 @@
+/* Container for the entire home section */
+.home-containerH {
+  padding: 20px;
+}
+
+/* Title styling */
+.section-titleH {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+/* Carousel container */
+.products-carouselH {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: #0073e6 #f0f0f0; /* Firefox */
+}
+
+/* Scrollbar styling for Chrome, Safari, and Edge */
+.products-carouselH::-webkit-scrollbar {
+  height: 8px;
+}
+
+.products-carouselH::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+.products-carouselH::-webkit-scrollbar-thumb {
+  background-color: #0073e6;
+  border-radius: 10px;
+}
+
+/* Styling for individual product cards */
+.product-cardH {
+  min-width: 250px; /* Increased width */
+  max-width: 250px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background-color: #fff;
+  text-align: center;
+  padding: 15px;
+}
+
+.product-cardH:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Product image styling */
+.product-imageH {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+/* Product name and price styling */
+.product-nameH {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.product-priceH {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #d00000;
+  margin: 5px 0;
+}
+
+/* Add to Cart button styling */
+.add-to-cart-buttonH {
+  background-color: #0073e6;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.add-to-cart-buttonH:hover {
+  background-color: #005bb5;
+}

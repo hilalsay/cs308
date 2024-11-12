@@ -1,28 +1,41 @@
 // Products.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import ProductCard from "./ProductCard"; // Import the ProductCard component
+import ProductCard from "./ProductCard";
+import "./Products.css";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]);
 
   useEffect(() => {
-    // Fetch products from the backend
     axios
       .get("http://localhost:8080/api/products")
       .then((response) => {
-        setProducts(response.data); // Set the products into state
+        setProducts(response.data);
       })
       .catch((error) => {
         console.error("Error fetching products:", error);
       });
   }, []);
 
+  const addToCart = (product) => {
+    setCart([...cart, product]);
+    alert(`${product.name} has been added to the cart!`);
+  };
+
   return (
-    <div className="product-container">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
-      ))}
+    <div>
+      <h2 className="collection-header">Jewelry Collection</h2>
+      <div className="product-container">
+        {products.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            onAddToCart={addToCart}
+          />
+        ))}
+      </div>
     </div>
   );
 };

@@ -8,7 +8,6 @@ const Navbar = () => {
 
   return (
     <div className="flex items-center justify-between py-5 font medium">
-      
       <p>ShopApp</p>
       <img src={assets.search_icon} className="w-8 cursor-pointer" alt="" />
 
@@ -59,7 +58,8 @@ const Navbar = () => {
                 onClick={() => setVisible(false)}
                 className="flex items-center gap-4 p-3 cursor-pointer"
               >
-                //<img className="h-14 " src={assets.back_icon} alt="" />
+                //
+                <img className="h-14 " src={assets.back_icon} alt="" />
                 <p>Back</p>
               </div>
               <NavLink
