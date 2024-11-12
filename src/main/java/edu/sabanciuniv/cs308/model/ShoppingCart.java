@@ -20,7 +20,7 @@ public class ShoppingCart {
 
 
 
-    @OneToMany(mappedBy = "shoppingCart")
+    @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<CartItem> items;
 
@@ -39,4 +39,10 @@ public class ShoppingCart {
     public ShoppingCart() {
         this.total = BigDecimal.ZERO;
     }
+    // In ShoppingCart.java
+
+    public UUID getUserId() {
+        return userId;
+    }
+
 }

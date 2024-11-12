@@ -1,8 +1,11 @@
+// ShoppingCartController.java
 package edu.sabanciuniv.cs308.controller;
 
+import edu.sabanciuniv.cs308.model.Order;
 import edu.sabanciuniv.cs308.model.ShoppingCart;
 import edu.sabanciuniv.cs308.service.ShoppingCartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,10 +22,17 @@ public class ShoppingCartController {
         this.shoppingCartService = shoppingCartService;
     }
 
-
+    // Endpoint to get all carts
     @GetMapping("/all")
     public List<ShoppingCart> getAllCarts() {
         return shoppingCartService.getAllCarts();
+    }
+
+    // Endpoint to delete all shopping carts
+    @DeleteMapping("/deleteAll")
+    public ResponseEntity<String> deleteAllCarts() {
+        shoppingCartService.deleteAllShoppingCarts();
+        return ResponseEntity.ok("All shopping carts and their items have been deleted.");
     }
 
     // Endpoint to view the user's shopping cart by user ID
@@ -52,4 +62,16 @@ public class ShoppingCartController {
     public ShoppingCart removeItemFromCart(@PathVariable UUID userId, @PathVariable UUID itemId) {
         return shoppingCartService.removeItemFromCart(userId, itemId);
     }
+
+    @PostMapping("/{cartId}/confirm")
+    public Order confirmOrder(@PathVariable UUID cartId, @RequestParam String paymentMethod) {
+        // Fetch the shopping cart based on cartId (You could add more checks to ensure valid cart)
+        ShoppingCart shoppingCart = shoppingCartService.getShoppingCartById(cartId);
+
+        // Convert the shopping cart to an order with the given payment method
+        return shoppingCartService.convertToOrder(shoppingCart, paymentMethod);
+    }
 }
+
+
+

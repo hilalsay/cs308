@@ -18,7 +18,7 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false) // Creates a foreign key to User
-    private User user_id;
+    private User user;
 
     @Column(name = "total_amount", nullable = false, precision = 38, scale = 2)
     private BigDecimal totalAmount;
@@ -37,4 +37,9 @@ public class Order {
 
     @Column(name = "payment_method")
     private String paymentMethod;
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
 }

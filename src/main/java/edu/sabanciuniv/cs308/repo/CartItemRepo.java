@@ -12,3 +12,4 @@ public interface CartItemRepo extends JpaRepository<CartItem, UUID> {
     // Find CartItem by ShoppingCart and Product
     Optional<CartItem> findByShoppingCartAndProduct(ShoppingCart shoppingCart, Product product);
 }
+
