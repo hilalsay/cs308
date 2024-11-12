@@ -1,0 +1,10 @@
+.collection-header {
+  font-size: 3rem; /* Make the font size larger */
+  font-weight: bold; /* Make the font bold */
+  color: #d49f60; /* A golden color to fit the jewelry theme */
+  text-align: center; /* Center-align the text */
+  margin-top: 20px; /* Space at the top */
+  margin-bottom: 30px; /* Space at the bottom */
+  font-family: "Georgia", serif; /* Elegant serif font */
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Add a subtle text shadow */
+}

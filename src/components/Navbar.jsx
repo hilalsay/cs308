@@ -8,16 +8,15 @@ const Navbar = () => {
 
   return (
     <div className="flex items-center justify-between py-5 font medium">
-      <img src={assets.allmight} className="w-20" alt="" />
-
+      <p>ShopApp</p>
       <img src={assets.search_icon} className="w-8 cursor-pointer" alt="" />
 
       <div className="flex items-center gap-6">
         <div className="group relative">
           <Link to="/login">
             <img
-              className="w-20 cursor-pointer"
-              src={assets.gulden_icon}
+              className="w-10 cursor-pointer"
+              src={assets.profile_icon}
               alt=""
             />{" "}
           </Link>
@@ -59,6 +58,7 @@ const Navbar = () => {
                 onClick={() => setVisible(false)}
                 className="flex items-center gap-4 p-3 cursor-pointer"
               >
+                //
                 <img className="h-14 " src={assets.back_icon} alt="" />
                 <p>Back</p>
               </div>
