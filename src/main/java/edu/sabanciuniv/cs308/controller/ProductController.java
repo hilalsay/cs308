@@ -21,8 +21,6 @@ public class ProductController {
         return service.getProductsInStock();
     }
 
-
-
     @GetMapping
     public List<Product> getProducts(){
         return service.getProducts();

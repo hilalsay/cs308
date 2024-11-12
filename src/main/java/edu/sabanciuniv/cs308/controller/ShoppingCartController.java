@@ -1,10 +1,14 @@
 package edu.sabanciuniv.cs308.controller;
 
+import edu.sabanciuniv.cs308.model.Order;
 import edu.sabanciuniv.cs308.model.ShoppingCart;
 import edu.sabanciuniv.cs308.service.ShoppingCartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -44,5 +48,18 @@ public class ShoppingCartController {
     @DeleteMapping("/remove/{userId}/{itemId}")
     public ShoppingCart removeItemFromCart(@PathVariable UUID userId, @PathVariable UUID itemId) {
         return shoppingCartService.removeItemFromCart(userId, itemId);
+    }
+
+    // Endpoint to ShoppingCartController that will call the checkout method
+    @PostMapping("/{cartId}/checkout")
+    public ResponseEntity<Order> checkout(@PathVariable UUID cartId) {
+        Order order = shoppingCartService.checkout(cartId);
+        return new ResponseEntity<>(order, HttpStatus.CREATED);
+    }
+
+    // Endpoint to get all carts
+    @GetMapping("/all")
+    public List<ShoppingCart> getAllCarts() {
+        return shoppingCartService.getAllCarts();
     }
 }

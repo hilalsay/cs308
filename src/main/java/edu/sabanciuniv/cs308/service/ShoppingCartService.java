@@ -1,16 +1,18 @@
 package edu.sabanciuniv.cs308.service;
 
+import edu.sabanciuniv.cs308.model.Order;
 import edu.sabanciuniv.cs308.model.Product;
 import edu.sabanciuniv.cs308.model.ShoppingCart;
-import edu.sabanciuniv.cs308.repo.ShoppingCartRepo;
+import edu.sabanciuniv.cs308.repo.*;
 import edu.sabanciuniv.cs308.model.CartItem;
-import edu.sabanciuniv.cs308.repo.CartItemRepo;
-import edu.sabanciuniv.cs308.repo.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,6 +27,12 @@ public class ShoppingCartService {
 
     @Autowired
     private ProductRepo productRepo;
+
+    @Autowired
+    private OrderRepo orderRepo;
+
+    @Autowired
+    private UserRepo userRepo;
 
     // Retrieves the shopping cart by user ID
     public Optional<ShoppingCart> getCartByUserId(UUID userId) {
@@ -52,6 +60,7 @@ public class ShoppingCartService {
 
     // Adds a product to the cart by product ID
     public ShoppingCart addItemToCart(UUID userId, UUID productId, Integer quantity) {
+
         ShoppingCart cart = shoppingCartRepo.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("User's cart not found"));
 
@@ -102,5 +111,40 @@ public class ShoppingCartService {
 
         // Save the updated cart
         return shoppingCartRepo.save(cart);
+    }
+
+    public Order checkout(UUID userId) {
+        // Find the shopping cart by user ID
+        ShoppingCart cart = shoppingCartRepo.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User's cart not found"));
+
+        // Check if the cart has items
+        if (cart.getItems().isEmpty()) {
+            throw new RuntimeException("Cannot checkout an empty cart");
+        }
+
+        // Create a new Order
+        Order order = new Order();
+        order.setUser(userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found")));
+        order.setTotalAmount(cart.getTotal());
+        order.setOrderStatus("Pending"); // You might want to initialize with a default status
+        order.setCreatedAt(LocalDateTime.now());
+        order.setUpdatedAt(LocalDateTime.now());
+        order.setPaymentMethod("Unpaid"); // Or set this to null until payment is confirmed
+
+        // Save the order to the database
+        Order savedOrder = orderRepo.save(order);
+
+        // Clear the shopping cart by removing all items
+        cart.getItems().forEach(cartItemRepo::delete); // delete all items in the cart
+        cart.setItems(List.of()); // Set items to an empty list
+        cart.setTotal(BigDecimal.ZERO);
+        shoppingCartRepo.save(cart); // Save the updated cart
+
+        return savedOrder;
+    }
+    public List<ShoppingCart> getAllCarts() {
+        return shoppingCartRepo.findAll();
     }
 }
