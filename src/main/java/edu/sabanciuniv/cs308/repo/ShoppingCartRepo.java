@@ -11,5 +11,7 @@ import java.util.UUID;
 @Repository
 public interface ShoppingCartRepo extends JpaRepository<ShoppingCart, UUID> {
     Optional<ShoppingCart> findByUserId(UUID userId);
-    // Additional query methods if needed
+    Optional<ShoppingCart> findByUserIdAndOrderedFalse(UUID userId);
+
+
 }

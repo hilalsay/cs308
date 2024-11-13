@@ -63,6 +63,8 @@ public class ShoppingCartController {
         return shoppingCartService.removeItemFromCart(userId, itemId);
     }
 
+    //method to convert shopping cart to order
+    //parameter: paymentMethod
     @PostMapping("/{cartId}/confirm")
     public Order confirmOrder(@PathVariable UUID cartId, @RequestParam String paymentMethod) {
         // Fetch the shopping cart based on cartId (You could add more checks to ensure valid cart)
