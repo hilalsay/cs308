@@ -15,6 +15,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import Necklaces from "./pages/Necklaces";
 import Rings from "./pages/Rings";
 import Bracelets from "./pages/Bracelets";
+import Earrings from "./pages/Earrings";
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="/necklaces" element={<Necklaces />} />
           <Route path="/rings" element={<Rings />} />
           <Route path="/bracelets" element={<Bracelets />} />
+          <Route path="/earrings" element={<Earrings />} />
           {/* Updated route for product details */}
         </Routes>
       </div>
