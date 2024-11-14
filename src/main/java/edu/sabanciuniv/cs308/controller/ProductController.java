@@ -38,8 +38,8 @@ public class ProductController {
         service.addProduct(product);
     }
 
-    @PutMapping
-    public void updateProduct(@RequestBody Product product){
+    @PutMapping("/{productId}")
+    public void updateProduct(@PathVariable UUID productId, @RequestBody Product product){
         service.updateProduct(product);
     }
 
