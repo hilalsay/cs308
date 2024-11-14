@@ -1,5 +1,6 @@
 package edu.sabanciuniv.cs308.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -24,12 +25,13 @@ public class Product {
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    private UUID category_id;
+    @JsonBackReference // Prevents recursion by ignoring this field during serialization
+    private Category category;
 
     public Product(String name, String model, String serialNumber,
                    String description, Integer stockQuantity,
                    BigDecimal price, String warrantyStatus,
-                   String distributorInformation, UUID category) {
+                   String distributorInformation, Category category) {
         this.id = UUID.randomUUID();
         this.name = name;
         this.model = model;
@@ -39,7 +41,7 @@ public class Product {
         this.price = price;
         this.warrantyStatus = warrantyStatus;
         this.distributorInformation = distributorInformation;
-        this.category_id = category;
+        this.category = category;
     }
 
     public Product() {
@@ -57,7 +59,7 @@ public class Product {
                 ", price=" + price +
                 ", warrantyStatus='" + warrantyStatus + '\'' +
                 ", distributorInformation='" + distributorInformation + '\'' +
-                ", category=" + category_id +
+                ", category=" + category +
                 '}';
     }
 }

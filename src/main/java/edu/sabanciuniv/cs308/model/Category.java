@@ -1,5 +1,6 @@
 package edu.sabanciuniv.cs308.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class Category {
     private String name;
     private String description;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Product> products;
 }
