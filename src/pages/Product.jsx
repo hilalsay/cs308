@@ -1,4 +1,3 @@
-// Product.jsx
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -7,6 +6,14 @@ import "./Product.css";
 const Product = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [cart, setCart] = useState([]);
+
+  useEffect(() => {
+    // Retrieve cart items from localStorage when the page loads
+    const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+    setCart(storedCart);
+  }, []);
+  
 
   useEffect(() => {
     // Fetch the specific product from the backend
@@ -18,7 +25,23 @@ const Product = () => {
       .catch((error) => {
         console.error("Error fetching product:", error);
       });
+    // Retrieve cart items from local storage when the page loads
+    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    setCart(storedCart);
   }, [id]);
+
+  const addToCart = (product) => {
+    if (!product) return;
+
+    // Add the product to the cart state
+    const updatedCart = [...cart, product];
+    setCart(updatedCart);
+
+    // Save the updated cart to local storage
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    alert(`${product.name} has been added to the cart!`);
+  };
 
   if (!product) return <div>Loading...</div>;
 
@@ -48,7 +71,9 @@ const Product = () => {
         <p className="product-detail-distributor">
           <strong>Distributor:</strong> {product.distributorInformation}
         </p>
-        <button className="add-to-cart-button">Add to Cart</button>
+        <button className="add-to-cart-button" onClick={addToCart}>
+          Add to Cart
+        </button>
       </div>
     </div>
   );

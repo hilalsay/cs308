@@ -8,23 +8,34 @@ import Navbar from "./components/Navbar";
 import Cart from "./pages/Cart";
 import Navbar_routes from "./components/Navbar_routes";
 import ProductDetails from "./pages/ProductDetails"; // Import ProductDetail component
+import Products from "./pages/Products"; // Import Product component
+import { CartProvider } from './pages/CartContext'; // Import CartProvider
+import ProductsList from './pages/ProductsList'; // Import your products list
+import { BrowserRouter as Router } from 'react-router-dom';
+import Necklaces from "./pages/Necklaces";
+import Rings from "./pages/Rings";
+import Bracelets from "./pages/Bracelets";
 
 const App = () => {
   return (
-    <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
-      <Navbar />
-      <Navbar_routes />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/collection" element={<Collection />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/product/:productId" element={<ProductDetails />} />{" "}
-        {/* Updated route */}
-        {/* New route for product details */}
-      </Routes>
-    </div>
+    <CartProvider>  {/* Wrap the entire app with CartProvider */}
+      <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+        <Navbar />
+        <Navbar_routes />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/collection" element={<Collection />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/product/:productId" element={<ProductDetails />} />
+          <Route path="/necklaces" element={<Necklaces />} />
+          <Route path="/rings" element={<Rings />} />
+          <Route path="/bracelets" element={<Bracelets />} />
+          {/* Updated route for product details */}
+        </Routes>
+      </div>
+    </CartProvider>
   );
 };
 

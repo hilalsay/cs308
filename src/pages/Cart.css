@@ -57,3 +57,17 @@ h2 {
 .checkout-button:hover {
   background-color: #a93226;
 }
+
+.remove-from-cart-button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: red;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.remove-from-cart-button:hover {
+  background-color: darkred;
+}

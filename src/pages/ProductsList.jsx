@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useContext } from 'react';
+import { CartContext } from './CartContext';
 
 const ProductsList = () => {
   // State to store the fetched products
@@ -8,6 +10,8 @@ const ProductsList = () => {
   const [loading, setLoading] = useState(true);
   // State for error handling
   const [error, setError] = useState(null);
+
+  const { addToCart } = useContext(CartContext);
 
   // Fetch products from the backend when the component mounts
   useEffect(() => {
@@ -66,6 +70,7 @@ const ProductsList = () => {
                 <strong>Category:</strong>{" "}
                 {product.category || "No category assigned"}
               </p>
+              <button onClick={() => addToCart(product)}>Add to Cart</button>
             </li>
           ))}
         </ul>
