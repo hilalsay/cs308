@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { CartContext } from './CartContext'; // Import CartContext
+import CartContext from './CartContext'; // Import CartContext
 
 const ProductDetails = () => {
   const { productId } = useParams();

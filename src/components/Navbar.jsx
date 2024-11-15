@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { useAuth } from "../pages/AuthContext"; // Import useAuth for authentication state
-import { useCart } from "../pages/CartContext";
+import { useCart } from "../pages/CartContext";  // Correct for named export
 
 const Navbar = () => {
   const { isLoggedIn, login, logout } = useAuth(); // Use authentication state

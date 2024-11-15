@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { CartContext } from './CartContext'; // Import the CartContext
+
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState(() => {

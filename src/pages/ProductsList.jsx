@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useContext } from 'react';
-import { CartContext } from './CartContext';
+import CartContext from './CartContext';
 
 const ProductsList = () => {
   // State to store the fetched products
