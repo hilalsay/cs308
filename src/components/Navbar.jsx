@@ -2,23 +2,15 @@
 import React, { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
-import { useAuth } from "../context/AuthContext"; // Import useAuth for authentication state
+import { useAuth } from "../pages/AuthContext"; // Import useAuth for authentication state
+import { useCart } from "../pages/CartContext";
 
 const Navbar = () => {
   const { isLoggedIn, login, logout } = useAuth(); // Use authentication state
+  const { cartItems } = useCart(); // Access cartItems from CartContext
   const [visible, setVisible] = useState(false);
-  const [cartItems, setCartItems] = useState(() => {
-    const savedCart = localStorage.getItem("cart");
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
 
-  const handleAddToCart = (product) => {
-    const updatedCart = [...cartItems, product];
-    setCartItems(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-  };
-
-  const cartCount = cartItems.length;
+  const cartCount = cartItems.reduce((count, item) => count + item.quantityInCart, 0);
 
   return (
     <div className="flex items-center justify-between py-5 font-medium">

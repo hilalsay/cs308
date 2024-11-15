@@ -5,10 +5,6 @@ const Collection = () => {
   return (
     <div>
       <Products></Products>
-      <button className="add-to-cart-buttonH" onClick={handleAddToCart}>
-        Add to Cart
-      </button>
-
     </div>
   );
 };
