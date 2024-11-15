@@ -1,10 +1,12 @@
 package edu.sabanciuniv.cs308.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -20,11 +22,14 @@ public class Order {
     @JoinColumn(name = "user_id", nullable = false) // Creates a foreign key to User
     private User user;
 
-    @Column(name = "total_amount", nullable = false, precision = 38, scale = 2)
-    private BigDecimal totalAmount;
+    @Column(nullable = false)
+    private UUID shop_id;
 
     @Column(name = "order_status", nullable = false)
     private String orderStatus;
+
+    @Column(name = "total_amount", nullable = false, precision = 38, scale = 2)
+    private BigDecimal totalAmount;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -37,4 +42,8 @@ public class Order {
 
     @Column(name = "payment_method")
     private String paymentMethod;
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

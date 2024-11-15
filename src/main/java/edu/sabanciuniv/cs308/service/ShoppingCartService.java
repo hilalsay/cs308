@@ -1,14 +1,10 @@
+// ShoppingCartService.java
 package edu.sabanciuniv.cs308.service;
 
-import edu.sabanciuniv.cs308.model.Order;
-import edu.sabanciuniv.cs308.model.Product;
-import edu.sabanciuniv.cs308.model.ShoppingCart;
+import edu.sabanciuniv.cs308.model.*;
 import edu.sabanciuniv.cs308.repo.*;
-import edu.sabanciuniv.cs308.model.CartItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -39,55 +35,56 @@ public class ShoppingCartService {
         return shoppingCartRepo.findByUserId(userId);
     }
 
-    // Creates a new shopping cart for a user
+    // Method to retrieve ShoppingCart by its ID
+    public ShoppingCart getShoppingCartById(UUID cartId) {
+        Optional<ShoppingCart> shoppingCart = shoppingCartRepo.findById(cartId);
+        if (shoppingCart.isPresent()) {
+            return shoppingCart.get();
+        } else {
+            throw new RuntimeException("ShoppingCart not found with id " + cartId);
+        }
+    }
+
+    // Creates a new shopping cart for a user if it does not exist
     public ShoppingCart createShoppingCartForUser(UUID userId) {
-        // Check if the user already has a shopping cart
         Optional<ShoppingCart> existingCart = shoppingCartRepo.findByUserId(userId);
-        if (existingCart.isPresent()) {
-            throw new RuntimeException("User already has an existing shopping cart");
+
+        // Check if there is an unprocessed cart for the user
+        if (existingCart.isPresent() && !existingCart.get().isOrdered()) {
+            throw new RuntimeException("User already has an existing unprocessed shopping cart");
         }
 
-        // Create a new shopping cart if none exists
         ShoppingCart newCart = new ShoppingCart();
         newCart.setUserId(userId);
-        newCart.setTotal(BigDecimal.ZERO); // Set the initial total to 0
+        newCart.setTotal(BigDecimal.ZERO);
         newCart.setCreatedAt(LocalDateTime.now());
         newCart.setModifiedAt(LocalDateTime.now());
+        newCart.setOrdered(false);
 
-        // Save the new cart to the database
         return shoppingCartRepo.save(newCart);
     }
 
     // Adds a product to the cart by product ID
     public ShoppingCart addItemToCart(UUID userId, UUID productId, Integer quantity) {
-
         ShoppingCart cart = shoppingCartRepo.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("User's cart not found"));
+                .orElseGet(() -> createShoppingCartForUser(userId));
 
-        // Find the product in the repository
         Product product = productRepo.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        // Check if the product already exists in the cart
         Optional<CartItem> existingCartItem = cartItemRepo.findByShoppingCartAndProduct(cart, product);
 
         if (existingCartItem.isPresent()) {
-            // If the product is already in the cart, update the quantity
             CartItem cartItem = existingCartItem.get();
-            cartItem.setQuantity(cartItem.getQuantity() + quantity); // Update the quantity
+            cartItem.setQuantity(cartItem.getQuantity() + quantity);
             cartItemRepo.save(cartItem);
         } else {
-            // If the product is not in the cart, create a new CartItem
             CartItem newCartItem = new CartItem(product, quantity, cart);
             cartItemRepo.save(newCartItem);
         }
 
-        // Recalculate the total price of the cart
-        cart.setTotal(cart.getItems().stream()
-                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add));
+        updateCartTotal(cart);
 
-        // Save the updated cart
         return shoppingCartRepo.save(cart);
     }
 
@@ -96,55 +93,75 @@ public class ShoppingCartService {
         ShoppingCart cart = shoppingCartRepo.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("User's cart not found"));
 
-        // Find the CartItem to remove
         CartItem cartItem = cartItemRepo.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("Cart item not found"));
 
-        // Remove the CartItem from the cart
         cart.getItems().remove(cartItem);
         cartItemRepo.delete(cartItem);
 
-        // Recalculate the total price of the cart
-        cart.setTotal(cart.getItems().stream()
-                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add));
+        updateCartTotal(cart);
 
-        // Save the updated cart
         return shoppingCartRepo.save(cart);
     }
 
-    public Order checkout(UUID userId) {
-        // Find the shopping cart by user ID
-        ShoppingCart cart = shoppingCartRepo.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("User's cart not found"));
-
-        // Check if the cart has items
-        if (cart.getItems().isEmpty()) {
-            throw new RuntimeException("Cannot checkout an empty cart");
-        }
-
-        // Create a new Order
-        Order order = new Order();
-        order.setUser(userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found")));
-        order.setTotalAmount(cart.getTotal());
-        order.setOrderStatus("Pending"); // You might want to initialize with a default status
-        order.setCreatedAt(LocalDateTime.now());
-        order.setUpdatedAt(LocalDateTime.now());
-        order.setPaymentMethod("Unpaid"); // Or set this to null until payment is confirmed
-
-        // Save the order to the database
-        Order savedOrder = orderRepo.save(order);
-
-        // Clear the shopping cart by removing all items
-        cart.getItems().forEach(cartItemRepo::delete); // delete all items in the cart
-        cart.setItems(List.of()); // Set items to an empty list
-        cart.setTotal(BigDecimal.ZERO);
-        shoppingCartRepo.save(cart); // Save the updated cart
-
-        return savedOrder;
+    // Updates the total price of a shopping cart
+    private void updateCartTotal(ShoppingCart cart) {
+        cart.setTotal(cart.getItems().stream()
+                .map(item -> item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
     }
+
+    // Retrieves all shopping carts
     public List<ShoppingCart> getAllCarts() {
         return shoppingCartRepo.findAll();
     }
+
+    // Deletes all shopping carts and their associated items
+    public void deleteAllShoppingCarts() {
+        cartItemRepo.deleteAll();
+        shoppingCartRepo.deleteAll();
+    }
+
+    // Method to convert shopping cart to an order
+    public Order convertToOrder(ShoppingCart shoppingCart, String paymentMethod) {
+        // Ensure the shopping cart is not null
+        if (shoppingCart == null || shoppingCart.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Shopping cart is empty");
+        }
+
+        // Set the ordered flag to true
+        shoppingCart.setOrdered(true);
+        shoppingCartRepo.save(shoppingCart);
+
+        // Create a new order based on the shopping cart
+        Order order = new Order();
+        User user = userRepo.findById(shoppingCart.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
+
+        order.setUser(user); // Associate the order with the user
+        order.setShop_id(shoppingCart.getId());
+        order.setTotalAmount(shoppingCart.getTotal()); // Set the total amount from the shopping cart
+        order.setOrderStatus("Pending"); // Initially, set the status to Pending
+        order.setCreatedAt(LocalDateTime.now()); // Set the creation time
+        order.setUpdatedAt(LocalDateTime.now()); // Set the last updated time
+        order.setPaymentMethod(paymentMethod); // Set the payment method from the user input
+
+        // If payment is confirmed, set the payment date (for simplicity, we assume payment is done)
+        order.setPaymentDate(LocalDateTime.now());
+
+        // Update product quantities for each CartItem in the order
+        for (CartItem cartItem : shoppingCart.getItems()) {
+            Product product = cartItem.getProduct();
+
+            // Decrease the stock quantity of the product by the quantity ordered
+            product.setStockQuantity(product.getStockQuantity() - cartItem.getQuantity());
+
+            // Save the updated product
+            productRepo.save(product);
+        }
+
+        // Save the order to the repository
+        return orderRepo.save(order); // Return the saved order
+    }
 }
+
+

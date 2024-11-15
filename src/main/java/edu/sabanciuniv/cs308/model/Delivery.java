@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Entity
 @Data
-public class Deliveries {
+public class Delivery {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)  // Automatically generates a UUID

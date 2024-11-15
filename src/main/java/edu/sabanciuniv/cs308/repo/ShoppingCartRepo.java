@@ -1,3 +1,4 @@
+// ShoppingCartRepo.java
 package edu.sabanciuniv.cs308.repo;
 
 import edu.sabanciuniv.cs308.model.ShoppingCart;
@@ -9,8 +10,8 @@ import java.util.UUID;
 
 @Repository
 public interface ShoppingCartRepo extends JpaRepository<ShoppingCart, UUID> {
-
     Optional<ShoppingCart> findByUserId(UUID userId);
+    Optional<ShoppingCart> findByUserIdAndOrderedFalse(UUID userId);
 
-    // Add custom query methods if needed
+
 }

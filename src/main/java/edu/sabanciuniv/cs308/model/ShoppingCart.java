@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-
 @Data
 @Entity
 public class ShoppingCart {
@@ -18,10 +17,8 @@ public class ShoppingCart {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-
-
-    @OneToMany(mappedBy = "shoppingCart")
-    @JsonManagedReference // Add this annotation to manage the serialization
+    @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<CartItem> items;
 
     @Column(nullable = false)
@@ -36,7 +33,14 @@ public class ShoppingCart {
     @Column(nullable = false)
     private LocalDateTime modifiedAt;
 
+    @Column(nullable = false)
+    private boolean ordered = false;  // Flag to check if the cart is ordered
+
     public ShoppingCart() {
         this.total = BigDecimal.ZERO;
+    }
+
+    public UUID getUserId() {
+        return userId;
     }
 }

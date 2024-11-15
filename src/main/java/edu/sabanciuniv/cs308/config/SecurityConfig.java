@@ -32,7 +32,11 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/", "/api/auth/login", "/api/auth/signup", "/api/products", "/api/category", "/api/products/**")
+                        .requestMatchers("/", "/api/auth/login",
+                                "/api/auth/signup","/api/auth/users", "/api/products",
+                                "/api/category","/api/cart/all", "api/cart/view/{userId}",
+                                "api/cart/{cartId}/confirm","api/cart/deleteAll", "/api/orders",
+                                "api/cart/add/{userId}/{productId}/{quantity}", "/api/products/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())

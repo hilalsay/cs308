@@ -21,7 +21,7 @@ public class CartItem {
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
-    private Product product;  // Reference to the Product entity
+    private Product product;
 
     private Integer quantity; // Quantity of the product in the cart
     private BigDecimal price; // Price at the time of adding to the cart (in case it changes later)
@@ -31,10 +31,13 @@ public class CartItem {
 
     @Column(nullable = false)
     private LocalDateTime modifiedAt;
+
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
-    @JsonBackReference // Add this annotation to prevent recursive serialization of shoppingCart
-    private ShoppingCart shoppingCart; // Reference to the associated ShoppingCart
+    @JsonBackReference
+    private ShoppingCart shoppingCart;// Reference to the associated ShoppingCart
+
+
 
     public CartItem() {
     }
@@ -53,5 +56,5 @@ public class CartItem {
         this.quantity = quantity;
         this.modifiedAt = LocalDateTime.now(); // Update modifiedAt when quantity changes
     }
-    
+
 }
