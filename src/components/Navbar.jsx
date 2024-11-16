@@ -3,9 +3,10 @@ import React, { useState, useEffect,useContext  } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { AuthContext } from "../contexts/AuthContext";// Import useAuth for authentication state
-import { useCart } from "../pages/CartContext";  // Correct for named export
+import { useCart } from "../contexts/CartContext";  // Correct for named export
 
 const Navbar = () => {
+
   const { user, logout } = useContext(AuthContext);
   //const { isLoggedIn, login, logout } = useAuth(); // Use authentication state
   const { cartItems } = useCart(); // Access cartItems from CartContext
@@ -13,11 +14,31 @@ const Navbar = () => {
 
   const cartCount = cartItems.reduce((count, item) => count + item.quantityInCart, 0);
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery) {
+      console.log(`Searching for: ${searchQuery}`);
+      // You can add actual search logic here
+    }
+  };
+
+
   return (
     <div className="flex items-center justify-between py-5 font-medium">
       <p>ShopApp</p>
-      <img src={assets.search_icon} className="w-8 cursor-pointer" alt="Search Icon" />
 
+      <div className="flex">
+        <div>
+
+
+        </div>
+        <img src={assets.search_icon} className="w-8 cursor-pointer" alt="Search Icon" />
+      </div>
+      
       <div className="flex items-center gap-6">
         {/* Profile Icon and Dropdown Menu */}
         <div className="group relative">

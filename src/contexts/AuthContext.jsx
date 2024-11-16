@@ -17,11 +17,28 @@ const AuthProvider = ({ children }) => {
   }, []);
 
   // Function to login user and store user and token
-  const login = (userData, token) => {
+  const login = async (userData, token) => {
     setUser(userData);
-    // Store both user data and token in localStorage
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", token);
+  
+    // Migrate localStorage cart to the database
+    const localCart = JSON.parse(localStorage.getItem("cart"));
+    if (localCart) {
+      try {
+        await fetch(`/api/cart`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ cartItems: localCart }),
+        });
+        localStorage.removeItem("cart"); // Clear localStorage cart
+      } catch (error) {
+        console.error("Failed to migrate cart:", error);
+      }
+    }
   };
 
   // Function to logout user and clear storage

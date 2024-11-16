@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext"; // Assuming you have this context set up
+import bcrypt from "bcryptjs";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -61,10 +62,14 @@ const Login = () => {
         ? "http://localhost:8080/api/auth/login"
         : "http://localhost:8080/api/auth/signup";
 
+        const salt = bcrypt.genSaltSync(10); // Generate a salt with 10 rounds
+        const hashedPassword = bcrypt.hashSync(password, salt); // Hash the password
+        console.log(hashedPassword);
+
     const data =
       activeButton === "login"
-        ? { username, password }
-        : { username, email, password, taxId, homeAddress };
+        ? { username, password/*: hashedPassword */}
+        : { username, email, password/*: hashedPassword*/, taxId, homeAddress };
 
     try {
       const response = await axios.post(url, data);

@@ -11,7 +11,7 @@ import Cart from "./pages/Cart";
 import Navbar_routes from "./components/Navbar_routes";
 import ProductDetails from "./pages/ProductDetails"; // Import ProductDetail component
 import Products from "./pages/Products"; // Import Product component
-import { CartProvider } from './pages/CartContext'; // Import CartProvider
+import { CartProvider } from './contexts/CartContext'; // Import CartProvider
 import ProductsList from './pages/ProductsList'; // Import your products list
 import { BrowserRouter as Router } from 'react-router-dom';
 import Necklaces from "./pages/Necklaces";

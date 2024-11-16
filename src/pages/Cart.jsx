@@ -1,37 +1,75 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
-
+import { AuthContext } from "../contexts/AuthContext";
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState(() => {
-    const savedCart = localStorage.getItem("cart");
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
-  
+  const { user } = useContext(AuthContext); // Access user state
+  const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
 
-  
-  // Calculate total dynamically when cart items change
+  // Function to fetch cart from database or localStorage
   useEffect(() => {
-    const total = calculateTotal(cartItems); // Using the calculateTotal function
-    console.log("Total calculated:", total); // Debugging log
-    setTotalPrice(total);
-  }, [cartItems]);
-  
+    if (user) {
+      fetchCartFromDB();
+    } else {
+      const savedCart = localStorage.getItem("cart");
+      setCartItems(savedCart ? JSON.parse(savedCart) : []);
+    }
+  }, [user]);
 
+  // Calculate total price whenever cart items change
   useEffect(() => {
     setTotalPrice(calculateTotal(cartItems));
-    localStorage.setItem("cart", JSON.stringify(cartItems)); // Sync cart to local storage
   }, [cartItems]);
 
-  const handleCheckout = () => {
-    alert("Proceeding to checkout...");
+  // Sync cart to localStorage if no user
+  useEffect(() => {
+    if (!user) {
+      localStorage.setItem("cart", JSON.stringify(cartItems));
+    }
+  }, [cartItems, user]);
+
+  // Fetch cart from the database for logged-in user
+  const fetchCartFromDB = async () => {
+    try {
+      const response = await fetch(`/api/cart`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await response.json();
+      setCartItems(data.cartItems || []);
+    } catch (error) {
+      console.error("Failed to fetch cart:", error);
+    }
+  };
+
+  // Sync cart to the database for logged-in user
+  const syncCartToDB = async (updatedCart) => {
+    try {
+      await fetch(`/api/cart`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ cartItems: updatedCart }),
+      });
+    } catch (error) {
+      console.error("Failed to sync cart to database:", error);
+    }
   };
 
   // Remove item from cart
   const removeFromCart = (itemId) => {
     const updatedCart = cartItems.filter((item) => item.id !== itemId);
     setCartItems(updatedCart);
+    if (user) {
+      syncCartToDB(updatedCart); // Sync changes to database if logged in
+    }
+  };
+
+  // Calculate the total price
+  const calculateTotal = (items) => {
+    return items.reduce((sum, item) => sum + item.price * item.quantityInCart, 0);
   };
 
   return (
@@ -42,11 +80,15 @@ const Cart = () => {
       ) : (
         <div>
           {cartItems.map((item) => (
-            <CartItem key={item.id} item={item} removeFromCart={removeFromCart} />
+            <CartItem
+              key={item.id}
+              item={item}
+              removeFromCart={removeFromCart}
+            />
           ))}
           <div className="cart-summary">
             <h3>Total: ${totalPrice.toFixed(2)}</h3>
-            <button onClick={handleCheckout} className="checkout-button">
+            <button onClick={() => alert("Proceeding to checkout...")}>
               Checkout
             </button>
           </div>
@@ -56,64 +98,13 @@ const Cart = () => {
   );
 };
 
-// Function to calculate the total price of all items in the cart
-const calculateTotal = (cartItems) => {
-  return cartItems.reduce((sum, item) => {
-    const itemTotal = item.price * item.quantityInCart; // Calculate price for each item
-    console.log(
-      `Item: ${item.name}, Price: ${item.price}, Quantity: ${item.quantityInCart}, Total: ${itemTotal}`
-    ); // Debugging log
-    return sum + itemTotal; // Add it to the total sum
-  }, 0);
-};
-
-const CartItem = ({ item }) => {
-  const totalPricePerItem = item.price * item.quantityInCart; // Calculate total for this item
-
-  return (
-    <div className="cart-item">
-      <h4>
-        {item.name} - {item.model}
-      </h4>
-      <p>
-        <strong>Price per Unit:</strong> ${item.price.toFixed(2)}
-      </p>
-      <p>
-        <strong>Quantity in Cart:</strong> {item.quantityInCart}
-      </p>
-      <p>
-        <strong>Stock Left:</strong> {item.stockQuantity}
-      </p>
-      <p>
-        <strong>Description:</strong> {item.description}
-      </p>
-      <p>
-        <strong>Carat:</strong> {item.carat} ct
-      </p>
-      <p>
-        <strong>Metal:</strong> {item.metal}
-      </p>
-      <p>
-        <strong>Gemstone:</strong> {item.gemstone}
-      </p>
-      <p>
-        <strong>Warranty:</strong> {item.warrantyStatus}
-      </p>
-      <p>
-        <strong>Distributor:</strong> {item.distributorInformation}
-      </p>
-      <p>
-        <strong>Total Price for this Item:</strong> $
-        {totalPricePerItem.toFixed(2)}
-      </p>
-      <button
-        onClick={() => removeFromCart(item.id)}
-        className="remove-from-cart-button"
-      >
-        Remove from Cart
-      </button>
-    </div>
-  );
-};
+const CartItem = ({ item, removeFromCart }) => (
+  <div className="cart-item">
+    <h4>{item.name}</h4>
+    <p>Price: ${item.price.toFixed(2)}</p>
+    <p>Quantity: {item.quantityInCart}</p>
+    <button onClick={() => removeFromCart(item.id)}>Remove</button>
+  </div>
+);
 
 export default Cart;

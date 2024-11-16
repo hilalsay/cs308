@@ -6,6 +6,10 @@ a.active hr {
   display: block;
 }
 
+::-webkit-scrollbar{
+  display: none;
+}
+
 /* styles.css */
 .product-container {
   display: flex;

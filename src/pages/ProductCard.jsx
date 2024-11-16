@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import CartContext from './CartContext';
+import CartContext from '../contexts/CartContext';
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useContext(CartContext); // Access addToCart from context
