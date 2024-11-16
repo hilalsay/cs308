@@ -68,7 +68,7 @@ const Login = () => {
 
     const data =
       activeButton === "login"
-        ? { username, password/*: hashedPassword */}
+        ? { username, password/*: hashedPassword*/ }
         : { username, email, password/*: hashedPassword*/, taxId, homeAddress };
 
     try {
