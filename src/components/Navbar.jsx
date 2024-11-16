@@ -1,12 +1,13 @@
 // Navbar.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useContext  } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
-import { useAuth } from "../pages/AuthContext"; // Import useAuth for authentication state
+import { AuthContext } from "../contexts/AuthContext";// Import useAuth for authentication state
 import { useCart } from "../pages/CartContext";  // Correct for named export
 
 const Navbar = () => {
-  const { isLoggedIn, login, logout } = useAuth(); // Use authentication state
+  const { user, logout } = useContext(AuthContext);
+  //const { isLoggedIn, login, logout } = useAuth(); // Use authentication state
   const { cartItems } = useCart(); // Access cartItems from CartContext
   const [visible, setVisible] = useState(false);
 
@@ -23,7 +24,7 @@ const Navbar = () => {
           <img className="w-10 cursor-pointer" src={assets.profile_icon} alt="Profile Icon" />
           <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
             <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
-              {isLoggedIn ? (
+              {user ? (
                 <>
                   <Link to="/profile" className="cursor-pointer hover:text-black">
                     MyProfile
@@ -37,12 +38,20 @@ const Navbar = () => {
                 </>
               ) : (
                 <>
-                  <Link to="/signup" className="cursor-pointer hover:text-black">
-                    Signup
+                  <Link
+                    to="/login"
+                    state={{ activeButton: "sign up" }} // Pass state for "Sign Up"
+                    className="cursor-pointer hover:text-black"
+                  >
+                    Sign Up
                   </Link>
-                  <Link to="/login" className="cursor-pointer hover:text-black" onClick={login}>
+                  <Link
+                    to="/login"
+                    state={{ activeButton: "login" }} // Pass state for "Login"
+                    className="cursor-pointer hover:text-black"
+                  >
                     Login
-                  </Link>
+                </Link>
                 </>
               )}
             </div>
@@ -77,7 +86,7 @@ const Navbar = () => {
             onClick={() => setVisible(false)}
             className="flex items-center gap-4 p-3 cursor-pointer"
           >
-            <img className="h-14" src={assets.back_icon} alt="Back Icon" />
+           
             <p>Back</p>
           </div>
           <NavLink

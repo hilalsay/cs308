@@ -3,6 +3,8 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Collection from "./pages/Collection";
 import Login from "./pages/Login";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Orders from "./pages/Orders";
 import Navbar from "./components/Navbar";
 import Cart from "./pages/Cart";
@@ -16,13 +18,19 @@ import Necklaces from "./pages/Necklaces";
 import Rings from "./pages/Rings";
 import Bracelets from "./pages/Bracelets";
 import Earrings from "./pages/Earrings";
+import { AuthProvider } from './contexts/AuthContext'; 
 
 const App = () => {
   return (
-    <CartProvider>  {/* Wrap the entire app with CartProvider */}
+    <AuthProvider>
+      <CartProvider>  {/* Wrap the entire app with CartProvider */}
       <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
         <Navbar />
         <Navbar_routes />
+
+        <ToastContainer position="top-center" autoClose={5000} hideProgressBar={false} />
+        
+        
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/collection" element={<Collection />} />
@@ -38,6 +46,8 @@ const App = () => {
         </Routes>
       </div>
     </CartProvider>
+    </AuthProvider>
+    
   );
 };
 
