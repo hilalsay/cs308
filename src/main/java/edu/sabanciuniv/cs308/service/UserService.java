@@ -3,6 +3,8 @@ package edu.sabanciuniv.cs308.service;
 import edu.sabanciuniv.cs308.repo.UserRepo;
 import edu.sabanciuniv.cs308.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +16,13 @@ public class UserService {
 
     @Autowired
     private UserRepo userRepo;
-
+    private JwtService jwtService;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
+    public UserService(UserRepo userRepo, JwtService jwtService) {
+        this.userRepo = userRepo;
+        this.jwtService = jwtService;
+    }
     public String registerUser(User user) {
         // Check if the username already exists
         Optional<User> existingUser = userRepo.findByUsername(user.getUsername());
@@ -42,16 +48,21 @@ public class UserService {
 
         // If the user doesn't exist, return an error message
         if (user.isEmpty()) {
-            return "User not found!";
+            throw new UsernameNotFoundException("User not found!");
         }
 
         // Check if the password matches
         if (encoder.matches(password, user.get().getPassword())) {
-            return "Login successful!";
+            // Generate a JWT token
+            String token = jwtService.generateToken(username);
+
+            // Return the token
+            return token;
         } else {
-            return "Invalid password!";
+            throw new BadCredentialsException("Invalid password!");
         }
     }
+
 
     // Method for retrieving all users
     public List<User> getAllUsers() {

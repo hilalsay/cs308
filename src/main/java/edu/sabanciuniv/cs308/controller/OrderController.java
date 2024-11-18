@@ -15,9 +15,9 @@ import java.util.UUID;
 @RequestMapping("/api/orders")
 public class OrderController {
 
+    @Autowired
     private final OrderService orderService;
 
-    @Autowired
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
