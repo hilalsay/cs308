@@ -7,6 +7,7 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   // Check if there's user data and token in localStorage when the app first loads
+  /*
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const token = localStorage.getItem("token");
@@ -14,29 +15,30 @@ const AuthProvider = ({ children }) => {
     if (storedUser && token) {
       setUser(storedUser);
     }
-  }, []);
+  }, []);*/
 
   // Function to login user and store user and token
-  const login = async (userData, token) => {
+  const login = async (userData) => {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", token);
   
     // Migrate localStorage cart to the database
-    const localCart = JSON.parse(localStorage.getItem("cart"));
-    if (localCart) {
+    const localCart = JSON.parse(localStorage.getItem("cart")) || [];
+    if (localCart.length > 0) {
       try {
-        await fetch(`/api/cart`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ cartItems: localCart }),
-        });
-        localStorage.removeItem("cart"); // Clear localStorage cart
+        // Use existing add endpoint for each cart item
+        for (const item of localCart) {
+          await fetch(`/api/cart/add/${userData.user.id}/${item.productId}/${item.quantity}`, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          });
+        }
+        localStorage.removeItem("cart");
       } catch (error) {
-        console.error("Failed to migrate cart:", error);
+        console.error("Cart migration failed:", error);
       }
     }
   };
