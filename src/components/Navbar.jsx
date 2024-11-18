@@ -1,44 +1,64 @@
-// Navbar.jsx
-import React, { useState, useEffect,useContext  } from "react";
+import React, { useState, useContext } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
-import { AuthContext } from "../contexts/AuthContext";// Import useAuth for authentication state
-import { useCart } from "../contexts/CartContext";  // Correct for named export
+import { AuthContext } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
+import axios from "axios"; // Import axios for HTTP requests
+import { useNavigate } from "react-router-dom";
+import { useSearchContext } from "../contexts/SearchContext"; // Import SearchContext hook
 
 const Navbar = () => {
-
   const { user, logout } = useContext(AuthContext);
-  //const { isLoggedIn, login, logout } = useAuth(); // Use authentication state
-  const { cartItems } = useCart(); // Access cartItems from CartContext
+  const { cartItems } = useCart();
+  const { setSearchResults } = useSearchContext(); // Use SearchContext for managing results
+  const [searchQuery, setSearchQuery] = useState(""); // Added searchQuery state
   const [visible, setVisible] = useState(false);
+  const navigate = useNavigate();
 
   const cartCount = cartItems.reduce((count, item) => count + item.quantityInCart, 0);
 
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const handleSearchSubmit = (e) => {
+  const handleSearchSubmit = async (e) => {
     e.preventDefault();
     if (searchQuery) {
-      console.log(`Searching for: ${searchQuery}`);
-      // You can add actual search logic here
+      try {
+        const response = await axios.get(`http://localhost:8080/api/products/products/search?keyword=${searchQuery}`);
+        console.log("Search results in Navbar:", response.data);
+
+        // Set the search results in the context
+        setSearchResults(response.data);
+
+        // Navigate to the search results page
+        navigate('/search');
+      } catch (error) {
+        console.error("Error fetching search results:", error);
+      }
     }
   };
 
+  
 
   return (
     <div className="flex items-center justify-between py-5 font-medium">
       <p>ShopApp</p>
 
-      <div className="flex">
-        <div>
-
-
+      <div className="flex items-center justify-center">
+        <div className="flex items-center justify-between border border-gray-400 px-8 py-3 my-5 ms-3 rounded-full w-4/5 sm:w-3/4">
+          <input
+            className="flex-1 outline-none bg-inherit text-sm px-4 py-2"
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <img
+            src={assets.search_icon}
+            className="w-8 cursor-pointer ml-3"
+            alt="Search Icon"
+            onClick={handleSearchSubmit}
+          />
         </div>
-        <img src={assets.search_icon} className="w-8 cursor-pointer" alt="Search Icon" />
       </div>
-      
+
       <div className="flex items-center gap-6">
         {/* Profile Icon and Dropdown Menu */}
         <div className="group relative">
@@ -61,18 +81,18 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/login"
-                    state={{ activeButton: "sign up" }} // Pass state for "Sign Up"
+                    state={{ activeButton: "sign up" }}
                     className="cursor-pointer hover:text-black"
                   >
                     Sign Up
                   </Link>
                   <Link
                     to="/login"
-                    state={{ activeButton: "login" }} // Pass state for "Login"
+                    state={{ activeButton: "login" }}
                     className="cursor-pointer hover:text-black"
                   >
                     Login
-                </Link>
+                  </Link>
                 </>
               )}
             </div>
@@ -107,7 +127,6 @@ const Navbar = () => {
             onClick={() => setVisible(false)}
             className="flex items-center gap-4 p-3 cursor-pointer"
           >
-           
             <p>Back</p>
           </div>
           <NavLink
