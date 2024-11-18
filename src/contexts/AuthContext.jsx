@@ -18,18 +18,20 @@ const AuthProvider = ({ children }) => {
   }, []);*/
 
   // Function to login user and store user and token
-  const login = async (userData) => {
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+  const login = async ({token}) => {
+    setUser(token);
+    
     localStorage.setItem("token", token);
-  
+    console.log("token in auth", token);
+
+
     // Migrate localStorage cart to the database
     const localCart = JSON.parse(localStorage.getItem("cart")) || [];
     if (localCart.length > 0) {
       try {
         // Use existing add endpoint for each cart item
         for (const item of localCart) {
-          await fetch(`/api/cart/add/${userData.user.id}/${item.productId}/${item.quantity}`, {
+          await fetch(`/api/cart/add/${token}/${item.productId}/${item.quantity}`, {
             method: "POST",
             headers: {
               "Authorization": `Bearer ${token}`

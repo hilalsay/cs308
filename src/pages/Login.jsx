@@ -73,11 +73,12 @@ const Login = () => {
       if (response.data.token) {
         // Save token in localStorage
         localStorage.setItem("authToken", response.data.token); 
-        //console.log("can sign in", response.data.user);
+        console.log("user", response.data.user);
+        console.log("token", response.data.token);
 
         // Update AuthContext
         login({
-          user: response.data.user, // Assuming response includes user info
+          //userData: response.data.user, // Assuming response includes user info
           token: response.data.token, // Save the token
         });
 
