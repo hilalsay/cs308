@@ -51,7 +51,11 @@ const AddProduct = () => {
 
     // Send POST request to backend with form data
     axios
-      .post("http://localhost:8080/api/products", formData)
+      .post("http://localhost:8080/api/products", formData{
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
       .then((response) => {
         console.log("Product added:", response.data);
       })
@@ -157,10 +161,20 @@ const AddProduct = () => {
             name="distributorInformation"
           />
         </div>
-        <div className="form-group">
+        <div className="col-md-4">
+          <label className="form-label">
+            <h6>Image</h6>
+          </label>
+          <input
+            className="form-control"
+            type="file"
+            onChange={handleImageChange}
+          />
+        </div>
+        {/* <div className="form-group">
           <label>Image</label>
           <input type="file" onChange={handleImageChange} accept="image/*" />
-        </div>
+        </div> */}
         <button type="submit" className="submit-btn">
           Submit
         </button>

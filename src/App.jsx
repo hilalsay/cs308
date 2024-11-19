@@ -22,6 +22,7 @@ import Checkout from "./pages/CheckPage";
 import SearchResults from "./pages/SearchResults";
 import { AuthProvider } from './contexts/AuthContext'; 
 import { SearchProvider } from "./contexts/SearchContext";
+import AddProduct from "./pages/AddProduct";
 
 const App = () => {
   return (
@@ -41,6 +42,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/add-product" element={<AddProduct />} />
             <Route path="/product/:productId" element={<ProductDetails />} />
             <Route path="/necklaces" element={<Necklaces />} />
             <Route path="/rings" element={<Rings />} />
