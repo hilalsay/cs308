@@ -1,40 +1,21 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useCart} from '../contexts/CartContext'; 
+import { useCart } from '../contexts/CartContext'; 
 
-const ProductCard = ({ product, onAddToCart }) => {
+const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
 
-  /*
-  const addToCart = (product) => {
-    const existingItem = cart.find(item => item.id === product.id);
-    
-    if (existingItem) {
-      // If the product is already in the cart, increment its quantity
-      const updatedCart = cart.map(item =>
-        item.id === product.id
-          ? { ...item, quantityInCart: item.quantityInCart + 1 }
-          : item
-      );
-      setCart(updatedCart);
-    } else {
-      // Otherwise, add the product to the cart with quantity 1
-      const updatedCart = [...cart, { ...product, quantityInCart: 1 }];
-      setCart(updatedCart);
-    }
-    
-    // Save to localStorage
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-    alert(`${product.name} has been added to the cart!`);
-  };*/
-
+  // Handle base64 image or fallback to placeholder
+  const imageUrl = product.imageData
+    ? `data:image/jpeg;base64,${product.imageData}` // Assuming imageData is base64 encoded
+    : "https://via.placeholder.com/150"; // Placeholder if no image
 
   return (
     <div className="product-card bg-white shadow-md rounded-lg p-4 hover:shadow-lg transition">
       {/* Link to product detail page */}
       <Link to={`/product/${product.id}`}>
         <img
-          src={product.imageUrl || "https://via.placeholder.com/150"}
+          src={imageUrl}
           alt={product.name}
           className="w-full h-40 object-cover rounded-md mb-4"
         />
