@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -65,12 +66,24 @@ public class OrderController {
     // Endpoint to update the order status
     @PutMapping("/{orderId}")
     public ResponseEntity<Order> updateOrderStatus(@PathVariable UUID orderId, @RequestBody String status) {
-        OrderStatus orderStatus = OrderStatus.fromString(status);
         try {
-            Order updatedOrder = orderService.updateOrderStatus(orderId, orderStatus);
+            // Convert the string status to OrderStatus enum
+            OrderStatus orderStatus = OrderStatus.fromString(status);
+
+            // Update the order status
+            Order updatedOrder = orderService.updateOrderStatus(orderId, OrderStatus.valueOf(String.valueOf(orderStatus)));
+
+            // Return the updated order with a 200 OK response
             return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Order not found
+        } catch (IllegalArgumentException e) {
+            // If the status is invalid (invalid status value in the request)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // 400 Bad Request
+        } catch (NoSuchElementException e) {
+            // If the order is not found
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404 Not Found
+        } catch (Exception e) {
+            // Catch any other general exception (e.g., database issues)
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
         }
     }
 
