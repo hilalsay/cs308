@@ -43,6 +43,7 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         order.setOrderStatus(status); // Set the new status
+        order.setUpdatedAt(LocalDateTime.now());
         return orderRepository.save(order); // Save and return the updated order
     }
 

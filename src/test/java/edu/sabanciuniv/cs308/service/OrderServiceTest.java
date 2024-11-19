@@ -180,4 +180,18 @@ public class OrderServiceTest {
         assertEquals(order.getTotalAmount(), createdOrder.getTotalAmount());
         verify(orderRepository, times(1)).save(order);
     }
+
+    @Test
+    void testFromString() {
+        assertEquals(OrderStatus.PENDING, OrderStatus.fromString("pending"));
+        assertEquals(OrderStatus.PROCESSING, OrderStatus.fromString("PROCESSING"));
+        assertEquals(OrderStatus.IN_TRANSIT, OrderStatus.fromString("in_transit"));
+        assertEquals(OrderStatus.DELIVERED, OrderStatus.fromString("DELIVERED"));
+        assertEquals(OrderStatus.CANCELED, OrderStatus.fromString("canceled"));
+
+        // Geçersiz durumlar
+        assertThrows(IllegalArgumentException.class, () -> OrderStatus.fromString("invalid_status"));
+        assertThrows(IllegalArgumentException.class, () -> OrderStatus.fromString(null));
+    }
+
 }

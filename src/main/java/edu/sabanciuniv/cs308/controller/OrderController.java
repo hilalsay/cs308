@@ -63,7 +63,7 @@ public class OrderController {
     }
 
     // Endpoint to update the order status
-    @PutMapping("/{orderId}/status")
+    @PutMapping("/{orderId}")
     public ResponseEntity<Order> updateOrderStatus(@PathVariable UUID orderId, @RequestBody String status) {
         OrderStatus orderStatus = OrderStatus.fromString(status);
         try {

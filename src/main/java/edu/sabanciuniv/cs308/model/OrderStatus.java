@@ -9,19 +9,24 @@ public enum OrderStatus {
 
     public static OrderStatus fromString(String status) {
         if (status != null) {
-            return switch (status.toLowerCase()) {
-                case "pending" -> PENDING;
-                case "processing" -> PROCESSING;
-                case "in_transit" -> IN_TRANSIT;
-                case "delivered" -> DELIVERED;
-                case "canceled" -> CANCELED;
-                default ->
-                    // Handle invalid value (e.g., default to PENDING or log the issue)
-                        PENDING;
-            };
+            status = status.replace("\"", "").trim();
+            System.out.println("Received status: '" + status + "'");
+
+            if (status.equalsIgnoreCase("PENDING")) {
+                return PENDING;
+            } else if (status.equalsIgnoreCase("PROCESSING")) {
+                return PROCESSING;
+            } else if (status.equalsIgnoreCase("IN_TRANSIT")) {
+                return IN_TRANSIT;
+            } else if (status.equalsIgnoreCase("DELIVERED")) {
+                return DELIVERED;
+            } else if (status.equalsIgnoreCase("CANCELED")) {
+                return CANCELED;
+            } else {
+                throw new IllegalArgumentException("Invalid status: " + status);
+            }
         }
-        // Default case if status is null
-        return PENDING;
+        throw new IllegalArgumentException("Status cannot be null");
     }
 
 }
