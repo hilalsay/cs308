@@ -1,18 +1,28 @@
 package edu.sabanciuniv.cs308.model;
 
 public enum OrderStatus {
+    PENDING,
     PROCESSING,
     IN_TRANSIT,
     DELIVERED,
     CANCELED;
 
     public static OrderStatus fromString(String status) {
-        for (OrderStatus os : OrderStatus.values()) {
-            if (os.name().equalsIgnoreCase(status)) {
-                return os;
-            }
+        if (status != null) {
+            return switch (status.toLowerCase()) {
+                case "pending" -> PENDING;
+                case "processing" -> PROCESSING;
+                case "in_transit" -> IN_TRANSIT;
+                case "delivered" -> DELIVERED;
+                case "canceled" -> CANCELED;
+                default ->
+                    // Handle invalid value (e.g., default to PENDING or log the issue)
+                        PENDING;
+            };
         }
-        throw new IllegalArgumentException("No enum constant for status: " + status);
+        // Default case if status is null
+        return PENDING;
     }
+
 }
 

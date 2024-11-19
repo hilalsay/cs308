@@ -43,8 +43,4 @@ public class Order {
 
     @Column(name = "payment_method")
     private String paymentMethod;
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 }

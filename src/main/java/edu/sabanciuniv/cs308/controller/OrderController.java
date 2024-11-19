@@ -17,11 +17,7 @@ import java.util.UUID;
 public class OrderController {
 
     @Autowired
-    private final OrderService orderService;
-
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
-    }
+    private OrderService orderService;
 
     // Endpoint to view all orders
     @GetMapping
@@ -55,11 +51,23 @@ public class OrderController {
         }
     }
 
+    // Endpoint to create a new order
+    @PostMapping
+    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+        try {
+            Order createdOrder = orderService.createOrder(order);  // Assume createOrder method exists in service
+            return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Handle invalid data input
+        }
+    }
+
     // Endpoint to update the order status
     @PutMapping("/{orderId}/status")
-    public ResponseEntity<Order> updateOrderStatus(@PathVariable UUID orderId, @RequestBody OrderStatus status) {
+    public ResponseEntity<Order> updateOrderStatus(@PathVariable UUID orderId, @RequestBody String status) {
+        OrderStatus orderStatus = OrderStatus.fromString(status);
         try {
-            Order updatedOrder = orderService.updateOrderStatus(orderId, status);
+            Order updatedOrder = orderService.updateOrderStatus(orderId, orderStatus);
             return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Order not found

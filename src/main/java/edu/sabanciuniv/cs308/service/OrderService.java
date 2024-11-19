@@ -6,6 +6,7 @@ import edu.sabanciuniv.cs308.repo.OrderRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -13,12 +14,8 @@ import java.util.UUID;
 @Service
 public class OrderService {
 
-    private final OrderRepo orderRepository;
-
     @Autowired
-    public OrderService(OrderRepo orderRepository) {
-        this.orderRepository = orderRepository;
-    }
+    private OrderRepo orderRepository;
 
     public List<Order> findAll() {
         return orderRepository.findAll();
@@ -59,5 +56,12 @@ public class OrderService {
 
         // Save and return the updated order
         return orderRepository.save(order);
+    }
+
+    public Order createOrder(Order order) {
+        // You can modify this logic to fit your validation and order creation process
+        order.setCreatedAt(LocalDateTime.now());
+        order.setUpdatedAt(LocalDateTime.now());
+        return orderRepository.save(order); // Save the new order to the database
     }
 }

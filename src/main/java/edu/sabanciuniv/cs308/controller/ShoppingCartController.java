@@ -15,12 +15,8 @@ import java.util.UUID;
 @RequestMapping("/api/cart")
 public class ShoppingCartController {
 
-    private final ShoppingCartService shoppingCartService;
-
     @Autowired
-    public ShoppingCartController(ShoppingCartService shoppingCartService) {
-        this.shoppingCartService = shoppingCartService;
-    }
+    private ShoppingCartService shoppingCartService;
 
     // Endpoint to get all carts
     @GetMapping("/all")
