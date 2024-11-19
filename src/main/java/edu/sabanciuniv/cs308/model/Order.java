@@ -25,8 +25,9 @@ public class Order {
     @Column(nullable = false)
     private UUID shop_id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)
-    private String orderStatus;
+    private OrderStatus orderStatus;
 
     @Column(name = "total_amount", nullable = false, precision = 38, scale = 2)
     private BigDecimal totalAmount;

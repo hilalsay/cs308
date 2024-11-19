@@ -1,6 +1,7 @@
 package edu.sabanciuniv.cs308.service;
 
 import edu.sabanciuniv.cs308.model.Order;
+import edu.sabanciuniv.cs308.model.OrderStatus;
 import edu.sabanciuniv.cs308.repo.OrderRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,5 +38,26 @@ public class OrderService {
             return true;
         }
         return false;
+    }
+
+    // Method to update the order status
+    public Order updateOrderStatus(UUID orderId, OrderStatus status) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        order.setOrderStatus(status); // Set the new status
+        return orderRepository.save(order); // Save and return the updated order
+    }
+
+    // Simulate the delivery process
+    public Order simulateDelivery(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // Simulate the delivery process (you can add additional logic here)
+        order.setOrderStatus(OrderStatus.DELIVERED); // Update status to DELIVERED
+
+        // Save and return the updated order
+        return orderRepository.save(order);
     }
 }

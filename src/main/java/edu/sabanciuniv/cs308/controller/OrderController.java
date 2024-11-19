@@ -1,6 +1,7 @@
 package edu.sabanciuniv.cs308.controller;
 
 import edu.sabanciuniv.cs308.model.Order;
+import edu.sabanciuniv.cs308.model.OrderStatus;
 import edu.sabanciuniv.cs308.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -51,6 +52,28 @@ public class OrderController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // Endpoint to update the order status
+    @PutMapping("/{orderId}/status")
+    public ResponseEntity<Order> updateOrderStatus(@PathVariable UUID orderId, @RequestBody OrderStatus status) {
+        try {
+            Order updatedOrder = orderService.updateOrderStatus(orderId, status);
+            return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Order not found
+        }
+    }
+
+    // Endpoint to simulate the delivery process
+    @PutMapping("/{orderId}/simulate-delivery")
+    public ResponseEntity<Order> simulateDelivery(@PathVariable UUID orderId) {
+        try {
+            Order updatedOrder = orderService.simulateDelivery(orderId);
+            return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Order not found
         }
     }
 }
