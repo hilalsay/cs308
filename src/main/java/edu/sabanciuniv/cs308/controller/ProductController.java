@@ -1,5 +1,6 @@
 package edu.sabanciuniv.cs308.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.sabanciuniv.cs308.model.Product;
 import edu.sabanciuniv.cs308.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,35 +43,30 @@ public class ProductController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping
-    public ResponseEntity<?> addProduct(@RequestBody Product product, @RequestPart MultipartFile imageFile){
-        try {
-            Product product1 = service.addProduct(product, imageFile);
-            return new ResponseEntity<>(product1, HttpStatus.CREATED);
-        }
-        catch (Exception e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @PostMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<?> addProduct(@RequestParam("product") String productJson,
+                                        @RequestParam("image") MultipartFile imageFile) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Product product = objectMapper.readValue(productJson, Product.class);
+
+        Product savedProduct = service.addProduct(product, imageFile);
+
+        return ResponseEntity.ok(savedProduct);}
+
+
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<Product> updateProduct(@PathVariable UUID id,
+                                                 @RequestPart("product") String productJson,
+                                                 @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Product product = objectMapper.readValue(productJson, Product.class);
+
+        Product updatedProduct = service.updateProduct(id, product, image);
+
+        return ResponseEntity.ok(updatedProduct);
     }
 
-    @PutMapping("/{productId}")
-    public ResponseEntity<String> updateProduct(@PathVariable UUID productId,
-                                                @RequestPart Product product,
-                                                @RequestPart MultipartFile imageFile)
-    {
-        Product product1 = null;
-        try {
-            product1 = service.updateProduct(productId, product, imageFile);
-        } catch (IOException e) {
-            return new ResponseEntity<>("Fail to update", HttpStatus.BAD_REQUEST);
-        }
-        if (product1 != null){
-            return new ResponseEntity<>("Updated", HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>("Fail to update", HttpStatus.BAD_REQUEST);
-        }
-    }
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<String> deleteProduct(@PathVariable UUID productId){

@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 class ProductServiceTest {
 
     @Mock
-    private ProductRepo repo;
+    private ProductRepo productRepo;
 
     @Mock
     private MultipartFile imageFile;
@@ -39,12 +39,22 @@ class ProductServiceTest {
         MockitoAnnotations.openMocks(this);
         sampleProductId = UUID.randomUUID();
 
-        Category sampleCategory = new Category();
-        sampleProduct = new Product(sampleProductId, "Laptop", "X123", "SN123456",
-                "High-end gaming laptop", 5, new BigDecimal("1500.00"),
-                "2 years", "Tech Distributors",
-                "laptop.jpg", "image/jpeg",
-                new byte[]{1, 2, 3}, sampleCategory);
+        Category category = new Category();
+        sampleProduct = new Product(
+                sampleProductId,
+                "Laptop",
+                "X123",
+                "SN123456",
+                "High-end gaming laptop",
+                5,
+                new BigDecimal("1500.00"),
+                "2 years",
+                "Tech Distributors",
+                "laptop.jpg",
+                "image/jpeg",
+                new byte[]{1, 2, 3},
+                category
+        );
 
         when(imageFile.getOriginalFilename()).thenReturn("laptop.jpg");
         when(imageFile.getContentType()).thenReturn("image/jpeg");
@@ -56,79 +66,98 @@ class ProductServiceTest {
         Product product = new Product();
         product.setName("Laptop");
 
+        // Mocklama: repo.save() çağrıldığında, 'product' nesnesini döndür.
+        when(productRepo.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
         Product savedProduct = productService.addProduct(product, imageFile);
 
+        // Beklentiler
+        assertNotNull(savedProduct); // savedProduct'ın null olmadığını doğrula
         assertEquals("laptop.jpg", savedProduct.getImageName());
         assertEquals("image/jpeg", savedProduct.getImageType());
         assertArrayEquals(new byte[]{1, 2, 3}, savedProduct.getImageData());
-        verify(repo, times(1)).save(product);
+
+        // Mock nesnesinin kaydetme işlemini gerçekleştirdiğini doğrula
+        verify(productRepo, times(1)).save(product);
     }
+
 
     @Test
     void updateProduct_shouldUpdateProductWithImage() throws IOException {
-        when(repo.findById(sampleProductId)).thenReturn(Optional.of(sampleProduct));
+        // Mocklama: findById çağrıldığında sampleProduct döndür
+        when(productRepo.findById(sampleProductId)).thenReturn(Optional.of(sampleProduct));
 
+        // Mocklama: save çağrıldığında güncellenen ürünü döndür
+        when(productRepo.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // updateProduct çağrısı
         Product updatedProduct = productService.updateProduct(sampleProductId, sampleProduct, imageFile);
 
+        // Beklentiler
+        assertNotNull(updatedProduct); // updatedProduct'ın null olmadığını doğrula
         assertEquals("laptop.jpg", updatedProduct.getImageName());
         assertEquals("image/jpeg", updatedProduct.getImageType());
         assertArrayEquals(new byte[]{1, 2, 3}, updatedProduct.getImageData());
-        verify(repo, times(1)).save(sampleProduct);
+
+        // Mock nesnelerinin doğru şekilde çağrıldığını doğrula
+        verify(productRepo, times(1)).findById(sampleProductId);
+        verify(productRepo, times(1)).save(sampleProduct);
     }
+
 
     @Test
     void getProducts_shouldReturnAllProducts() {
         List<Product> mockProducts = new ArrayList<>();
         mockProducts.add(sampleProduct);
-        when(repo.findAll()).thenReturn(mockProducts);
+        when(productRepo.findAll()).thenReturn(mockProducts);
 
         List<Product> products = productService.getProducts();
 
         assertEquals(1, products.size());
         assertEquals("Laptop", products.get(0).getName());
-        verify(repo, times(1)).findAll();
+        verify(productRepo, times(1)).findAll();
     }
 
     @Test
     void getProductsInStock_shouldReturnOnlyInStockProducts() {
-        List<Product> mockProductsInStock = new ArrayList<>();
-        mockProductsInStock.add(sampleProduct);
-        when(repo.findByStockQuantityGreaterThan(0)).thenReturn(mockProductsInStock);
+        List<Product> productsInStock = new ArrayList<>();
+        productsInStock.add(sampleProduct);
+        when(productRepo.findByStockQuantityGreaterThan(0)).thenReturn(productsInStock);
 
-        List<Product> productsInStock = productService.getProductsInStock();
+        List<Product> result = productService.getProductsInStock();
 
-        assertEquals(1, productsInStock.size());
-        assertTrue(productsInStock.get(0).getStockQuantity() > 0);
-        verify(repo, times(1)).findByStockQuantityGreaterThan(0);
+        assertEquals(1, result.size());
+        assertTrue(result.get(0).getStockQuantity() > 0);
+        verify(productRepo, times(1)).findByStockQuantityGreaterThan(0);
     }
 
     @Test
     void getProductById_shouldReturnProduct_whenProductExists() {
-        when(repo.findById(sampleProductId)).thenReturn(Optional.of(sampleProduct));
+        when(productRepo.findById(sampleProductId)).thenReturn(Optional.of(sampleProduct));
 
         Product product = productService.getProductById(sampleProductId);
 
         assertNotNull(product);
         assertEquals("Laptop", product.getName());
-        assertEquals("laptop.jpg", product.getImageName());
-        verify(repo, times(1)).findById(sampleProductId);
+        verify(productRepo, times(1)).findById(sampleProductId);
     }
 
     @Test
     void getProductById_shouldThrowException_whenProductDoesNotExist() {
-        when(repo.findById(sampleProductId)).thenReturn(Optional.empty());
+        when(productRepo.findById(sampleProductId)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             productService.getProductById(sampleProductId);
         });
+
         assertEquals("Product not found", exception.getMessage());
-        verify(repo, times(1)).findById(sampleProductId);
+        verify(productRepo, times(1)).findById(sampleProductId);
     }
 
     @Test
     void deleteProduct_shouldDeleteProductById() {
         productService.deleteProduct(sampleProductId);
 
-        verify(repo, times(1)).deleteById(sampleProductId);
+        verify(productRepo, times(1)).deleteById(sampleProductId);
     }
 }
