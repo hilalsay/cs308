@@ -2,13 +2,16 @@ package edu.sabanciuniv.cs308.service;
 
 import edu.sabanciuniv.cs308.model.Order;
 import edu.sabanciuniv.cs308.model.OrderStatus;
+import edu.sabanciuniv.cs308.model.User;
 import edu.sabanciuniv.cs308.repo.OrderRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,7 +19,6 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
 public class OrderServiceTest {
 
     @Mock
@@ -29,10 +31,22 @@ public class OrderServiceTest {
 
     @BeforeEach
     public void setUp() {
-        // Set up a mock order object for tests
+        MockitoAnnotations.openMocks(this);
+
+        // Prepare a sample order
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
         order = new Order();
         order.setId(UUID.randomUUID());
+        order.setUser(user);
+        order.setShop_id(UUID.randomUUID());
         order.setOrderStatus(OrderStatus.PENDING);
+        order.setTotalAmount(BigDecimal.valueOf(150.75));
+        order.setCreatedAt(LocalDateTime.now());
+        order.setUpdatedAt(LocalDateTime.now());
+        order.setPaymentDate(LocalDateTime.now());
+        order.setPaymentMethod("Credit Card");
     }
 
     @Test
@@ -41,12 +55,14 @@ public class OrderServiceTest {
         when(orderRepository.findAll()).thenReturn(List.of(order));
 
         // Act
-        var orders = orderService.findAll();
+        List<Order> orders = orderService.findAll();
 
         // Assert
         assertNotNull(orders);
         assertFalse(orders.isEmpty());
         assertEquals(1, orders.size());
+        assertEquals(order.getId(), orders.get(0).getId());
+        verify(orderRepository, times(1)).findAll();
     }
 
     @Test
@@ -55,11 +71,25 @@ public class OrderServiceTest {
         when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
 
         // Act
-        var foundOrder = orderService.findById(order.getId());
+        Optional<Order> foundOrder = orderService.findById(order.getId());
 
         // Assert
         assertTrue(foundOrder.isPresent());
         assertEquals(order.getId(), foundOrder.get().getId());
+        verify(orderRepository, times(1)).findById(order.getId());
+    }
+
+    @Test
+    public void testFindById_NotFound() {
+        // Arrange
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.empty());
+
+        // Act
+        Optional<Order> foundOrder = orderService.findById(order.getId());
+
+        // Assert
+        assertTrue(foundOrder.isEmpty());
+        verify(orderRepository, times(1)).findById(order.getId());
     }
 
     @Test
@@ -94,12 +124,22 @@ public class OrderServiceTest {
         when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
         OrderStatus newStatus = OrderStatus.DELIVERED;
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
         // Act
         Order updatedOrder = orderService.updateOrderStatus(order.getId(), newStatus);
 
         // Assert
         assertEquals(newStatus, updatedOrder.getOrderStatus());
         verify(orderRepository, times(1)).save(updatedOrder);
+    }
+
+    @Test
+    public void testUpdateOrderStatus_WhenOrderNotFound() {
+        // Arrange
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> orderService.updateOrderStatus(order.getId(), OrderStatus.DELIVERED));
     }
 
     @Test
@@ -117,20 +157,27 @@ public class OrderServiceTest {
     }
 
     @Test
-    public void testUpdateOrderStatus_WhenOrderNotFound() {
-        // Arrange
-        when(orderRepository.findById(order.getId())).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(RuntimeException.class, () -> orderService.updateOrderStatus(order.getId(), OrderStatus.DELIVERED));
-    }
-
-    @Test
     public void testSimulateDelivery_WhenOrderNotFound() {
         // Arrange
         when(orderRepository.findById(order.getId())).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> orderService.simulateDelivery(order.getId()));
+    }
+
+    @Test
+    public void testCreateOrder() {
+        // Arrange
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
+
+        // Act
+        Order createdOrder = orderService.createOrder(order);
+
+        // Assert
+        assertNotNull(createdOrder);
+        assertEquals(order.getId(), createdOrder.getId());
+        assertEquals(order.getUser(), createdOrder.getUser());
+        assertEquals(order.getTotalAmount(), createdOrder.getTotalAmount());
+        verify(orderRepository, times(1)).save(order);
     }
 }
