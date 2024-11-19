@@ -1,9 +1,12 @@
 import React from "react";
 import { useCart } from "../contexts/CartContext";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 
 const Cart = () => {
   const { cartItems, removeFromCart } = useCart();
+  const { user, logout } = useContext(AuthContext);
 
   const navigate = useNavigate(); 
 
@@ -34,7 +37,15 @@ const Cart = () => {
           <div className="cart-summary">
             <h3>Total: ${totalPrice.toFixed(2)}</h3>
 
-            <button onClick={() => navigate("/checkout")}>
+            <button
+              onClick={() => {
+                if (user) {
+                  navigate("/checkout");
+                } else {
+                  navigate("/login");
+                }
+              }}
+            >
               Checkout
             </button>
           </div>

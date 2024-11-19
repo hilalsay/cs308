@@ -81,7 +81,7 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/login"
-                    state={{ activeButton: "sign up" }}
+                    state={{ activeButton: "signup" }}
                     className="cursor-pointer hover:text-black"
                   >
                     Sign Up
