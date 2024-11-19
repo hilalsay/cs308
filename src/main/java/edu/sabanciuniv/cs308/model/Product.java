@@ -26,11 +26,9 @@ public class Product {
     private BigDecimal price;
     private String warrantyStatus;
     private String distributorInformation;
-    @Column
     private String imageName;
-    @Column
     private String imageType;
-    @Column
+
     @Lob
     private byte[] imageData;
 
