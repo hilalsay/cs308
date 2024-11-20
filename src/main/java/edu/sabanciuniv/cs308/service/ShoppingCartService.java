@@ -140,7 +140,7 @@ public class ShoppingCartService {
         order.setUser(user); // Associate the order with the user
         order.setShop_id(shoppingCart.getId());
         order.setTotalAmount(shoppingCart.getTotal()); // Set the total amount from the shopping cart
-        order.setOrderStatus("Pending"); // Initially, set the status to Pending
+        order.setOrderStatus(OrderStatus.PROCESSING); // Initially, set the status to Processing
         order.setCreatedAt(LocalDateTime.now()); // Set the creation time
         order.setUpdatedAt(LocalDateTime.now()); // Set the last updated time
         order.setPaymentMethod(paymentMethod); // Set the payment method from the user input

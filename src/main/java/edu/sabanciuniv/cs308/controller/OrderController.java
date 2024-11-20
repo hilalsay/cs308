@@ -1,6 +1,7 @@
 package edu.sabanciuniv.cs308.controller;
 
 import edu.sabanciuniv.cs308.model.Order;
+import edu.sabanciuniv.cs308.model.OrderStatus;
 import edu.sabanciuniv.cs308.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,12 +17,8 @@ import java.util.UUID;
 @RequestMapping("/api/orders")
 public class OrderController {
 
-    private final OrderService orderService;
-
     @Autowired
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
-    }
+    private OrderService orderService;
 
     // Endpoint to view all orders
     @GetMapping
@@ -51,6 +49,52 @@ public class OrderController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // Endpoint to create a new order
+    @PostMapping
+    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+        try {
+            Order createdOrder = orderService.createOrder(order);  // Assume createOrder method exists in service
+            return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Handle invalid data input
+        }
+    }
+
+    // Endpoint to update the order status
+    @PutMapping("/{orderId}")
+    public ResponseEntity<Order> updateOrderStatus(@PathVariable UUID orderId, @RequestBody String status) {
+        try {
+            // Convert the string status to OrderStatus enum
+            OrderStatus orderStatus = OrderStatus.fromString(status);
+
+            // Update the order status
+            Order updatedOrder = orderService.updateOrderStatus(orderId, OrderStatus.valueOf(String.valueOf(orderStatus)));
+
+            // Return the updated order with a 200 OK response
+            return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            // If the status is invalid (invalid status value in the request)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // 400 Bad Request
+        } catch (NoSuchElementException e) {
+            // If the order is not found
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404 Not Found
+        } catch (Exception e) {
+            // Catch any other general exception (e.g., database issues)
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
+        }
+    }
+
+    // Endpoint to simulate the delivery process
+    @PutMapping("/{orderId}/simulate-delivery")
+    public ResponseEntity<Order> simulateDelivery(@PathVariable UUID orderId) {
+        try {
+            Order updatedOrder = orderService.simulateDelivery(orderId);
+            return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Order not found
         }
     }
 }

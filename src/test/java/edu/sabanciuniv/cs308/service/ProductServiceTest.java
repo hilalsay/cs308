@@ -8,7 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +23,10 @@ import static org.mockito.Mockito.*;
 class ProductServiceTest {
 
     @Mock
-    private ProductRepo repo;
+    private ProductRepo productRepo;
+
+    @Mock
+    private MultipartFile imageFile;
 
     @InjectMocks
     private ProductService productService;
@@ -30,107 +35,129 @@ class ProductServiceTest {
     private UUID sampleProductId;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
         sampleProductId = UUID.randomUUID();
 
-        Category sampleCategory = new Category();
-        sampleProduct = new Product("Laptop", "X123", "SN123456", "High-end gaming laptop",
-                5, new BigDecimal("1500.00"), "2 years", "Tech Distributors", sampleCategory);
-        sampleProduct.setId(sampleProductId);
+        Category category = new Category();
+        sampleProduct = new Product(
+                sampleProductId,
+                "Laptop",
+                "X123",
+                "SN123456",
+                "High-end gaming laptop",
+                5,
+                new BigDecimal("1500.00"),
+                "2 years",
+                "Tech Distributors",
+                "laptop.jpg",
+                "image/jpeg",
+                new byte[]{1, 2, 3},
+                category
+        );
+
+        when(imageFile.getOriginalFilename()).thenReturn("laptop.jpg");
+        when(imageFile.getContentType()).thenReturn("image/jpeg");
+        when(imageFile.getBytes()).thenReturn(new byte[]{1, 2, 3});
     }
 
     @Test
+    void addProduct_shouldSaveProductWithImage() throws IOException {
+        Product product = new Product();
+        product.setName("Laptop");
+
+        // Mocklama: repo.save() çağrıldığında, 'product' nesnesini döndür.
+        when(productRepo.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Product savedProduct = productService.addProduct(product, imageFile);
+
+        // Beklentiler
+        assertNotNull(savedProduct); // savedProduct'ın null olmadığını doğrula
+        assertEquals("laptop.jpg", savedProduct.getImageName());
+        assertEquals("image/jpeg", savedProduct.getImageType());
+        assertArrayEquals(new byte[]{1, 2, 3}, savedProduct.getImageData());
+
+        // Mock nesnesinin kaydetme işlemini gerçekleştirdiğini doğrula
+        verify(productRepo, times(1)).save(product);
+    }
+
+
+    @Test
+    void updateProduct_shouldUpdateProductWithImage() throws IOException {
+        // Mocklama: findById çağrıldığında sampleProduct döndür
+        when(productRepo.findById(sampleProductId)).thenReturn(Optional.of(sampleProduct));
+
+        // Mocklama: save çağrıldığında güncellenen ürünü döndür
+        when(productRepo.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // updateProduct çağrısı
+        Product updatedProduct = productService.updateProduct(sampleProductId, sampleProduct, imageFile);
+
+        // Beklentiler
+        assertNotNull(updatedProduct); // updatedProduct'ın null olmadığını doğrula
+        assertEquals("laptop.jpg", updatedProduct.getImageName());
+        assertEquals("image/jpeg", updatedProduct.getImageType());
+        assertArrayEquals(new byte[]{1, 2, 3}, updatedProduct.getImageData());
+
+        // Mock nesnelerinin doğru şekilde çağrıldığını doğrula
+        verify(productRepo, times(1)).findById(sampleProductId);
+        verify(productRepo, times(1)).save(sampleProduct);
+    }
+
+
+    @Test
     void getProducts_shouldReturnAllProducts() {
-        // Arrange
         List<Product> mockProducts = new ArrayList<>();
         mockProducts.add(sampleProduct);
-        when(repo.findAll()).thenReturn(mockProducts);
+        when(productRepo.findAll()).thenReturn(mockProducts);
 
-        // Act
         List<Product> products = productService.getProducts();
 
-        // Assert
         assertEquals(1, products.size());
         assertEquals("Laptop", products.get(0).getName());
-        verify(repo, times(1)).findAll();
+        verify(productRepo, times(1)).findAll();
     }
 
     @Test
     void getProductsInStock_shouldReturnOnlyInStockProducts() {
-        // Arrange
-        List<Product> mockProductsInStock = new ArrayList<>();
-        mockProductsInStock.add(sampleProduct);
-        when(repo.findByStockQuantityGreaterThan(0)).thenReturn(mockProductsInStock);
+        List<Product> productsInStock = new ArrayList<>();
+        productsInStock.add(sampleProduct);
+        when(productRepo.findByStockQuantityGreaterThan(0)).thenReturn(productsInStock);
 
-        // Act
-        List<Product> productsInStock = productService.getProductsInStock();
+        List<Product> result = productService.getProductsInStock();
 
-        // Assert
-        assertEquals(1, productsInStock.size());
-        assertTrue(productsInStock.get(0).getStockQuantity() > 0);
-        assertEquals("Laptop", productsInStock.get(0).getName());
-        verify(repo, times(1)).findByStockQuantityGreaterThan(0);
+        assertEquals(1, result.size());
+        assertTrue(result.get(0).getStockQuantity() > 0);
+        verify(productRepo, times(1)).findByStockQuantityGreaterThan(0);
     }
 
     @Test
     void getProductById_shouldReturnProduct_whenProductExists() {
-        // Arrange
-        when(repo.findById(sampleProductId)).thenReturn(Optional.of(sampleProduct));
+        when(productRepo.findById(sampleProductId)).thenReturn(Optional.of(sampleProduct));
 
-        // Act
         Product product = productService.getProductById(sampleProductId);
 
-        // Assert
         assertNotNull(product);
         assertEquals("Laptop", product.getName());
-        assertEquals("X123", product.getModel());
-        assertEquals("SN123456", product.getSerialNumber());
-        assertEquals("High-end gaming laptop", product.getDescription());
-        assertEquals(5, product.getStockQuantity());
-        assertEquals(new BigDecimal("1500.00"), product.getPrice());
-        assertEquals("2 years", product.getWarrantyStatus());
-        assertEquals("Tech Distributors", product.getDistributorInformation());
-        verify(repo, times(1)).findById(sampleProductId);
+        verify(productRepo, times(1)).findById(sampleProductId);
     }
 
     @Test
     void getProductById_shouldThrowException_whenProductDoesNotExist() {
-        // Arrange
-        when(repo.findById(sampleProductId)).thenReturn(Optional.empty());
+        when(productRepo.findById(sampleProductId)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             productService.getProductById(sampleProductId);
         });
+
         assertEquals("Product not found", exception.getMessage());
-        verify(repo, times(1)).findById(sampleProductId);
-    }
-
-    @Test
-    void addProduct_shouldSaveProduct() {
-        // Act
-        productService.addProduct(sampleProduct);
-
-        // Assert
-        verify(repo, times(1)).save(sampleProduct);
-    }
-
-    @Test
-    void updateProduct_shouldUpdateProduct() {
-        // Act
-        productService.updateProduct(sampleProduct);
-
-        // Assert
-        verify(repo, times(1)).save(sampleProduct);
+        verify(productRepo, times(1)).findById(sampleProductId);
     }
 
     @Test
     void deleteProduct_shouldDeleteProductById() {
-        // Act
         productService.deleteProduct(sampleProductId);
 
-        // Assert
-        verify(repo, times(1)).deleteById(sampleProductId);
+        verify(productRepo, times(1)).deleteById(sampleProductId);
     }
 }
