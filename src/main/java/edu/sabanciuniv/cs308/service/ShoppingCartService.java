@@ -63,46 +63,73 @@ public class ShoppingCartService {
 
         return shoppingCartRepo.save(newCart);
     }
-
-    // Adds a product to the cart by product ID
     public ShoppingCart addItemToCart(UUID userId, UUID productId, Integer quantity) {
-        ShoppingCart cart = shoppingCartRepo.findByUserId(userId)
-                .orElseGet(() -> createShoppingCartForUser(userId));
+        // Check if there is an existing unordered shopping cart
+        ShoppingCart cart = shoppingCartRepo.findByUserIdAndOrderedFalse(userId)
+                .orElseGet(() -> createShoppingCartForUser(userId)); // Create a new cart if not found
 
+        // Find the product by productId
         Product product = productRepo.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
+        // Check if the product is already in the cart
         Optional<CartItem> existingCartItem = cartItemRepo.findByShoppingCartAndProduct(cart, product);
 
         if (existingCartItem.isPresent()) {
+            // If the product is already in the cart, update the quantity
             CartItem cartItem = existingCartItem.get();
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
             cartItemRepo.save(cartItem);
         } else {
+            // If the product is not in the cart, create a new CartItem
             CartItem newCartItem = new CartItem(product, quantity, cart);
             cartItemRepo.save(newCartItem);
         }
 
+        // Update the total price of the cart
         updateCartTotal(cart);
 
+        // Save and return the updated cart
         return shoppingCartRepo.save(cart);
     }
 
-    // Removes an item from the cart by item ID
-    public ShoppingCart removeItemFromCart(UUID userId, UUID itemId) {
-        ShoppingCart cart = shoppingCartRepo.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("User's cart not found"));
 
-        CartItem cartItem = cartItemRepo.findById(itemId)
-                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+    public ShoppingCart removeItemFromCart(UUID userId, UUID productId) {
+        // Kullanıcıya ait 'ordered' değeri false olan sepete erişim
+        ShoppingCart cart = shoppingCartRepo.findByUserIdAndOrderedFalse(userId)
+                .orElseThrow(() -> new RuntimeException("No unordered shopping cart found for user: " + userId));
 
-        cart.getItems().remove(cartItem);
-        cartItemRepo.delete(cartItem);
+        // Find the product by productId
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
+        // Ürünü cartItemRepo ile sepetin içerisindeki itemId'ye göre bulma
+        Optional<CartItem> existingCartItem = cartItemRepo.findByShoppingCartAndProduct(cart, product);
+
+        if (!existingCartItem.isPresent()) {
+            throw new RuntimeException("Product not found in the cart for user: " + userId);
+        }
+
+        CartItem cartItem = existingCartItem.get();
+
+        // Eğer ürünün miktarı 1'den büyükse, miktarı 1 azalt
+        if (cartItem.getQuantity() > 1) {
+            cartItem.setQuantity(cartItem.getQuantity() - 1);
+            cartItemRepo.save(cartItem);
+        } else {
+            // Eğer miktar 1 ise, ürünü tamamen sil
+            cart.getItems().remove(cartItem);
+            cartItemRepo.delete(cartItem);
+        }
+
+        // Sepet toplamını güncelle
         updateCartTotal(cart);
 
+        // Sepeti veritabanında kaydet
         return shoppingCartRepo.save(cart);
     }
+
+
 
     // Updates the total price of a shopping cart
     private void updateCartTotal(ShoppingCart cart) {
@@ -162,6 +189,19 @@ public class ShoppingCartService {
         // Save the order to the repository
         return orderRepo.save(order); // Return the saved order
     }
+    public Optional<ShoppingCart> getUnorderedCartByUserId(UUID userId) {
+        return shoppingCartRepo.findByUserIdAndOrderedFalse(userId);
+    }
+
+    public List<ShoppingCart> getAllCartsByUserId(UUID userId) {
+        return shoppingCartRepo.findAllByUserId(userId);
+    }
+    public List<ShoppingCart> getOrderedCartsByUserId(UUID userId) {
+        return shoppingCartRepo.findByUserIdAndOrderedTrue(userId);
+    }
+
+
+
 }
 
 
