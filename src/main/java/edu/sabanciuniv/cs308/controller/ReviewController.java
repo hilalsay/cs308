@@ -51,8 +51,38 @@ public class ReviewController {
             @RequestParam(required = false) Integer rating,
             @RequestParam(required = false) String comments) {
         try {
+            // Call the service method to add the review with rating and comments (which can be null)
             Review review = reviewService.addReview(productId, userId, rating, comments);
             return ResponseEntity.ok(review);
+        } catch (IllegalArgumentException e) {
+            // If an exception is thrown, return the error message
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // Update a review's comment
+    @PutMapping("/{reviewId}/comment")
+    public ResponseEntity<?> updateComment(
+            @PathVariable UUID reviewId,
+            @RequestParam String newComment) {
+        try {
+            // Call the service method to update the comment
+            Review updatedReview = reviewService.updateReviewComment(reviewId, newComment);
+            return ResponseEntity.ok(updatedReview);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // Update a review's rating
+    @PutMapping("/{reviewId}/rating")
+    public ResponseEntity<?> updateRating(
+            @PathVariable UUID reviewId,
+            @RequestParam Integer newRating) {
+        try {
+            // Call the service method to update the rating
+            Review updatedReview = reviewService.updateReviewRating(reviewId, newRating);
+            return ResponseEntity.ok(updatedReview);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

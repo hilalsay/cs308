@@ -47,8 +47,13 @@ public class ReviewService {
             throw new IllegalArgumentException("User has already reviewed this product");
         }
 
-        // Validate rating
-        if (rating < 1 || rating > 5) {
+        // If no rating provided, set it to null
+        if (rating == null) {
+            rating = null;
+        }
+
+        // Validate rating if provided
+        else if (rating < 1 || rating > 5){
             throw new IllegalArgumentException("Rating must be between 1 and 5");
         }
 
@@ -56,10 +61,12 @@ public class ReviewService {
         Review review = new Review();
         review.setProductId(productId);
         review.setUserId(userId);
-        review.setRating(rating);
-        review.setComments(comments);
+        review.setRating(rating);  // rating can be null
+        review.setComments(comments);  // comments can be null
         return reviewRepository.save(review);
     }
+
+
 
     private boolean hasUserOrderedProduct(UUID userId, UUID productId) {
         // Fetch all orders by the user
@@ -75,6 +82,21 @@ public class ReviewService {
             }
         }
         return false;
+    }
+
+    public Review updateReviewComment(UUID reviewId, String newComment) {
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("Review not found"));
+        review.setComments(newComment);
+        return reviewRepository.save(review);
+    }
+
+    public Review updateReviewRating(UUID reviewId, Integer newRating) {
+        if (newRating < 1 || newRating > 5) {
+            throw new IllegalArgumentException("Invalid rating value. Must be between 1 and 5.");
+        }
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("Review not found"));
+        review.setRating(newRating);
+        return reviewRepository.save(review);
     }
 
     // Fetch all ratings for a product
