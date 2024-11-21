@@ -42,24 +42,26 @@ const Product = () => {
 
   return (
     <div className="p-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid flex justify-center justify-between grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <div>
         <img
           src={product.imageUrl || "https://via.placeholder.com/300"}
           alt={product.name}
-          className="rounded-lg"
+          className="w-full h-40 object-cover rounded-md mb-4"
         />
-        <div>
           <h2 className="text-2xl font-bold">{product.name}</h2>
           <p className="mt-2">Model: {product.model}</p>
           <p className="mt-2 text-red-600 font-bold">${product.price.toFixed(2)}</p>
           <p className="mt-4">{product.description}</p>
-          <button
+          
+        </div>
+        <button
             onClick={addToCart}
-            className="mt-6 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700"
+            className="mt-6 flex bg-blue-600 text-white justify-between py-2 px-4 rounded-lg hover:bg-blue-700"
           >
             Add to Cart
           </button>
-        </div>
       </div>
     </div>
   );

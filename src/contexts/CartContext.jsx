@@ -9,6 +9,7 @@ export const CartProvider = ({ children }) => {
     const savedCart = localStorage.getItem('cart');
     return savedCart ? JSON.parse(savedCart) : [];
   });
+  const [isSyncing, setIsSyncing] = useState(false); // Track if sync is in progress
 
   useEffect(() => {
     if (user) {
@@ -47,6 +48,12 @@ export const CartProvider = ({ children }) => {
 
   // Sync the cart to the DB for logged-in users
   const syncCartToDB = async () => {
+    if (isSyncing) {
+      console.log("Sync already in progress.");
+      return; // Prevent syncing if it's already in progress
+    }
+
+    setIsSyncing(true); // Start syncing
     if (cartItems.length > 0) {
       for (const item of cartItems) {
         try {
@@ -61,7 +68,7 @@ export const CartProvider = ({ children }) => {
               quantity: item.quantityInCart,
             }),
           });
-  
+
           if (response.ok) {
             console.log(`Item ${item.name} added to the database.`);
           } else {
@@ -71,7 +78,7 @@ export const CartProvider = ({ children }) => {
           console.error(`Failed to add item ${item.name} to DB:`, error);
         }
       }
-  
+
       // Clear the cart after syncing
       console.log("Cart synced successfully, clearing local storage...");
       localStorage.removeItem("cart");
@@ -79,13 +86,14 @@ export const CartProvider = ({ children }) => {
     } else {
       console.log("No items in the cart to sync.");
     }
+
+    setIsSyncing(false); // End syncing
   };
-  
 
   const addToCart = async (product) => {
     const existingItem = cartItems.find(item => item.id === product.id);
     let updatedCart;
-  
+
     if (existingItem) {
       updatedCart = cartItems.map(item =>
         item.id === product.id ? { ...item, quantityInCart: item.quantityInCart + 1 } : item
@@ -93,12 +101,12 @@ export const CartProvider = ({ children }) => {
     } else {
       updatedCart = [...cartItems, { ...product, quantityInCart: 1 }];
     }
-  
+
     setCartItems(updatedCart);
-  
+
     // Sync with localStorage
     localStorage.setItem("cart", JSON.stringify(updatedCart));
-  
+
     // If the user is logged in, sync with the backend
     if (user) {
       try {
