@@ -132,5 +132,16 @@ public class ReviewService {
         review.setRating(null);
         reviewRepository.save(review);
     }
+    public double getAverageRatingByProductId(UUID productId) {
+        List<Integer> ratings = getRatingsByProductId(productId); // Fetch all ratings for the product
+
+        if (ratings.isEmpty()) {
+            throw new IllegalArgumentException("No ratings found for the specified product.");
+        }
+
+        // Calculate the average rating
+        return ratings.stream().mapToInt(Integer::intValue).average().orElse(0.0);
+    }
+
 
 }

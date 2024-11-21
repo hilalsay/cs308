@@ -23,7 +23,7 @@ public class ShoppingCartController {
     private ShoppingCartService shoppingCartService;
 
     // Endpoint to get all carts
-    @GetMapping("/all")
+    @GetMapping("/allcarts")
     public ResponseEntity<List<ShoppingCart>> getAllCarts() {
         List<ShoppingCart> carts = shoppingCartService.getAllCarts();
         return ResponseEntity.ok(carts);
@@ -47,20 +47,11 @@ public class ShoppingCartController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Endpoint to create a shopping cart for a user (if it doesn't exist)
-    @PostMapping("/create/{userId}")
-    public ResponseEntity<ShoppingCart> createCart(@PathVariable UUID userId) {
-        try {
-            ShoppingCart cart = shoppingCartService.createShoppingCartForUser(userId);
-            return ResponseEntity.ok(cart);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
+
 
     // Endpoint to add an item to the cart
     @PostMapping("/add/{productId}/{quantity}")
-    public ResponseEntity<ShoppingCart> addItemToCart(
+    public ResponseEntity<?> addItemToCart(
             @RequestHeader("Authorization") String token,
             @PathVariable UUID productId,
             @PathVariable Integer quantity) {
@@ -73,15 +64,21 @@ public class ShoppingCartController {
             ShoppingCart cart = shoppingCartService.addItemToCart(userId, productId, quantity);
             return ResponseEntity.ok(cart);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null); // Handle runtime errors gracefully
+            return ResponseEntity.badRequest().body("Error:" + e.getMessage()); // Handle runtime errors gracefully
         }
     }
 
 
     // Endpoint to remove an item from the cart
-    @DeleteMapping("/remove/{userId}/{itemId}")
-    public ResponseEntity<ShoppingCart> removeItemFromCart(@PathVariable UUID userId, @PathVariable UUID itemId) {
+    @DeleteMapping("/remove/{itemId}")
+    public ResponseEntity<ShoppingCart> removeItemFromCart(
+            @RequestHeader("Authorization") String token,
+            @PathVariable UUID itemId) {
         try {
+            // Extract user ID from the token
+            String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
+            UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
+
             ShoppingCart cart = shoppingCartService.removeItemFromCart(userId, itemId);
             return ResponseEntity.ok(cart);
         } catch (RuntimeException e) {
@@ -89,28 +86,58 @@ public class ShoppingCartController {
         }
     }
 
+    // Endpoint to create a new shopping cart for the user
+    @PostMapping("/create")
+    public ResponseEntity<ShoppingCart> createShoppingCart(@RequestHeader("Authorization") String token) {
+        try {
+            // Extract user ID from the token
+            String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
+            UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
+
+            // Create a new shopping cart for the user
+            ShoppingCart newCart = shoppingCartService.createShoppingCartForUser(userId);
+            return ResponseEntity.ok(newCart);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null); // Handle errors gracefully
+        }
+    }
+
 
 
     // Endpoint to show all shopping carts of a user
-    @GetMapping("/all/{userId}")
-    public ResponseEntity<List<ShoppingCart>> getAllCartsByUserId(@PathVariable UUID userId) {
+    @GetMapping("/all")
+    public ResponseEntity<List<ShoppingCart>> getAllCartsByUserId(
+            @RequestHeader("Authorization") String token) {
+        // Extract user ID from the token
+        String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
+        UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
+
         List<ShoppingCart> carts = shoppingCartService.getAllCartsByUserId(userId);
         return ResponseEntity.ok(carts);
     }
 
     // Endpoint to show ordered shopping carts of a user
-    @GetMapping("/ordered/{userId}")
-    public ResponseEntity<List<ShoppingCart>> getOrderedCartsByUserId(@PathVariable UUID userId) {
+    @GetMapping("/ordered")
+    public ResponseEntity<List<ShoppingCart>> getOrderedCartsByUserId(
+            @RequestHeader("Authorization") String token) {
+        // Extract user ID from the token
+        String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
+        UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
+
         List<ShoppingCart> carts = shoppingCartService.getOrderedCartsByUserId(userId);
         return ResponseEntity.ok(carts);
     }
 
     // Method to confirm shopping cart as an order
-    @PostMapping("/{cartId}/confirm")
-    public ResponseEntity<Order> confirmOrder(@PathVariable UUID cartId, @RequestParam String paymentMethod) {
+    @PostMapping("/confirm")
+    public ResponseEntity<Order> confirmOrder(
+            @RequestHeader("Authorization") String token,
+            @RequestParam String paymentMethod) {
         try {
-            ShoppingCart shoppingCart = shoppingCartService.getShoppingCartById(cartId);
-            Order order = shoppingCartService.convertToOrder(shoppingCart, paymentMethod);
+            String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
+            UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
+
+            Order order = shoppingCartService.convertToOrder(userId, paymentMethod);
             return ResponseEntity.ok(order);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(null);

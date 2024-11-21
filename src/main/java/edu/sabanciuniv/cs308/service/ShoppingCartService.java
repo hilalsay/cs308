@@ -150,8 +150,12 @@ public class ShoppingCartService {
     }
 
     // Method to convert shopping cart to an order
-    public Order convertToOrder(ShoppingCart shoppingCart, String paymentMethod) {
+    public Order convertToOrder(UUID userId, String paymentMethod) {
         // Ensure the shopping cart is not null
+        // Check if there is an existing unordered shopping cart
+        ShoppingCart shoppingCart = shoppingCartRepo.findByUserIdAndOrderedFalse(userId)
+                .orElseThrow(() -> new RuntimeException("No unordered shopping cart found for user: " + userId));
+
         if (shoppingCart == null || shoppingCart.getItems().isEmpty()) {
             throw new IllegalArgumentException("Shopping cart is empty");
         }

@@ -5,6 +5,10 @@ import edu.sabanciuniv.cs308.service.ReviewService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import edu.sabanciuniv.cs308.service.JwtService;
+import edu.sabanciuniv.cs308.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -13,9 +17,13 @@ import java.util.UUID;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final UserService userService;
+    private final JwtService jwtService;
 
-    public ReviewController(ReviewService reviewService) {
+    public ReviewController(ReviewService reviewService, UserService userService, JwtService jwtService) {
         this.reviewService = reviewService;
+        this.userService = userService;
+        this.jwtService = jwtService;
     }
 
     // Get all reviews
@@ -38,8 +46,13 @@ public class ReviewController {
     }
 
     // Get all comments and ratings by a user
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Review>> getReviewsByUser(@PathVariable UUID userId) {
+    @GetMapping("/user")
+    public ResponseEntity<List<Review>> getReviewsByUser(
+            @RequestHeader("Authorization") String token) {
+        // Extract user ID from the token
+        String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
+        UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
+
         return ResponseEntity.ok(reviewService.getReviewsByUserId(userId));
     }
 
@@ -47,10 +60,14 @@ public class ReviewController {
     @PostMapping
     public ResponseEntity<?> addReview(
             @RequestParam UUID productId,
-            @RequestParam UUID userId,
+            @RequestHeader("Authorization") String token,
             @RequestParam(required = false) Integer rating,
             @RequestParam(required = false) String comments) {
         try {
+            // Extract user ID from the token
+            String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
+            UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
+
             // Call the service method to add the review with rating and comments (which can be null)
             Review review = reviewService.addReview(productId, userId, rating, comments);
             return ResponseEntity.ok(review);
@@ -108,4 +125,16 @@ public class ReviewController {
         reviewService.deleteRating(reviewId);
         return ResponseEntity.ok("Rating deleted successfully");
     }
+
+    // Get average rating for a product
+    @GetMapping("/product/{productId}/average-rating")
+    public ResponseEntity<Double> getAverageRatingByProduct(@PathVariable UUID productId) {
+        try {
+            double averageRating = reviewService.getAverageRatingByProductId(productId);
+            return ResponseEntity.ok(averageRating);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null); // Return bad request if the product has no ratings
+        }
+    }
+
 }
