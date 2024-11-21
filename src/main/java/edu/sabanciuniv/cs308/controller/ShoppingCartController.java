@@ -3,7 +3,9 @@ package edu.sabanciuniv.cs308.controller;
 
 import edu.sabanciuniv.cs308.model.Order;
 import edu.sabanciuniv.cs308.model.ShoppingCart;
+import edu.sabanciuniv.cs308.service.JwtService;
 import edu.sabanciuniv.cs308.service.ShoppingCartService;
+import edu.sabanciuniv.cs308.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +15,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/cart")
 public class ShoppingCartController {
-
+    @Autowired
+    private JwtService jwtService;  // Inject JwtService
+    @Autowired
+    private UserService userService;
     @Autowired
     private ShoppingCartService shoppingCartService;
 
@@ -32,8 +37,11 @@ public class ShoppingCartController {
     }
 
     // Endpoint to view the user's unordered shopping cart by user ID
-    @GetMapping("/view/{userId}")
-    public ResponseEntity<ShoppingCart> viewCart(@PathVariable UUID userId) {
+    @GetMapping("/view")
+    public ResponseEntity<ShoppingCart> viewCart(@RequestHeader("Authorization") String token) {
+        // Extract the user ID or username from the token
+        String username = jwtService.extractUserName(token.substring(7)); // Skip "Bearer " prefix
+        UUID userId = userService.getUserIdByUsername(username);
         return shoppingCartService.getUnorderedCartByUserId(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -51,18 +59,24 @@ public class ShoppingCartController {
     }
 
     // Endpoint to add an item to the cart
-    @PostMapping("/add/{userId}/{productId}/{quantity}")
+    @PostMapping("/add/{productId}/{quantity}")
     public ResponseEntity<ShoppingCart> addItemToCart(
-            @PathVariable UUID userId,
+            @RequestHeader("Authorization") String token,
             @PathVariable UUID productId,
             @PathVariable Integer quantity) {
         try {
+            // Extract user ID from the token
+            String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
+            UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
+
+            // Add the item to the user's cart
             ShoppingCart cart = shoppingCartService.addItemToCart(userId, productId, quantity);
             return ResponseEntity.ok(cart);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body(null); // Handle runtime errors gracefully
         }
     }
+
 
     // Endpoint to remove an item from the cart
     @DeleteMapping("/remove/{userId}/{itemId}")
