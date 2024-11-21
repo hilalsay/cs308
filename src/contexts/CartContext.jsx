@@ -14,6 +14,7 @@ export const CartProvider = ({ children }) => {
     if (user) {
       console.log("logged in cart");
       // When user logs in, fetch cart from DB (if available)
+      syncCartToDB();
       fetchCartFromDB();
     } else {
       // When user is logged out, the cart is stored in localStorage
@@ -28,7 +29,7 @@ export const CartProvider = ({ children }) => {
   // Fetch cart from database when the user logs in
   const fetchCartFromDB = async () => {
     try {
-      const response = await fetch(`/api/cart/view/${user.id}`, {
+      const response = await fetch(`/api/cart/view`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         },
@@ -46,30 +47,76 @@ export const CartProvider = ({ children }) => {
 
   // Sync the cart to the DB for logged-in users
   const syncCartToDB = async () => {
-    if (user) {
-      try {
-        await fetch(`/api/cart`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-          body: JSON.stringify({ cartItems }),
-        });
-      } catch (error) {
-        console.error('Failed to sync cart to DB:', error);
+    if (cartItems.length > 0) {
+      for (const item of cartItems) {
+        try {
+          const response = await fetch(`/api/cart/add`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            body: JSON.stringify({
+              productId: item.id,
+              quantity: item.quantityInCart,
+            }),
+          });
+  
+          if (response.ok) {
+            console.log(`Item ${item.name} added to the database.`);
+          } else {
+            console.error(`Error adding item ${item.name}:`, await response.text());
+          }
+        } catch (error) {
+          console.error(`Failed to add item ${item.name} to DB:`, error);
+        }
       }
+  
+      // Clear the cart after syncing
+      console.log("Cart synced successfully, clearing local storage...");
+      localStorage.removeItem("cart");
+      setCartItems([]);
+    } else {
+      console.log("No items in the cart to sync.");
     }
   };
+  
 
-  const addToCart = (product) => {
+  const addToCart = async (product) => {
     const existingItem = cartItems.find(item => item.id === product.id);
+    let updatedCart;
+  
     if (existingItem) {
-      setCartItems(cartItems.map(item =>
+      updatedCart = cartItems.map(item =>
         item.id === product.id ? { ...item, quantityInCart: item.quantityInCart + 1 } : item
-      ));
+      );
     } else {
-      setCartItems([...cartItems, { ...product, quantityInCart: 1 }]);
+      updatedCart = [...cartItems, { ...product, quantityInCart: 1 }];
+    }
+  
+    setCartItems(updatedCart);
+  
+    // Sync with localStorage
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  
+    // If the user is logged in, sync with the backend
+    if (user) {
+      try {
+        await fetch(`/api/cart/add`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            productId: product.id,
+            quantity: existingItem ? existingItem.quantityInCart + 1 : 1,
+          }),
+        });
+        console.log("Cart updated on the backend");
+      } catch (error) {
+        console.error("Failed to sync cart with backend:", error);
+      }
     }
   };
 
