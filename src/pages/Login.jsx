@@ -72,7 +72,7 @@ const Login = () => {
       // Checking response structure and managing token
       if (response.data.token) {
         // Save token in localStorage
-        localStorage.setItem("authToken", response.data.token); 
+        localStorage.setItem("authToken", response.data.token);
         console.log("user", response.data.user);
         console.log("token", response.data.token);
 
@@ -84,12 +84,13 @@ const Login = () => {
 
         // Redirect after successful login/signup
         navigate("/"); // Redirect to the homepage or dashboard
-      } 
-      else if(activeButton == "signup" && response.data=="User registered successfully!"){
+      } else if (
+        activeButton == "signup" &&
+        response.data == "User registered successfully!"
+      ) {
         onToast("Sign up successful!");
         setActiveButton("login");
-
-      }else {
+      } else {
         onToast(response.data.error || "An error occurred!");
       }
     } catch (error) {
@@ -106,7 +107,11 @@ const Login = () => {
           <button
             onClick={() => handleClick("login")}
             className={`px-10 py-2 cursor-pointer 
-              ${activeButton === "login" ? "bg-white text-black" : "bg-white text-gray-700"}`}
+              ${
+                activeButton === "login"
+                  ? "bg-white text-black"
+                  : "bg-white text-gray-700"
+              }`}
           >
             Login
           </button>
@@ -121,7 +126,11 @@ const Login = () => {
           <button
             onClick={() => handleClick("signup")}
             className={`px-10 py-2 cursor-pointer 
-              ${activeButton === "signup" ? "bg-white text-black" : "bg-white text-gray-700"}`}
+              ${
+                activeButton === "signup"
+                  ? "bg-white text-black"
+                  : "bg-white text-gray-700"
+              }`}
           >
             Sign Up
           </button>

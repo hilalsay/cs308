@@ -8,34 +8,37 @@ import { useNavigate } from "react-router-dom";
 import { useSearchContext } from "../contexts/SearchContext"; // Import SearchContext hook
 
 const Navbar = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { token, logout } = useContext(AuthContext);
   const { cartItems } = useCart();
   const { setSearchResults } = useSearchContext(); // Use SearchContext for managing results
   const [searchQuery, setSearchQuery] = useState(""); // Added searchQuery state
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
 
-  const cartCount = cartItems.reduce((count, item) => count + item.quantityInCart, 0);
+  const cartCount = cartItems.reduce(
+    (count, item) => count + item.quantityInCart,
+    0
+  );
 
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
     if (searchQuery) {
       try {
-        const response = await axios.get(`http://localhost:8080/api/products/products/search?keyword=${searchQuery}`);
+        const response = await axios.get(
+          `http://localhost:8080/api/products/products/search?keyword=${searchQuery}`
+        );
         console.log("Search results in Navbar:", response.data);
 
         // Set the search results in the context
         setSearchResults(response.data);
 
         // Navigate to the search results page
-        navigate('/search');
+        navigate("/search");
       } catch (error) {
         console.error("Error fetching search results:", error);
       }
     }
   };
-
-  
 
   return (
     <div className="flex items-center justify-between py-5 font-medium">
@@ -62,18 +65,31 @@ const Navbar = () => {
       <div className="flex items-center gap-6">
         {/* Profile Icon and Dropdown Menu */}
         <div className="group relative">
-          <img className="w-10 cursor-pointer" src={assets.profile_icon} alt="Profile Icon" />
+          <img
+            className="w-10 cursor-pointer"
+            src={assets.profile_icon}
+            alt="Profile Icon"
+          />
           <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
             <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
-              {user ? (
+              {token ? (
                 <>
-                  <Link to="/profile" className="cursor-pointer hover:text-black">
+                  <Link
+                    to="/profile"
+                    className="cursor-pointer hover:text-black"
+                  >
                     MyProfile
                   </Link>
-                  <Link to="/orders" className="cursor-pointer hover:text-black">
+                  <Link
+                    to="/orders"
+                    className="cursor-pointer hover:text-black"
+                  >
                     Orders
                   </Link>
-                  <p onClick={logout} className="cursor-pointer hover:text-black">
+                  <p
+                    onClick={logout}
+                    className="cursor-pointer hover:text-black"
+                  >
                     Logout
                   </p>
                 </>
@@ -101,7 +117,11 @@ const Navbar = () => {
 
         {/* Cart Icon */}
         <Link to="/cart" className="relative">
-          <img className="w-9 cursor-pointer" src={assets.cart_real} alt="Cart Icon" />
+          <img
+            className="w-9 cursor-pointer"
+            src={assets.cart_real}
+            alt="Cart Icon"
+          />
           <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">
             {cartCount}
           </p>

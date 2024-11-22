@@ -1,40 +1,33 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from "react";
 
 // Create a Context
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
 
-  // Check if there's user data and token in localStorage when the app first loads
-  
+  // Initialize the token state from localStorage when the app loads
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    const token = localStorage.getItem("token");
-
-    if (storedUser && token) {
-      setUser(storedUser);
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
     }
   }, []);
 
-  // Function to login user and store user and token
-  const login = async ({token}) => {
-    setUser(token);
-    
+  // Function to log in the user and store the token in localStorage
+  const login = (token) => {
+    setToken(token);
     localStorage.setItem("token", token);
-    console.log("token in auth", token);
-
   };
 
-  // Function to logout user and clear storage
+  // Function to log out the user and clear the token from localStorage
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');  // Ensure to clear user data as well
-    setUser(null);  // Reset the user state
+    localStorage.removeItem("token");
+    setToken(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, logout, login }}>
+    <AuthContext.Provider value={{ token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
