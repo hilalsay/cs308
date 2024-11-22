@@ -87,7 +87,7 @@ public class ShoppingCartController {
     }
 
     // Endpoint to create a new shopping cart for the user
-    @PostMapping("/create")
+    /*@PostMapping("/create")
     public ResponseEntity<ShoppingCart> createShoppingCart(@RequestHeader("Authorization") String token) {
         try {
             // Extract user ID from the token
@@ -100,7 +100,7 @@ public class ShoppingCartController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(null); // Handle errors gracefully
         }
-    }
+    }*/
 
 
 

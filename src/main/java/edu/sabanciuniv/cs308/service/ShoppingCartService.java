@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -61,12 +62,15 @@ public class ShoppingCartService {
         newCart.setModifiedAt(LocalDateTime.now());
         newCart.setOrdered(false);
 
+        newCart.setItems(new ArrayList<>());
+
         return shoppingCartRepo.save(newCart);
     }
     public ShoppingCart addItemToCart(UUID userId, UUID productId, Integer quantity) {
         // Check if there is an existing unordered shopping cart
+
         ShoppingCart cart = shoppingCartRepo.findByUserIdAndOrderedFalse(userId)
-                .orElseGet(() -> createShoppingCartForUser(userId)); // Create a new cart if not found
+                .orElseThrow(() -> new RuntimeException("Shoppinng cart not found")); // Create a new cart if not found
 
         // Find the product by productId
         Product product = productRepo.findById(productId)
@@ -163,6 +167,17 @@ public class ShoppingCartService {
         // Set the ordered flag to true
         shoppingCart.setOrdered(true);
         shoppingCartRepo.save(shoppingCart);
+
+        ShoppingCart newCart = new ShoppingCart();
+        newCart.setUserId(userId);
+        newCart.setTotal(BigDecimal.ZERO);
+        newCart.setCreatedAt(LocalDateTime.now());
+        newCart.setModifiedAt(LocalDateTime.now());
+        newCart.setOrdered(false);
+
+        newCart.setItems(new ArrayList<>());
+
+        shoppingCartRepo.save(newCart);
 
         // Create a new order based on the shopping cart
         Order order = new Order();
