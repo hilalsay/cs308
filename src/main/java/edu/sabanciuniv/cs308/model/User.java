@@ -29,10 +29,10 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Column
+    @Column(nullable = false)
     private String homeAddress;
 
-    @Column
+    @Column(nullable = false)
     private String taxId;
 
     public User() {
