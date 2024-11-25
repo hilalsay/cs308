@@ -3,6 +3,7 @@ package edu.sabanciuniv.cs308.controller;
 
 import edu.sabanciuniv.cs308.model.Order;
 import edu.sabanciuniv.cs308.model.ShoppingCart;
+import edu.sabanciuniv.cs308.service.InvoiceService;
 import edu.sabanciuniv.cs308.service.JwtService;
 import edu.sabanciuniv.cs308.service.ShoppingCartService;
 import edu.sabanciuniv.cs308.service.UserService;
@@ -21,6 +22,8 @@ public class ShoppingCartController {
     private UserService userService;
     @Autowired
     private ShoppingCartService shoppingCartService;
+    @Autowired
+    private InvoiceService invoiceService;
 
     // Endpoint to get all carts
     @GetMapping("/allcarts")
@@ -138,9 +141,12 @@ public class ShoppingCartController {
             UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
 
             Order order = shoppingCartService.convertToOrder(userId, paymentMethod);
+            invoiceService.generateInvoiceAndSendEmail(order.getId());
             return ResponseEntity.ok(order);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(null);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

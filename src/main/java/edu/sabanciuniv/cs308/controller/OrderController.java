@@ -2,6 +2,7 @@ package edu.sabanciuniv.cs308.controller;
 
 import edu.sabanciuniv.cs308.model.Order;
 import edu.sabanciuniv.cs308.model.OrderStatus;
+import edu.sabanciuniv.cs308.service.InvoiceService;
 import edu.sabanciuniv.cs308.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -60,6 +61,8 @@ public class OrderController {
             return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Handle invalid data input
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

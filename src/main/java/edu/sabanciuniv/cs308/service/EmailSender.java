@@ -8,14 +8,17 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.Properties;
 
+@Service
 public class EmailSender {
 
-    public static void sendEmailWithPdf(File pdfFile) {
+    public void sendEmailWithPdf(String pdfFilePath) {
 
+        File pdfFile = new File(pdfFilePath);
         final String username = "jewelryshop308@gmail.com";
         final String password = "omcm vnot cykr uvjf"; // App-specific password
 
@@ -28,7 +31,7 @@ public class EmailSender {
         prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 
         // Create session
-        Session session = Session.getInstance(prop, new jakarta.mail.Authenticator() {
+        Session session = Session.getInstance(prop, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(username, password);
@@ -73,18 +76,23 @@ public class EmailSender {
         }
     }
 
-    public static void main(String[] args) {
-        // Path to save the generated PDF
-        String pdfPath = "C:\\Users\\Hilal\\Documents\\generated_pdf.pdf";
-
-        // Generate the PDF
-        File pdfFile = PdfCreator.createPdf(pdfPath);
-
-        // Send the email with the generated PDF
-        if (pdfFile != null && pdfFile.exists()) {
-            sendEmailWithPdf(pdfFile);
-        } else {
-            System.out.println("Failed to generate PDF. Email not sent.");
-        }
-    }
+//    public static void main(String[] args) {
+//        PdfService service = new PdfService();
+//        // Path to save the generated PDF
+//        String pdfPath = "C:\\Users\\sudel\\OneDrive\\Masaüstü\\products.pdf";
+//
+//        String uuidString = "9f0110a5-c4fe-469f-ad75-b9789b20f128"; // Geçerli bir UUID string
+//        UUID uuid = UUID.fromString(uuidString); // UUID nesnesine dönüştürme
+//
+//        // Generate the PDF
+//        service.createPdf(pdfPath, uuid);
+//        File pdfFile = new File(pdfPath);
+//
+//        // Send the email with the generated PDF
+//        if (pdfFile != null && pdfFile.exists()) {
+//            sendEmailWithPdf(pdfFile);
+//        } else {
+//            System.out.println("Failed to generate PDF. Email not sent.");
+//        }
+//    }
 }
