@@ -7,8 +7,10 @@ import { AuthContext } from "../contexts/AuthContext";
 const Cart = () => {
   const { cartItems, removeFromCart } = useCart();
   const { user, logout } = useContext(AuthContext);
+  const { isLoggedIn } = useContext(AuthContext);
 
-  const navigate = useNavigate(); 
+
+  const navigate = useNavigate();
 
   // Calculate total price
   const calculateTotal = (items) => {
@@ -39,7 +41,7 @@ const Cart = () => {
 
             <button
               onClick={() => {
-                if (user) {
+                if (isLoggedIn()) {
                   navigate("/checkout");
                 } else {
                   navigate("/login");

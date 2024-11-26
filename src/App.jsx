@@ -23,8 +23,11 @@ import SearchResults from "./pages/SearchResults";
 import { AuthProvider } from './contexts/AuthContext'; 
 import { SearchProvider } from "./contexts/SearchContext";
 import AddProduct from "./pages/AddProduct";
+import Invoice from "./pages/Invoice";
+
 
 const App = () => {
+
   return (
     <SearchProvider>
       <AuthProvider>
@@ -50,7 +53,7 @@ const App = () => {
             <Route path="/earrings" element={<Earrings />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/search" element={<SearchResults />} />
-            
+            <Route path="/invoice" element={<Invoice />} />
             {/* Updated route for product details */}
           </Routes>
         </div>

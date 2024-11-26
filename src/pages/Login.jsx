@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
-import { AuthContext } from "../contexts/AuthContext"; // Assuming you have this context set up
+import { AuthContext } from "../contexts/AuthContext";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -106,7 +106,7 @@ const Login = () => {
         <div className="flex flex-col items-center gap-0">
           <button
             onClick={() => handleClick("login")}
-            className={`px-10 py-2 cursor-pointer 
+            className={`px-10 py-2 cursor-pointer
               ${
                 activeButton === "login"
                   ? "bg-white text-black"
@@ -116,7 +116,7 @@ const Login = () => {
             Login
           </button>
           <hr
-            className={`w-2/4 border-none h-[1.5px] transition-colors 
+            className={`w-2/4 border-none h-[1.5px] transition-colors
               ${activeButton === "login" ? "bg-gray-700" : "bg-white"}`}
           />
         </div>
@@ -125,7 +125,7 @@ const Login = () => {
         <div className="flex flex-col items-center gap-0">
           <button
             onClick={() => handleClick("signup")}
-            className={`px-10 py-2 cursor-pointer 
+            className={`px-10 py-2 cursor-pointer
               ${
                 activeButton === "signup"
                   ? "bg-white text-black"
