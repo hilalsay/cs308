@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AuthContext } from './AuthContext'; // Assuming you have AuthContext for managing user state
+import axios from "axios";
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const { user } = useContext(AuthContext);  // Access user from AuthContext
+  const { token } = useContext(AuthContext);  // Access user from AuthContext
   const [cartItems, setCartItems] = useState(() => {
     const savedCart = localStorage.getItem('cart');
     return savedCart ? JSON.parse(savedCart) : [];
@@ -12,7 +13,7 @@ export const CartProvider = ({ children }) => {
   const [isSyncing, setIsSyncing] = useState(false); // Track if sync is in progress
 
   useEffect(() => {
-    if (user) {
+    if (token) {
       console.log("logged in cart");
       // When user logs in, fetch cart from DB (if available)
       syncCartToDB();
@@ -25,24 +26,21 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem('cart', JSON.stringify(cartItems));
       }
     }
-  }, [user, cartItems]);
+  }, [token, cartItems]);
 
   // Fetch cart from database when the user logs in
   const fetchCartFromDB = async () => {
     try {
-      const response = await fetch(`/api/cart/view`, {
+      console.log("cart token: ", localStorage.getItem("token"))
+      const response = await axios.get("http://localhost:8080/api/cart/view", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      const data = await response.json();
-      if (data.items) {
-        setCartItems(data.items);
-      } else {
-        setCartItems([]);
-      }
+      const data = response.data;
+      setCartItems(data.items || []);
     } catch (error) {
-      console.error('Failed to fetch cart from DB:', error);
+      console.error("Failed to fetch cart from DB:", error);
     }
   };
 
@@ -57,23 +55,20 @@ export const CartProvider = ({ children }) => {
     if (cartItems.length > 0) {
       for (const item of cartItems) {
         try {
-          const response = await fetch(`/api/cart/add`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-            body: JSON.stringify({
+          const response = await axios.post(
+            `http://localhost:8080/api/cart/add/${item.id}/1`,
+            {
               productId: item.id,
               quantity: item.quantityInCart,
-            }),
-          });
-
-          if (response.ok) {
-            console.log(`Item ${item.name} added to the database.`);
-          } else {
-            console.error(`Error adding item ${item.name}:`, await response.text());
-          }
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          );
+          console.log(`Item ${item.name} added to the database.`);
         } catch (error) {
           console.error(`Failed to add item ${item.name} to DB:`, error);
         }
@@ -108,19 +103,21 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem("cart", JSON.stringify(updatedCart));
 
     // If the user is logged in, sync with the backend
-    if (user) {
+    if (token) {
       try {
-        await fetch(`/api/cart/add`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
+        await axios.post(
+          `http://localhost:8080/api/cart/add/${product.id}/1`,
+          {
             productId: product.id,
             quantity: existingItem ? existingItem.quantityInCart + 1 : 1,
-          }),
-        });
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
         console.log("Cart updated on the backend");
       } catch (error) {
         console.error("Failed to sync cart with backend:", error);
@@ -128,15 +125,37 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const removeFromCart = (itemId) => {
-    setCartItems(cartItems.filter(item => item.id !== itemId));
+  const removeFromCart = async (itemId) => {
+    const updatedCart = cartItems.filter(item => item.id !== itemId);
+    setCartItems(updatedCart);
+
+    if (token) {
+      try {
+        await axios.delete(`http://localhost:8080/api/cart/remove/${itemId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        console.log(`Item ${itemId} removed from the backend`);
+      } catch (error) {
+        console.error(`Failed to remove item ${itemId} from the backend:`, error);
+      }
+    }
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
     setCartItems([]);
-    if (user) {
-      // Optionally remove cart from DB if the user is logged in
-      syncCartToDB(); 
+    if (token) {
+      try {
+        await axios.delete("http://localhost:8080/api/cart/clear", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        console.log("Cart cleared on the backend");
+      } catch (error) {
+        console.error("Failed to clear cart on the backend:", error);
+      }
     }
     localStorage.removeItem('cart'); // Remove cart from localStorage when logged out
   };

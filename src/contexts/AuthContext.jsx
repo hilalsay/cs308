@@ -16,9 +16,12 @@ const AuthProvider = ({ children }) => {
 
   // Function to log in the user and store the token in localStorage
   const login = (token) => {
-    setToken(token);
-    localStorage.setItem("token", token);
+    const tokenString = token.token || token;  // Extract token string if it's an object
+    setToken(tokenString);
+    console.log("auth token: ", tokenString);
+    localStorage.setItem("token", tokenString); // Store the token string
   };
+  
 
   // Function to log out the user and clear the token from localStorage
   const logout = () => {

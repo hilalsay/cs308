@@ -74,7 +74,7 @@ const Login = () => {
         // Save token in localStorage
         localStorage.setItem("authToken", response.data.token);
         console.log("user", response.data.user);
-        console.log("token", response.data.token);
+        console.log("login token", response.data.token);
 
         // Update AuthContext
         login({
