@@ -95,7 +95,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Error during form submission:", error);
-      onToast("An error occurred! " + response.data);
+      onToast("Wrong username or password!");
     }
   };
 
