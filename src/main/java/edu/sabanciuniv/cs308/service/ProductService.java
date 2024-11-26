@@ -52,6 +52,7 @@ public class ProductService {
         existingProduct.setPrice(updatedProduct.getPrice());
         existingProduct.setWarrantyStatus(updatedProduct.getWarrantyStatus());
         existingProduct.setDistributorInformation(updatedProduct.getDistributorInformation());
+        existingProduct.setCategory(updatedProduct.getCategory());
 
         if (image != null && !image.isEmpty()) {
             existingProduct.setImageName(image.getOriginalFilename());
