@@ -133,7 +133,7 @@ public class ShoppingCartController {
 
     // Method to confirm shopping cart as an order
     @PostMapping("/confirm")
-    public ResponseEntity<Order> confirmOrder(
+    public ResponseEntity<?> confirmOrder(
             @RequestHeader("Authorization") String token,
             @RequestParam String paymentMethod) {
         try {
@@ -144,7 +144,7 @@ public class ShoppingCartController {
             invoiceService.generateInvoiceAndSendEmail(order.getId());
             return ResponseEntity.ok(order);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
