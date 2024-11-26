@@ -91,11 +91,11 @@ const Login = () => {
         onToast("Sign up successful!");
         setActiveButton("login");
       } else {
-        onToast(response.data.error || "An error occurred!");
+        onToast(response.data.error || response.data);
       }
     } catch (error) {
       console.error("Error during form submission:", error);
-      onToast("An error occurred!");
+      onToast("An error occurred! " + response.data);
     }
   };
 
