@@ -1,19 +1,25 @@
 package edu.sabanciuniv.cs308.config;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
-public class CorsConfig implements WebMvcConfigurer {
+public class CorsConfig {
+    public List<String> getAllowedOrigins() {
+        return Arrays.asList("http://localhost:5173");  // Replace with your frontend URL
+    }
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        // Allow frontend URL
-        registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173")
-                .allowedMethods("GET", "POST", "PUT", "DELETE")
-                .allowedHeaders("*")
-                .allowCredentials(true);
+    public List<String> getAllowedMethods() {
+        return Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS");
+    }
+
+    public List<String> getAllowedHeaders() {
+        return Arrays.asList("*");
+    }
+
+    public boolean getAllowCredentials() {
+        return true;
     }
 }

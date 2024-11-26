@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
@@ -27,42 +28,39 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
+    @Autowired
+    private CorsConfig corsConfig;  // Inject the CORS config
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        return http
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(request -> request
-//                        .requestMatchers("/**") // Allow access to all paths
-//                        .permitAll() // No authentication needed for any endpoint
-//                )
-//                .httpBasic(Customizer.withDefaults())
-//                .sessionManagement(session ->
-//                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless for API security
-//                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-//                .build();
+        // Explicitly create a CorsConfiguration object from the CorsConfig
+        http.cors().configurationSource(request -> {
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowedOrigins(corsConfig.getAllowedOrigins());
+            config.setAllowedMethods(corsConfig.getAllowedMethods());
+            config.setAllowedHeaders(corsConfig.getAllowedHeaders());
+            config.setAllowCredentials(corsConfig.getAllowCredentials());
+            return config;
+        });
 
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(request -> request
-                        .requestMatchers("/", "/api/auth/login",
-                                "/api/auth/signup","/api/auth/users", "/api/products",
-                                "/api/category","/api/cart/allcarts", "api/cart/view/{userId}",
-                                "api/cart/{cartId}/confirm","api/cart/deleteAll", "/api/orders/**",
-                                "api/cart/add/{userId}/{productId}/{quantity}", "/api/products/**",
-                                "/api/pdf/**"
-                                )
+                .authorizeRequests(request -> request
+                        .requestMatchers("/", "/api/auth/login", "/api/auth/signup", "/api/auth/users",
+                                "/api/products", "/api/category", "/api/cart/allcarts", "/api/cart/view/{userId}",
+                                "/api/cart/{cartId}/confirm", "/api/cart/deleteAll", "/api/orders/**",
+                                "/api/cart/add/{userId}/{productId}/{quantity}", "/api/products/**",
+                                "/api/pdf/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
-        //http.formLogin(Customizer.withDefaults());
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(){
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
         provider.setUserDetailsService(userDetailsService);
