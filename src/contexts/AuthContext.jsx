@@ -26,8 +26,13 @@ const AuthProvider = ({ children }) => {
     setToken(null);
   };
 
+  const isLoggedIn = () => {
+    return !!token; // Returns true if the token exists, false otherwise
+  };
+  
+
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ token, login, logout, isLoggedIn }}>
       {children}
     </AuthContext.Provider>
   );
