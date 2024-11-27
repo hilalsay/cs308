@@ -30,20 +30,14 @@ const App = () => {
   return (
     <SearchProvider>
       <AuthProvider>
-        <CartProvider>
-          {" "}
-          {/* Wrap the entire app with CartProvider */}
+        <CartProvider>  {/* Wrap the entire app with CartProvider */}
           <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
             <Navbar />
             <Navbar_routes />
 
-            <ToastContainer
-              position="top-center"
-              autoClose={5000}
-              hideProgressBar={false}
-            />
-
-            <Routes>
+            <ToastContainer position="top-center" autoClose={5000} hideProgressBar={false} />
+            
+           <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/collection" element={<Collection />} />
               <Route path="/login" element={<Login />} />
@@ -58,7 +52,6 @@ const App = () => {
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/search" element={<SearchResults />} />
               <Route path="/invoice" element={<Invoice />} />
-              <Route path="/dene" element={<CartViewer />} />
               {/* Updated route for product details */}
             </Routes>
           </div>

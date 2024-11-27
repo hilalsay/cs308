@@ -6,6 +6,11 @@ const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
 
+  const [cartItems, setCartItems] = useState(() => {
+    const savedCart = localStorage.getItem("cart");
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+
   // Initialize the token state from localStorage when the app loads
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -34,10 +39,21 @@ const AuthProvider = ({ children }) => {
   };
 
   // Function to log out the user and clear the token from localStorage
-  const logout = () => {
+  const logout = async () => {
+  try {
+    // Call the clearCart function to reset the cart
+    //await clearCart();
+    setCartItems([]);
+    // Perform logout logic (e.g., removing the token)
     localStorage.removeItem("token");
+    localStorage.removeItem("cart");
     setToken(null);
-  };
+
+    console.log("User logged out successfully");
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+};
 
   const isLoggedIn = () => {
     return !!token; // Returns true if the token exists, false otherwise
