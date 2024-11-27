@@ -29,6 +29,10 @@ public class Review {
     @Column(length = 1000)
     private String comments;
 
+
+    @Column(nullable = false)
+    private boolean approved = false; // Default is false
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

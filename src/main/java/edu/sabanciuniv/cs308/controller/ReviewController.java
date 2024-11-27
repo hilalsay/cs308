@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/reviews")
+@RequestMapping("/api/reviews")
 public class ReviewController {
 
     private final ReviewService reviewService;
@@ -34,14 +34,15 @@ public class ReviewController {
 
     // Get all reviews for a product
     @GetMapping("/product/{productId}/comments")
-    public ResponseEntity<List<Review>> getReviewsByProduct(@PathVariable UUID productId) {
-        return ResponseEntity.ok(reviewService.getReviewsByProductId(productId));
+    public ResponseEntity<List<String>> getApprovedComments(@PathVariable UUID productId) {
+        List<String> comments = reviewService.getApprovedCommentsByProduct(productId);
+        return ResponseEntity.ok(comments);
     }
 
     // Get all ratings for a product
     @GetMapping("/product/{productId}/ratings")
     public ResponseEntity<List<Integer>> getRatingsByProduct(@PathVariable UUID productId) {
-        List<Integer> ratings = reviewService.getRatingsByProductId(productId);
+        List<Integer> ratings = reviewService.getApprovedRatingsByProduct(productId);
         return ResponseEntity.ok(ratings);
     }
 

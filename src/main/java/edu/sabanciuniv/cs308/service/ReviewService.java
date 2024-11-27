@@ -27,12 +27,37 @@ public class ReviewService {
         this.shoppingCartRepository = shoppingCartRepository;
     }
 
+    // Approve a review
+    public Review approveReview(UUID reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("Review not found"));
+        review.setApproved(true);
+        return reviewRepository.save(review);
+    }
+
     public List<Review> getAllReviews() {
         return reviewRepository.findAll();
     }
 
-    public List<Review> getReviewsByProductId(UUID productId) {
-        return reviewRepository.findByProductId(productId);
+    public List<String> getApprovedCommentsByProduct(UUID productId) {
+        return reviewRepository.findByProductIdAndApproved(productId, true)
+                .stream()
+                .map(Review::getComments)
+                .filter(comment -> comment != null && !comment.isEmpty())
+                .toList();
+    }
+
+    // Fetch all approved ratings for a product
+    public List<Integer> getApprovedRatingsByProduct(UUID productId) {
+        return reviewRepository.findByProductIdAndApproved(productId, true)
+                .stream()
+                .map(Review::getRating)
+                .toList();
+    }
+
+    // Fetch reviews by a specific user
+    public List<Review> getReviewsByUserId(UUID userId) {
+        return reviewRepository.findByUserId(userId);
     }
 
     public Review addReview(UUID productId, UUID userId, Integer rating, String comments) {
@@ -63,6 +88,7 @@ public class ReviewService {
         review.setUserId(userId);
         review.setRating(rating);  // rating can be null
         review.setComments(comments);  // comments can be null
+        review.setApproved(false); // Default approval status
         return reviewRepository.save(review);
     }
 
@@ -99,23 +125,12 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
-    // Fetch all ratings for a product
-    public List<Integer> getRatingsByProductId(UUID productId) {
-        return reviewRepository.findByProductId(productId)
-                .stream()
-                .map(Review::getRating)
-                .toList();
-    }
-
-    // Fetch all reviews by a user
-    public List<Review> getReviewsByUserId(UUID userId) {
-        return reviewRepository.findByUserId(userId);
-    }
-
     // Delete a review by its ID
     public void deleteReview(UUID reviewId) {
         reviewRepository.deleteById(reviewId);
     }
+
+
 
     // Delete only the comment of a review
     public void deleteComment(UUID reviewId) {
@@ -132,8 +147,9 @@ public class ReviewService {
         review.setRating(null);
         reviewRepository.save(review);
     }
+
     public double getAverageRatingByProductId(UUID productId) {
-        List<Integer> ratings = getRatingsByProductId(productId); // Fetch all ratings for the product
+        List<Integer> ratings = getApprovedRatingsByProduct(productId); // Fetch all ratings for the product
 
         if (ratings.isEmpty()) {
             throw new IllegalArgumentException("No ratings found for the specified product.");

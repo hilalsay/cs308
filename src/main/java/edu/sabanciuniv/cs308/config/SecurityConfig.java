@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/api/auth/login", "/api/auth/signup", "/api/auth/users",
                                 "/api/products", "/api/category", "/api/cart/allcarts", "/api/cart/view/{userId}",
                                 "/api/cart/{cartId}/confirm", "/api/cart/deleteAll", "/api/orders/**",
-                                "/api/cart/add/{userId}/{productId}/{quantity}", "/api/products/**",
+                                "/api/cart/add/{userId}/{productId}/{quantity}", "/api/products/**","/api/reviews/**",
                                 "/api/pdf/**")
                         .permitAll()
                         .anyRequest().authenticated())
