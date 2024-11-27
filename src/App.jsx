@@ -24,20 +24,25 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { SearchProvider } from "./contexts/SearchContext";
 import AddProduct from "./pages/AddProduct";
 import Invoice from "./pages/Invoice";
-import CartViewer from "./pages/CartViewer";
 
 const App = () => {
   return (
     <SearchProvider>
       <AuthProvider>
-        <CartProvider>  {/* Wrap the entire app with CartProvider */}
+        <CartProvider>
+          {" "}
+          {/* Wrap the entire app with CartProvider */}
           <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
             <Navbar />
             <Navbar_routes />
 
-            <ToastContainer position="top-center" autoClose={5000} hideProgressBar={false} />
-            
-           <Routes>
+            <ToastContainer
+              position="top-center"
+              autoClose={5000}
+              hideProgressBar={false}
+            />
+
+            <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/collection" element={<Collection />} />
               <Route path="/login" element={<Login />} />
