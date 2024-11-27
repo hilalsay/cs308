@@ -149,4 +149,28 @@ public class ShoppingCartController {
             throw new RuntimeException(e);
         }
     }
+
+    // Endpoint to print all information in a shopping cart
+    @GetMapping("/info/{cartId}")
+    public ResponseEntity<?> getCartInfo(
+            @RequestHeader("Authorization") String token,
+            @PathVariable UUID cartId) {
+        try {
+            // Extract user ID from the token
+            String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
+            UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
+
+            // Fetch the cart information
+            ShoppingCart cart = shoppingCartService.getCartByIdAndUserId(cartId, userId);
+            if (cart == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Print detailed cart information
+            return ResponseEntity.ok(cart);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
 }

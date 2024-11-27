@@ -231,7 +231,14 @@ public class ShoppingCartService {
         return shoppingCartRepo.findByUserIdAndOrderedTrue(userId);
     }
 
-
+    public ShoppingCart getCartByIdAndUserId(UUID cartId, UUID userId) {
+        Optional<ShoppingCart> cart = shoppingCartRepo.findById(cartId);
+        // Ensure the cart exists and belongs to the user
+        if (cart.isPresent() && cart.get().getUserId().equals(userId)) {
+            return cart.get();
+        }
+        return null;
+    }
 
 }
 
