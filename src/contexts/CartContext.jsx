@@ -1,13 +1,13 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AuthContext } from './AuthContext'; // Assuming you have AuthContext for managing user state
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { AuthContext } from "./AuthContext"; // Assuming you have AuthContext for managing user state
 import axios from "axios";
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const { token } = useContext(AuthContext);  // Access user from AuthContext
+  const { token } = useContext(AuthContext); // Access user from AuthContext
   const [cartItems, setCartItems] = useState(() => {
-    const savedCart = localStorage.getItem('cart');
+    const savedCart = localStorage.getItem("cart");
     return savedCart ? JSON.parse(savedCart) : [];
   });
   const [isSyncing, setIsSyncing] = useState(false); // Track if sync is in progress
@@ -16,14 +16,14 @@ export const CartProvider = ({ children }) => {
     if (token) {
       console.log("logged in cart");
       // When user logs in, fetch cart from DB (if available)
-      syncCartToDB();
+      //syncCartToDB();
       fetchCartFromDB();
     } else {
       // When user is logged out, the cart is stored in localStorage
       if (cartItems.length === 0) {
-        localStorage.removeItem('cart');
+        localStorage.removeItem("cart");
       } else {
-        localStorage.setItem('cart', JSON.stringify(cartItems));
+        localStorage.setItem("cart", JSON.stringify(cartItems));
       }
     }
   }, [token, cartItems]);
@@ -31,7 +31,7 @@ export const CartProvider = ({ children }) => {
   // Fetch cart from database when the user logs in
   const fetchCartFromDB = async () => {
     try {
-      console.log("cart token: ", localStorage.getItem("token"))
+      console.log("cart token: ", localStorage.getItem("token"));
       const response = await axios.get("http://localhost:8080/api/cart/view", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -86,12 +86,14 @@ export const CartProvider = ({ children }) => {
   };
 
   const addToCart = async (product) => {
-    const existingItem = cartItems.find(item => item.id === product.id);
+    const existingItem = cartItems.find((item) => item.id === product.id);
     let updatedCart;
 
     if (existingItem) {
-      updatedCart = cartItems.map(item =>
-        item.id === product.id ? { ...item, quantityInCart: item.quantityInCart + 1 } : item
+      updatedCart = cartItems.map((item) =>
+        item.id === product.id
+          ? { ...item, quantityInCart: item.quantityInCart + 1 }
+          : item
       );
     } else {
       updatedCart = [...cartItems, { ...product, quantityInCart: 1 }];
@@ -126,7 +128,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = async (itemId) => {
-    const updatedCart = cartItems.filter(item => item.id !== itemId);
+    const updatedCart = cartItems.filter((item) => item.id !== itemId);
     setCartItems(updatedCart);
 
     if (token) {
@@ -138,7 +140,10 @@ export const CartProvider = ({ children }) => {
         });
         console.log(`Item ${itemId} removed from the backend`);
       } catch (error) {
-        console.error(`Failed to remove item ${itemId} from the backend:`, error);
+        console.error(
+          `Failed to remove item ${itemId} from the backend:`,
+          error
+        );
       }
     }
   };
@@ -157,11 +162,13 @@ export const CartProvider = ({ children }) => {
         console.error("Failed to clear cart on the backend:", error);
       }
     }
-    localStorage.removeItem('cart'); // Remove cart from localStorage when logged out
+    localStorage.removeItem("cart"); // Remove cart from localStorage when logged out
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider
+      value={{ cartItems, addToCart, removeFromCart, clearCart }}
+    >
       {children}
     </CartContext.Provider>
   );

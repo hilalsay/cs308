@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useCart } from '../contexts/CartContext'; 
+import { useCart } from "../contexts/CartContext";
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
@@ -24,11 +24,29 @@ const ProductCard = ({ product }) => {
 
       <p className="text-sm text-gray-500">Model: {product.model}</p>
       <p className="text-red-600 font-bold">${product.price.toFixed(2)}</p>
+
+      {/* Stock Information */}
+      <p
+        className={`text-sm ${
+          product.stockQuantity > 0 ? "text-green-600" : "text-red-600"
+        }`}
+      >
+        {product.stockQuantity > 0
+          ? `In Stock: ${product.stockQuantity}`
+          : "Out of Stock"}
+      </p>
+
+      {/* Add to Cart Button */}
       <button
         onClick={() => addToCart(product)}
-        className="mt-3 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+        className={`mt-3 w-full py-2 rounded-lg ${
+          product.stockQuantity > 0
+            ? "bg-blue-600 text-white hover:bg-blue-700"
+            : "bg-gray-400 text-gray-800 cursor-not-allowed"
+        }`}
+        disabled={product.stockQuantity <= 0}
       >
-        Add to Cart
+        {product.stockQuantity > 0 ? "Add to Cart" : "Out of Stock"}
       </button>
     </div>
   );

@@ -10,18 +10,28 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     if (storedToken) {
-      setToken(storedToken);
+      try {
+        const payload = JSON.parse(atob(storedToken.split(".")[1])); // Decode JWT payload
+        if (payload.exp * 1000 > Date.now()) {
+          setToken(storedToken);
+        } else {
+          console.warn("Token expired, logging out...");
+          logout();
+        }
+      } catch (err) {
+        console.error("Invalid token format", err);
+        logout();
+      }
     }
   }, []);
 
   // Function to log in the user and store the token in localStorage
   const login = (token) => {
-    const tokenString = token.token || token;  // Extract token string if it's an object
+    const tokenString = token.token || token; // Extract token string if it's an object
     setToken(tokenString);
     console.log("auth token: ", tokenString);
     localStorage.setItem("token", tokenString); // Store the token string
   };
-  
 
   // Function to log out the user and clear the token from localStorage
   const logout = () => {
@@ -32,7 +42,6 @@ const AuthProvider = ({ children }) => {
   const isLoggedIn = () => {
     return !!token; // Returns true if the token exists, false otherwise
   };
-  
 
   return (
     <AuthContext.Provider value={{ token, login, logout, isLoggedIn }}>
