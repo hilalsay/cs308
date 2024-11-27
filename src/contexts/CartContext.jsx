@@ -24,7 +24,8 @@ export const CartProvider = ({ children }) => {
         },
       });
       const data = response.data;
-      setCartItems(data.items || []);
+      console.log(data);
+      setCartItems(data.items);
       console.log(cartItems);
     } catch (error) {
       console.error("Failed to fetch cart from DB:", error);
@@ -62,13 +63,13 @@ export const CartProvider = ({ children }) => {
       }
       console.log("Cart synced successfully, clearing local storage...");
       localStorage.removeItem("cart");
-      setCartItems([]);
+      //setCartItems([]);
     } else {
       console.log("No items in the cart to sync.");
     }
     setIsSyncing(false);
     console.log("Fetching new cart from database");
-    fetchCartFromDB();
+    await fetchCartFromDB();
   };
 
   
@@ -84,13 +85,23 @@ export const CartProvider = ({ children }) => {
       }
     }
   }, [token]);  // Only re-run when token changes
+
+  useEffect(() => {
+    const handleLogout = () => {
+      setCartItems([]); // Clear state
+      localStorage.removeItem("cart"); // Clear localStorage
+    };
+  
+    window.addEventListener("logout", handleLogout);
+    return () => window.removeEventListener("logout", handleLogout);
+  }, []);
   
   
   useEffect(() => {
     // Sync when the page loads (initial mount).
     console.log("Syncing cart on initial load");
     if (token) {
-      syncCartToDB(); // Fetch the cart from the database if a token exists.
+      fetchCartFromDB(); // Fetch the cart from the database if a token exists.
     } else {
       const storedCart = localStorage.getItem('cart');
       if (storedCart) {
@@ -107,12 +118,14 @@ export const CartProvider = ({ children }) => {
 
     if (token) {
       try {
-        await axios.post(
+        console.log(`Bearer ${localStorage.getItem("token")}`);
+        axios.post(
           `http://localhost:8080/api/cart/add/${product.id}/1`,
+          {},
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
+            }
           }
         );
         
@@ -155,6 +168,11 @@ export const CartProvider = ({ children }) => {
     
   };
 
+
+  useEffect(() => {
+    console.log("Updated cart items:", cartItems);
+  }, [cartItems]);
+
   const addToLocalCart = async (product) => {
 
     //for local cart
@@ -178,11 +196,15 @@ export const CartProvider = ({ children }) => {
 
     if (token) {
       try {
-        await axios.delete(`http://localhost:8080/api/cart/remove/${itemId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        console.log('token for remove:', `Bearer ${localStorage.getItem("token")}`);
+        await axios.delete(
+          `http://localhost:8080/api/cart/remove/${itemId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            }
           }
-        });
+        );
         console.log(`Item ${itemId} removed from the backend`);
       } catch (error) {
         console.error(`Failed to remove item ${itemId} from the backend:`, error);

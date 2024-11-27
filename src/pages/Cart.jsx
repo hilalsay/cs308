@@ -14,10 +14,11 @@ const Cart = () => {
 
   // Calculate total price
   const calculateTotal = (items) => {
-    return items.reduce((sum, item) => sum + item.price * item.quantityInCart, 0);
+    return items.reduce((sum, item) => sum + item.price * item.quantity, 0); // Use item.quantity
   };
-
+  
   const totalPrice = calculateTotal(cartItems);
+  
 
   return (
     <div className="border-t pt-14">
@@ -41,7 +42,7 @@ const Cart = () => {
 
             <button
               onClick={() => {
-                if (isLoggedIn()) {
+                if (token) {
                   navigate("/checkout");
                 } else {
                   navigate("/login");
