@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { useCart } from './CartContext';
 
 const Product = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
-  const [cart, setCart] = useState(() => {
-    return JSON.parse(localStorage.getItem("cart")) || [];
-  });
+  
+  const { addToCart } = useCart();
+
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product); // This will add the product to the cart
+    }
+  };
 
   useEffect(() => {
     axios
@@ -16,27 +22,7 @@ const Product = () => {
       .catch((error) => console.error("Error fetching product:", error));
   }, [id]);
 
-  const addToCart = (product) => {
-    const existingItem = cart.find(item => item.id === product.id);
-    
-    if (existingItem) {
-      // If the product is already in the cart, increment its quantity
-      const updatedCart = cart.map(item =>
-        item.id === product.id
-          ? { ...item, quantityInCart: item.quantityInCart + 1 }
-          : item
-      );
-      setCart(updatedCart);
-    } else {
-      // Otherwise, add the product to the cart with quantity 1
-      const updatedCart = [...cart, { ...product, quantityInCart: 1 }];
-      setCart(updatedCart);
-    }
-    
-    // Save to localStorage
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-    alert(`${product.name} has been added to the cart!`);
-  };
+  
 
   if (!product) return <div>Loading...</div>;
 
@@ -57,7 +43,7 @@ const Product = () => {
           
         </div>
         <button
-            onClick={addToCart}
+            onClick={() => handleAddToCart(product)}
             className="mt-6 flex bg-blue-600 text-white justify-between py-2 px-4 rounded-lg hover:bg-blue-700"
           >
             Add to Cart

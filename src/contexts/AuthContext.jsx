@@ -40,20 +40,27 @@ const AuthProvider = ({ children }) => {
 
   // Function to log out the user and clear the token from localStorage
   const logout = async () => {
-  try {
-    // Call the clearCart function to reset the cart
-    //await clearCart();
-    setCartItems([]);
-    // Perform logout logic (e.g., removing the token)
-    localStorage.removeItem("token");
-    localStorage.removeItem("cart");
-    setToken(null);
+    try {
+      // Clear cart state and local storage
+      setCartItems([]); // Reset the state before clearing local storage
+      localStorage.removeItem("token");
+      localStorage.removeItem("cart");
+      
+      // Clear authentication token
+      setToken(null);
+  
+      console.log("User logged out successfully");
+      console.log("cart items auth after clearing:", cartItems); // This will now log an empty array
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+  
 
-    console.log("User logged out successfully");
-  } catch (error) {
-    console.error("Logout failed:", error);
-  }
-};
+useEffect(() => {
+  console.log("cartItems updated:", cartItems);
+}, [cartItems]);
+
 
   const isLoggedIn = () => {
     return !!token; // Returns true if the token exists, false otherwise

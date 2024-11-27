@@ -6,8 +6,8 @@ import { AuthContext } from "../contexts/AuthContext";
 
 const Cart = () => {
   const { cartItems, removeFromCart } = useCart();
-  const { user, logout } = useContext(AuthContext);
-  const { isLoggedIn } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
+  //const { isLoggedIn } = useContext(AuthContext);
 
 
   const navigate = useNavigate();
@@ -58,10 +58,11 @@ const Cart = () => {
 };
 
 const CartItem = ({ item, removeFromCart }) => (
+  
   <div className="py-4 border-t border-b text-gray-700 grid grid-cols-[4fr_0.5fr_0.5fr] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-4">
-    <h4>{item.name}</h4>
+    <h4>{item.product.name}</h4>
     <p>Price: ${item.price.toFixed(2)}</p>
-    <p>Quantity: {item.quantityInCart}</p>
+    <p>Quantity: {item.quantity}</p>
     <button onClick={() => removeFromCart(item.id)}>Remove</button>
   </div>
 );

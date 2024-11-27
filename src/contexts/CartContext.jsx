@@ -12,39 +12,12 @@ export const CartProvider = ({ children }) => {
   });
   const [isSyncing, setIsSyncing] = useState(false);
 
-  useEffect(() => {
-    console.log("cart token:", token);
-    if (token) {
-      syncCartToDB();
-    } else {
-      if (cartItems.length === 0) {
-        localStorage.removeItem("cart");
-      } else {
-        localStorage.setItem("cart", JSON.stringify(cartItems));
-      }
-    }
-  }, [token]);  // Only re-run when token changes
   
-  useEffect(() => {
-    // Sync when the page loads (initial mount).
-    console.log("Syncing cart on initial load");
-    if (token) {
-      syncCartToDB(); // Fetch the cart from the database if a token exists.
-    } else {
-      const storedCart = localStorage.getItem('cart');
-      if (storedCart) {
-        // Parse and set the cart items if they exist in localStorage.
-        setCartItems(JSON.parse(storedCart));
-      }
-    }
-    //setCartItems(updatedCart);
-  }, []);
   
 
   const fetchCartFromDB = async () => {
     try {
-      console.log("cart token: ", localStorage.getItem("token"));
-
+      console.log("cart token:", localStorage.getItem("token"));
       const response = await axios.get("http://localhost:8080/api/cart/view", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -64,6 +37,7 @@ export const CartProvider = ({ children }) => {
       return;
     }
     setIsSyncing(true);
+    console.log(cartItems)
     if (cartItems.length > 0) {
       for (const item of cartItems) {
         //console.log(item);
@@ -76,7 +50,7 @@ export const CartProvider = ({ children }) => {
             },
             {
               headers: {
-                "Content-Type": "application/json",
+                //"Content-Type": "application/json",
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
               },
             }
@@ -97,33 +71,84 @@ export const CartProvider = ({ children }) => {
     fetchCartFromDB();
   };
 
+  
+  useEffect(() => {
+    console.log("cart token:", token);
+    if (token) {
+      syncCartToDB();
+    } else {
+      if (cartItems.length === 0) {
+        localStorage.removeItem('cart');
+      } else {
+        localStorage.setItem('cart', JSON.stringify(cartItems));
+      }
+    }
+  }, [token]);  // Only re-run when token changes
+  
+  
+  useEffect(() => {
+    // Sync when the page loads (initial mount).
+    console.log("Syncing cart on initial load");
+    if (token) {
+      syncCartToDB(); // Fetch the cart from the database if a token exists.
+    } else {
+      const storedCart = localStorage.getItem('cart');
+      if (storedCart) {
+        // Parse and set the cart items if they exist in localStorage.
+        setCartItems(JSON.parse(storedCart));
+      }
+    }
+    //setCartItems(updatedCart);
+  }, []);
+
   const addToCart = async (product) => {
     const existingItem = cartItems.find((item) => item.id === product.id);
     let updatedCart;
+
     if (token) {
       try {
         await axios.post(
           `http://localhost:8080/api/cart/add/${product.id}/1`,
           {
-            productId: product.id,
-            quantity: existingItem ? existingItem.quantityInCart + 1 : 1,
-          },
-          {
             headers: {
-              //"Content-Type": "application/json",
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }
         );
         
-        addToLocalCart(product);
+        //local cart
+        if (existingItem) {
+          updatedCart = cartItems.map((item) =>
+            item.id === product.id
+              ? { ...item, quantityInCart: item.quantityInCart + 1 }
+              : item
+          );
+        } else {
+          updatedCart = [...cartItems, { ...product, quantityInCart: 1 }];
+        }
+    
+        setCartItems(updatedCart);
+        localStorage.setItem("cart", JSON.stringify(updatedCart));
+
         console.log("added to carts");
       } catch (error) {
         console.error("Failed to sync cart with backend:", error);
       }
     }
     else{
-      addToLocalCart(product);
+      //local cart
+      if (existingItem) {
+        updatedCart = cartItems.map((item) =>
+          item.id === product.id
+            ? { ...item, quantityInCart: item.quantityInCart + 1 }
+            : item
+        );
+      } else {
+        updatedCart = [...cartItems, { ...product, quantityInCart: 1 }];
+      }
+  
+      setCartItems(updatedCart);
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
     }
 
     
@@ -149,24 +174,23 @@ export const CartProvider = ({ children }) => {
   }
 
   const removeFromCart = async (itemId) => {
-    const updatedCart = cartItems.filter((item) => item.id !== itemId);
-    setCartItems(updatedCart);
+    
 
     if (token) {
       try {
         await axios.delete(`http://localhost:8080/api/cart/remove/${itemId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          }
         });
         console.log(`Item ${itemId} removed from the backend`);
       } catch (error) {
-        console.error(
-          `Failed to remove item ${itemId} from the backend:`,
-          error
-        );
+        console.error(`Failed to remove item ${itemId} from the backend:`, error);
       }
     }
+
+    const updatedCart = cartItems.filter((item) => item.id !== itemId);
+    setCartItems(updatedCart);
   };
 
   const clearCart = async () => {
