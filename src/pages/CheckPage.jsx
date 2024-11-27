@@ -29,7 +29,7 @@ const CheckPage = () => {
 
     const expirationMonth = e.target.elements.expirationMonth?.value;
     const expirationYear = e.target.elements.expirationYear?.value;
-  
+
     if (!expirationMonth || !expirationYear) {
       alert("Expiration date is required.");
       return;
@@ -84,12 +84,10 @@ const CheckPage = () => {
   };
 
   return (
-    <div className='flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border -t'>
-      <div className='flex flex-col gap-4 w-full sm:max-w-[480px]'>
-
-      </div>
+    <div className="flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border -t">
+      <div className="flex flex-col gap-4 w-full sm:max-w-[480px]"></div>
     </div>
   );
 };
 
-export default CheckPage
+export default CheckPage;

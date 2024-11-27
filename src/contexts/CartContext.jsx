@@ -18,9 +18,9 @@ export const CartProvider = ({ children }) => {
       syncCartToDB();
     } else {
       if (cartItems.length === 0) {
-        localStorage.removeItem('cart');
+        localStorage.removeItem("cart");
       } else {
-        localStorage.setItem('cart', JSON.stringify(cartItems));
+        localStorage.setItem("cart", JSON.stringify(cartItems));
       }
     }
   }, [token]);  // Only re-run when token changes
@@ -43,7 +43,8 @@ export const CartProvider = ({ children }) => {
 
   const fetchCartFromDB = async () => {
     try {
-      console.log("cart token:", localStorage.getItem("token"));
+      console.log("cart token: ", localStorage.getItem("token"));
+
       const response = await axios.get("http://localhost:8080/api/cart/view", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -99,7 +100,6 @@ export const CartProvider = ({ children }) => {
   const addToCart = async (product) => {
     const existingItem = cartItems.find((item) => item.id === product.id);
     let updatedCart;
-
     if (token) {
       try {
         await axios.post(
@@ -161,7 +161,10 @@ export const CartProvider = ({ children }) => {
         });
         console.log(`Item ${itemId} removed from the backend`);
       } catch (error) {
-        console.error(`Failed to remove item ${itemId} from the backend:`, error);
+        console.error(
+          `Failed to remove item ${itemId} from the backend:`,
+          error
+        );
       }
     }
   };

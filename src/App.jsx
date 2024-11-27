@@ -11,23 +11,22 @@ import Cart from "./pages/Cart";
 import Navbar_routes from "./components/Navbar_routes";
 import ProductDetails from "./pages/ProductDetails"; // Import ProductDetail component
 import Products from "./pages/Products"; // Import Product component
-import { CartProvider } from './contexts/CartContext'; // Import CartProvider
-import ProductsList from './pages/ProductsList'; // Import your products list
-import { BrowserRouter as Router } from 'react-router-dom';
+import { CartProvider } from "./contexts/CartContext"; // Import CartProvider
+import ProductsList from "./pages/ProductsList"; // Import your products list
+import { BrowserRouter as Router } from "react-router-dom";
 import Necklaces from "./pages/Necklaces";
 import Rings from "./pages/Rings";
 import Bracelets from "./pages/Bracelets";
 import Earrings from "./pages/Earrings";
 import Checkout from "./pages/CheckPage";
 import SearchResults from "./pages/SearchResults";
-import { AuthProvider } from './contexts/AuthContext'; 
+import { AuthProvider } from "./contexts/AuthContext";
 import { SearchProvider } from "./contexts/SearchContext";
 import AddProduct from "./pages/AddProduct";
 import Invoice from "./pages/Invoice";
-
+import CartViewer from "./pages/CartViewer";
 
 const App = () => {
-
   return (
     <SearchProvider>
       <AuthProvider>
@@ -38,8 +37,7 @@ const App = () => {
 
             <ToastContainer position="top-center" autoClose={5000} hideProgressBar={false} />
             
-            
-            <Routes>
+           <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/collection" element={<Collection />} />
               <Route path="/login" element={<Login />} />
@@ -60,8 +58,6 @@ const App = () => {
         </CartProvider>
       </AuthProvider>
     </SearchProvider>
-      
-    
   );
 };
 
