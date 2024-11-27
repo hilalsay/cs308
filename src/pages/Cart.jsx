@@ -1,4 +1,5 @@
 import React from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "../contexts/CartContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useContext } from "react";
@@ -11,6 +12,8 @@ const Cart = () => {
 
 
   const navigate = useNavigate();
+
+  
 
   // Calculate total price
   const calculateTotal = (items) => {
@@ -64,7 +67,7 @@ const CartItem = ({ item, removeFromCart }) => (
     <h4>{item.product.name}</h4>
     <p>Price: ${item.price.toFixed(2)}</p>
     <p>Quantity: {item.quantity}</p>
-    <button onClick={() => removeFromCart(item.id)}>Remove</button>
+    <button onClick={() => removeFromCart(item)}>Remove</button>
   </div>
 );
 
