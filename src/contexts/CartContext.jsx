@@ -30,20 +30,36 @@ export const CartProvider = ({ children }) => {
 
   // Fetch cart from database when the user logs in
   const fetchCartFromDB = async () => {
+    const token = localStorage.getItem("token");
+  
+    // Token mevcut mu?
+    if (!token) {
+      console.error("No token found. Please log in.");
+      return; // Token yoksa işlem yapılmaz
+    }
+  
     try {
-      console.log("cart token: ", localStorage.getItem("token"))
+      console.log("cart token: ", token);
+  
       const response = await axios.get("http://localhost:8080/api/cart/view", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        },  
       });
-      const data = response.data;
-      setCartItems(data.items || []);
+  
+      // API yanıtını kontrol et
+      if (response.status === 200 && response.data) {
+        const data = response.data;
+        setCartItems(data.items || []);
+      } else {
+        console.error("Failed to fetch cart. Status code:", response.status);
+      }
     } catch (error) {
-      console.error("Failed to fetch cart from DB:", error);
+      // Hata mesajını daha ayrıntılı göster
+      console.error("Failed to fetch cart from DB:", error.response ? error.response.data : error.message);
     }
   };
-
+  
   // Sync the cart to the DB for logged-in users
   const syncCartToDB = async () => {
     if (isSyncing) {
@@ -64,7 +80,7 @@ export const CartProvider = ({ children }) => {
             {
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Authorization: `Bearer ${token}`,
               },
             }
           );
@@ -104,6 +120,7 @@ export const CartProvider = ({ children }) => {
 
     // If the user is logged in, sync with the backend
     if (token) {
+
       try {
         await axios.post(
           `http://localhost:8080/api/cart/add/${product.id}/1`,
@@ -114,11 +131,12 @@ export const CartProvider = ({ children }) => {
           {
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${token}`,
             },
           }
         );
         console.log("Cart updated on the backend");
+        console.log("Cart data: ", response.data);
       } catch (error) {
         console.error("Failed to sync cart with backend:", error);
       }
@@ -133,7 +151,7 @@ export const CartProvider = ({ children }) => {
       try {
         await axios.delete(`http://localhost:8080/api/cart/remove/${itemId}`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         console.log(`Item ${itemId} removed from the backend`);
@@ -149,7 +167,7 @@ export const CartProvider = ({ children }) => {
       try {
         await axios.delete("http://localhost:8080/api/cart/clear", {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         console.log("Cart cleared on the backend");
@@ -161,7 +179,13 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{ 
+      cartItems,
+      addToCart,
+      removeFromCart,
+      clearCart,
+      syncCartToDB,
+      fetchCartFromDB, }}>
       {children}
     </CartContext.Provider>
   );

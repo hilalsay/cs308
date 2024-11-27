@@ -92,4 +92,4 @@ const CheckoutPage = () => {
   );
 };
 
-export default CheckPage
+export default CheckoutPage;

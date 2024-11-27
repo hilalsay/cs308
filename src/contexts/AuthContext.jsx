@@ -8,11 +8,16 @@ const AuthProvider = ({ children }) => {
 
   // Initialize the token state from localStorage when the app loads
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      setToken(storedToken);
+    try {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        setToken(storedToken);
+      }
+    } catch (error) {
+      console.error("Error accessing localStorage: ", error);
     }
   }, []);
+  
 
   // Function to log in the user and store the token in localStorage
   const login = (token) => {
