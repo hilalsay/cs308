@@ -3,7 +3,7 @@ import { useCart } from "../contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const CheckoutPage = () => {
+const CheckPage = () => {
   const { cartItems } = useCart();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);

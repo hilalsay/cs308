@@ -32,32 +32,32 @@ const App = () => {
     <SearchProvider>
       <AuthProvider>
         <CartProvider>  {/* Wrap the entire app with CartProvider */}
-        <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
-          <Navbar />
-          <Navbar_routes />
+          <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+            <Navbar />
+            <Navbar_routes />
 
-          <ToastContainer position="top-center" autoClose={5000} hideProgressBar={false} />
-          
-          
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/collection" element={<Collection />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/add-product" element={<AddProduct />} />
-            <Route path="/product/:productId" element={<ProductDetails />} />
-            <Route path="/necklaces" element={<Necklaces />} />
-            <Route path="/rings" element={<Rings />} />
-            <Route path="/bracelets" element={<Bracelets />} />
-            <Route path="/earrings" element={<Earrings />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/search" element={<SearchResults />} />
-            <Route path="/invoice" element={<Invoice />} />
-            {/* Updated route for product details */}
-          </Routes>
-        </div>
-      </CartProvider>
+            <ToastContainer position="top-center" autoClose={5000} hideProgressBar={false} />
+            
+            
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/collection" element={<Collection />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/add-product" element={<AddProduct />} />
+              <Route path="/product/:productId" element={<ProductDetails />} />
+              <Route path="/necklaces" element={<Necklaces />} />
+              <Route path="/rings" element={<Rings />} />
+              <Route path="/bracelets" element={<Bracelets />} />
+              <Route path="/earrings" element={<Earrings />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/search" element={<SearchResults />} />
+              <Route path="/invoice" element={<Invoice />} />
+              {/* Updated route for product details */}
+            </Routes>
+          </div>
+        </CartProvider>
       </AuthProvider>
     </SearchProvider>
       
