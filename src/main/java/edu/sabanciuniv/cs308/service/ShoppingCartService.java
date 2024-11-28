@@ -85,6 +85,11 @@ public class ShoppingCartService {
             throw new RuntimeException("Insufficient stock for the product: " + product.getName());
         }
         if (existingCartItem.isPresent()) {
+            if (product.getStockQuantity() - existingCartItem.get().getQuantity()< quantity) {
+                throw new RuntimeException("Insufficient stock for the product: " + product.getName());
+            }
+        }
+        if (existingCartItem.isPresent()) {
             // If the product is already in the cart, update the quantity
             CartItem cartItem = existingCartItem.get();
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
