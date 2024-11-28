@@ -76,12 +76,19 @@ public class ShoppingCartService {
         Product product = productRepo.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
+
+        // Check if the product is already in the cart
+        Optional<CartItem> existingCartItem = cartItemRepo.findByShoppingCartAndProduct(cart, product);
         // Check if the requested quantity is available in stock
         if (product.getStockQuantity() < quantity) {
             throw new RuntimeException("Insufficient stock for the product: " + product.getName());
         }
-        // Check if the product is already in the cart
-        Optional<CartItem> existingCartItem = cartItemRepo.findByShoppingCartAndProduct(cart, product);
+        if (existingCartItem.isPresent()) {
+            if (product.getStockQuantity() - existingCartItem.get().getQuantity()< quantity) {
+                throw new RuntimeException("Insufficient stock for the product: " + product.getName());
+            }
+        }
+
 
         if (existingCartItem.isPresent()) {
             // If the product is already in the cart, update the quantity
