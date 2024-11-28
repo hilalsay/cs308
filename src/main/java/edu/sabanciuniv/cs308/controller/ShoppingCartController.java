@@ -2,7 +2,12 @@
 package edu.sabanciuniv.cs308.controller;
 
 import edu.sabanciuniv.cs308.model.Order;
+import edu.sabanciuniv.cs308.model.Product;
 import edu.sabanciuniv.cs308.model.ShoppingCart;
+
+import edu.sabanciuniv.cs308.model.CartItem;
+
+import edu.sabanciuniv.cs308.service.CartItemService;
 import edu.sabanciuniv.cs308.service.InvoiceService;
 import edu.sabanciuniv.cs308.service.JwtService;
 import edu.sabanciuniv.cs308.service.ShoppingCartService;
@@ -172,5 +177,58 @@ public class ShoppingCartController {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
+
+    @GetMapping("/infoCartitem/{cartId}")
+    public ResponseEntity<?> getCartitem(
+            @RequestHeader("Authorization") String token,
+            @PathVariable UUID cartId) {
+        try {
+            // Extract user ID from the token
+            String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
+            UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
+
+            // Fetch the cart information
+            ShoppingCart cart = shoppingCartService.getCartByIdAndUserId(cartId, userId);
+            if (cart == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Extract the cart items
+            List<CartItem> items = cart.getItems();
+
+            // Return the list of products in the shopping cart
+            return ResponseEntity.ok(items);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/infoProducts/{cartId}")
+    public ResponseEntity<?> getCartProducts(
+            @RequestHeader("Authorization") String token,
+            @PathVariable UUID cartId) {
+        try {
+            // Extract user ID from the token
+            String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
+            UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
+
+            // Fetch the cart information
+            ShoppingCart cart = shoppingCartService.getCartByIdAndUserId(cartId, userId);
+            if (cart == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Extract products from the cart
+            List<Product> products = cart.getItems().stream()
+                    .map(CartItem::getProduct) // Map each CartItem to its Product
+                    .toList();
+
+            // Return the list of products in the shopping cart
+            return ResponseEntity.ok(products);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
 
 }
