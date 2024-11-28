@@ -58,4 +58,12 @@ public class CategoryController {
         return new ResponseEntity<>(service.getAllCategories(), HttpStatus.OK);
     }
 
+    @GetMapping("/products/sorted")
+    public ResponseEntity<List<Product>> getSortedProductsInCategory(
+            @RequestParam UUID categoryId,  // Use @RequestParam instead of @PathVariable
+            @RequestParam String sortBy) {
+        List<Product> sortedProducts = service.getSortedProductsInCategory(categoryId, sortBy);
+        return new ResponseEntity<>(sortedProducts, HttpStatus.OK);
+    }
+
 }

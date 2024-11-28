@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
@@ -29,6 +30,8 @@ public class Product {
     private String distributorInformation;
     private String imageName;
     private String imageType;
+    @Getter
+    private int popularity;
 
     @Lob
     private byte[] imageData;
@@ -54,6 +57,11 @@ public class Product {
                 ", category=" + category +
                 '}';
     }
+
+    public int getPopularity() {
+        return this.popularity;
+    }
+
 
 //    @OneToMany(mappedBy = "product")
 //    private List<Order> orders; // Assuming you have an Order class that tracks product sales
