@@ -94,14 +94,16 @@ public class ReviewService {
 
 
 
+
     private boolean hasUserOrderedProduct(UUID userId, UUID productId) {
         // Fetch all orders by the user
         List<Order> userOrders = orderRepository.findByUserId(userId);
 
         for (Order order : userOrders) {
             if (order.getOrderStatus().equals(OrderStatus.DELIVERED)) { // Ensure the product was delivered
-                ShoppingCart shoppingCart = shoppingCartRepository.findById(order.getShop_id()).orElse(null);
-                if (shoppingCart != null) {
+                Optional<ShoppingCart> shoppingCartOpt = shoppingCartRepository.findById(order.getShop_id());
+                if (shoppingCartOpt.isPresent()) {
+                    ShoppingCart shoppingCart = shoppingCartOpt.get();
                     return shoppingCart.getItems().stream()
                             .anyMatch(item -> item.getProduct().getId().equals(productId));
                 }
@@ -109,6 +111,7 @@ public class ReviewService {
         }
         return false;
     }
+
 
     public Review updateReviewComment(UUID reviewId, String newComment) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("Review not found"));

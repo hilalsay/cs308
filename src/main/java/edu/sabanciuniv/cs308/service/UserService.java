@@ -22,15 +22,12 @@ public class UserService {
 
     @Autowired
     private UserRepo userRepo;
+    @Autowired
     private JwtService jwtService;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
     @Autowired
     private ShoppingCartRepo shoppingCartRepo;
 
-    public UserService(UserRepo userRepo, JwtService jwtService) {
-        this.userRepo = userRepo;
-        this.jwtService = jwtService;
-    }
     public String registerUser(User user) {
         // Check if the username already exists
         Optional<User> existingUser = userRepo.findByUsername(user.getUsername());

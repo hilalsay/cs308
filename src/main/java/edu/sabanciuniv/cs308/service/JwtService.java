@@ -1,6 +1,7 @@
 package edu.sabanciuniv.cs308.service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -41,7 +42,7 @@ public class JwtService {
                 .compact();
     }
 
-    private SecretKey getKey() {
+    SecretKey getKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretkey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
@@ -64,9 +65,21 @@ public class JwtService {
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        final String userName = extractUserName(token);
-        return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        try {
+            // Extract the username from the token
+            final String userName = extractUserName(token);
+
+            // Check if the username matches and the token is not expired
+            return userName.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        } catch (ExpiredJwtException e) {
+            // Return false if the token has expired
+            return false;
+        } catch (Exception e) {
+            // Return false for any other exceptions
+            return false;
+        }
     }
+
 
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
