@@ -1,4 +1,3 @@
-// OrdersPage.jsx
 import React, { useState, useEffect } from "react";
 import OrderCard from "./OrderCard";
 
@@ -10,21 +9,32 @@ const Orders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch("/api/orders", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          setError("No token found. Please log in.");
+          return;
+        }
+
+        const response = await fetch(
+          "http://localhost:8080/api/orders/user/orders",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Failed to fetch orders");
         }
 
         const data = await response.json();
-        setOrders(data || []); // Ensure orders is always an array
+        setOrders(data || []);
       } catch (err) {
+        console.error("Error fetching orders:", err);
         setError(err.message);
       } finally {
         setLoading(false);

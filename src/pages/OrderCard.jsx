@@ -6,23 +6,21 @@ const OrderCard = ({ order }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch products for the given order using shop_id
   useEffect(() => {
     const fetchOrderProducts = async () => {
       try {
-        // Get the token from localStorage
-        const token = localStorage.getItem("authToken");
+        const token = localStorage.getItem("token");
 
-        // Check if the token exists
         if (!token) {
-          console.error("No token found. Please log in.");
-          setError("No token found.");
+          setError("No token found. Please log in.");
+          console.error("No token found");
           return;
         }
 
-        // Send the request to fetch products using the shop_id
+        console.log("Fetching products for shop_id:", order?.shop_id);
+
         const response = await axios.get(
-          `http://localhost:8080/api/orders/${order?.shop_id}/products`,
+          `http://localhost:8080/api/cart/infoProducts/${order?.shop_id}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -31,12 +29,15 @@ const OrderCard = ({ order }) => {
           }
         );
 
-        // Update the products state with the fetched data
-        setProducts(response.data.products || []); // Adjust field as per the actual response
-        setLoading(false);
+        console.log("Fetched products:", response.data);
+        setProducts(response.data || []);
       } catch (err) {
-        console.error("Error fetching order products:", err);
-        setError("Failed to fetch products");
+        console.error(
+          "Error fetching order products:",
+          err.response || err.message
+        );
+        setError(err.response?.data?.message || "Failed to fetch products");
+      } finally {
         setLoading(false);
       }
     };
@@ -46,7 +47,6 @@ const OrderCard = ({ order }) => {
     }
   }, [order?.shop_id]);
 
-  // Format the date
   const orderDate = order?.createdAt
     ? new Date(order.createdAt).toLocaleDateString()
     : "Unknown";
@@ -74,15 +74,22 @@ const OrderCard = ({ order }) => {
       ) : products.length > 0 ? (
         <div className="products">
           {products.map((product) => (
-            <div key={product.id} className="product">
+            <div
+              key={product.id}
+              className="product product-card bg-white shadow-md rounded-lg p-4 hover:shadow-lg transition"
+            >
               <img
-                src={product.imageUrl || "placeholder.png"}
+                src={
+                  `data:image/jpeg;base64,${product.imageData}` ||
+                  "/placeholder.png"
+                } // Default placeholder image
                 alt={product.name || "Product"}
                 className="product-image"
               />
               <div className="product-details">
                 <p>{product.name || "Unknown"}</p>
                 <p>Quantity: {product.quantity || 0}</p>
+                <p>Price: ${product.price?.toFixed(2) || "N/A"}</p>
               </div>
             </div>
           ))}
