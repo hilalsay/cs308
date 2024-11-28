@@ -1,4 +1,5 @@
 import React from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "../contexts/CartContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useContext } from "react";
@@ -6,18 +7,21 @@ import { AuthContext } from "../contexts/AuthContext";
 
 const Cart = () => {
   const { cartItems, removeFromCart } = useCart();
-  const { user, logout } = useContext(AuthContext);
-  const { isLoggedIn } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
+  //const { isLoggedIn } = useContext(AuthContext);
 
 
   const navigate = useNavigate();
 
+  
+
   // Calculate total price
   const calculateTotal = (items) => {
-    return items.reduce((sum, item) => sum + item.price * item.quantityInCart, 0);
+    return items.reduce((sum, item) => sum + item.price * item.quantity, 0); // Use item.quantity
   };
-
+  
   const totalPrice = calculateTotal(cartItems);
+  
 
   return (
     <div className="border-t pt-14">
@@ -41,7 +45,7 @@ const Cart = () => {
 
             <button
               onClick={() => {
-                if (isLoggedIn()) {
+                if (token) {
                   navigate("/checkout");
                 } else {
                   navigate("/login");
@@ -58,11 +62,12 @@ const Cart = () => {
 };
 
 const CartItem = ({ item, removeFromCart }) => (
+  
   <div className="py-4 border-t border-b text-gray-700 grid grid-cols-[4fr_0.5fr_0.5fr] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-4">
-    <h4>{item.name}</h4>
+    <h4>{item.product.name}</h4>
     <p>Price: ${item.price.toFixed(2)}</p>
-    <p>Quantity: {item.quantityInCart}</p>
-    <button onClick={() => removeFromCart(item.id)}>Remove</button>
+    <p>Quantity: {item.quantity}</p>
+    <button onClick={() => removeFromCart(item)}>Remove</button>
   </div>
 );
 

@@ -16,9 +16,17 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const cartCount = cartItems.reduce(
-    (count, item) => count + item.quantityInCart,
+    (count, item) => {
+      // Validate quantity before adding it to the total
+      const quantity = item.quantity && !isNaN(item.quantity)
+        ? Number(item.quantity) // Use item.quantity directly
+        : 0; // Default to 0 if invalid
+      return count + quantity;
+    },
     0
   );
+  
+  
 
   const handleSearchSubmit = async (e) => {
     e.preventDefault();

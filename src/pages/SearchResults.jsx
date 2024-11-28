@@ -1,7 +1,7 @@
-import React from 'react';
-import { Link } from 'react-router-dom'; // For navigation
-import { useSearchContext } from '../contexts/SearchContext'; // Import the context hook
-import { useCart } from '../contexts/CartContext'; // Context for managing cart
+import React from "react";
+import { Link } from "react-router-dom"; // For navigation
+import { useSearchContext } from "../contexts/SearchContext"; // Import the context hook
+import { useCart } from "../contexts/CartContext"; // Context for managing cart
 
 const SearchResultsPage = () => {
   const { searchResults, searchQuery } = useSearchContext(); // Access search context values
@@ -9,9 +9,7 @@ const SearchResultsPage = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-800 mb-4">
-        Search Results for "{searchQuery}"
-      </h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">Search Results</h1>
       <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-200">
         {searchResults.length > 0 ? (
           searchResults.map((result) => {
@@ -36,18 +34,38 @@ const SearchResultsPage = () => {
                     {result.name}
                   </p>
                 </Link>
-                <p className="text-red-600 text-lg font-bold">${result.price}</p>
-                <button
-                  className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
-                  onClick={() => addToCart(result)} // Add to cart functionality
+                <p className="text-red-600 text-lg font-bold">
+                  ${result.price}
+                </p>
+
+                {/* Stock Information */}
+                <p
+                  className={`text-sm ${
+                    result.stockQuantity > 0 ? "text-green-600" : "text-red-600"
+                  }`}
                 >
-                  Add to Cart
+                  {result.stockQuantity > 0
+                    ? `In Stock: ${result.stockQuantity}`
+                    : "Out of Stock"}
+                </p>
+
+                {/* Add to Cart Button */}
+                <button
+                  className={`mt-4 w-full py-2 rounded-lg ${
+                    result.stockQuantity > 0
+                      ? "bg-blue-600 text-white hover:bg-blue-700"
+                      : "bg-gray-400 text-gray-800 cursor-not-allowed"
+                  }`}
+                  onClick={() => addToCart(result)}
+                  disabled={result.stockQuantity <= 0}
+                >
+                  {result.stockQuantity > 0 ? "Add to Cart" : "Out of Stock"}
                 </button>
               </div>
             );
           })
         ) : (
-          <p className="text-gray-600">No results found for "{searchQuery}".</p>
+          <p className="text-gray-600">No results found.</p>
         )}
       </div>
     </div>
