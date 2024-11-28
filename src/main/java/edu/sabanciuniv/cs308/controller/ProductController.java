@@ -41,6 +41,13 @@ public class ProductController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    // Endpoint to get products sorted by the specified criteria (price or popularity)
+    @GetMapping("/sorted")
+    public ResponseEntity<List<Product>> getSortedProducts(@RequestParam String sortBy) {
+        List<Product> sortedProducts = service.getSortedProducts(sortBy); // Get sorted products from service
+        return new ResponseEntity<>(sortedProducts, HttpStatus.OK); // Return sorted products with OK status
+    }
+
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<?> addProduct(@RequestParam("product") String productJson,
                                         @RequestParam("image") MultipartFile imageFile) throws IOException {
