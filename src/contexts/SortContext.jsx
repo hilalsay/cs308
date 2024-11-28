@@ -13,6 +13,6 @@ export const SortProvider = ({ children }) => {
   return (
     <SortContext.Provider value={{ sortBy, setSortBy }}>
       {children}
-    </SortContext.Provider>
+    </SortContext.Provider> 
   );
 };

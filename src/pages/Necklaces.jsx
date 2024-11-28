@@ -5,8 +5,10 @@ import "./Products.css";
 
 const Necklaces = () => {
   const [necklaceProducts, setNecklaceProducts] = useState([]);
+  const [sortedProducts, setSortedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sortOrder, setSortOrder] = useState(""); // State for sorting order
 
   useEffect(() => {
     // Fetch categories and filter for "Necklaces" products
@@ -23,6 +25,7 @@ const Necklaces = () => {
         // Set the necklace products if the category is found
         if (necklacesCategory) {
           setNecklaceProducts(necklacesCategory.products);
+          setSortedProducts(necklacesCategory.products); // Initialize sorted products
         } else {
           setError("Necklaces category not found");
         }
@@ -34,15 +37,46 @@ const Necklaces = () => {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    // Apply sorting whenever the sortOrder changes
+    if (sortOrder === "lowToHigh") {
+      setSortedProducts(
+        [...necklaceProducts].sort((a, b) => a.price - b.price)
+      );
+    } else if (sortOrder === "highToLow") {
+      setSortedProducts(
+        [...necklaceProducts].sort((a, b) => b.price - a.price)
+      );
+    } else {
+      setSortedProducts(necklaceProducts); // Default: no sorting
+    }
+  }, [sortOrder, necklaceProducts]);
+
   if (loading) return <div>Loading necklaces...</div>;
   if (error) return <div>{error}</div>;
 
   return (
     <div>
       <h2 className="collection-header">Necklaces Collection</h2>
+
+      {/* Sorting Options */}
+      <div className="sorting-container">
+        <label htmlFor="sortOrder">Sort by: </label>
+        <select
+          id="sortOrder"
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
+        >
+          <option value="">Default</option>
+          <option value="lowToHigh">Price: Low to High</option>
+          <option value="highToLow">Price: High to Low</option>
+          <option value="popularity">Popularity</option>
+        </select>
+      </div>
+
       <div className="product-container">
-        {necklaceProducts.length > 0 ? (
-          necklaceProducts.map((product) => (
+        {sortedProducts.length > 0 ? (
+          sortedProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))
         ) : (
