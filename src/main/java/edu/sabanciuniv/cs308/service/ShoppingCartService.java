@@ -79,17 +79,11 @@ public class ShoppingCartService {
 
         // Check if the product is already in the cart
         Optional<CartItem> existingCartItem = cartItemRepo.findByShoppingCartAndProduct(cart, product);
+
         // Check if the requested quantity is available in stock
         if (product.getStockQuantity() < quantity) {
             throw new RuntimeException("Insufficient stock for the product: " + product.getName());
         }
-        if (existingCartItem.isPresent()) {
-            if (product.getStockQuantity() - existingCartItem.get().getQuantity()< quantity) {
-                throw new RuntimeException("Insufficient stock for the product: " + product.getName());
-            }
-        }
-
-
         if (existingCartItem.isPresent()) {
             // If the product is already in the cart, update the quantity
             CartItem cartItem = existingCartItem.get();
@@ -109,7 +103,7 @@ public class ShoppingCartService {
     }
 
 
-    public ShoppingCart removeItemFromCart(UUID userId, UUID productId) {
+    public ShoppingCart removeOneItemFromCart(UUID userId, UUID productId) {
         // Kullanıcıya ait 'ordered' değeri false olan sepete erişim
         ShoppingCart cart = shoppingCartRepo.findByUserIdAndOrderedFalse(userId)
                 .orElseThrow(() -> new RuntimeException("No unordered shopping cart found for user: " + userId));
@@ -142,6 +136,41 @@ public class ShoppingCartService {
 
         // Sepeti veritabanında kaydet
         return shoppingCartRepo.save(cart);
+    }
+
+    public ShoppingCart removeProductFromCart(UUID userId, UUID productId) {
+        ShoppingCart cart = shoppingCartRepo.findByUserIdAndOrderedFalse(userId)
+                .orElseThrow(() -> new RuntimeException("No unordered shopping cart found for user: " + userId));
+
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        Optional<CartItem> cartItem = cartItemRepo.findByShoppingCartAndProduct(cart, product);
+
+        if (cartItem.isPresent()) {
+            cart.getItems().remove(cartItem.get());
+            cartItemRepo.delete(cartItem.get());
+        } else {
+            throw new RuntimeException("Product not found in the shopping cart.");
+        }
+
+        // Update the cart total
+        updateCartTotal(cart);
+
+        return shoppingCartRepo.save(cart);
+    }
+
+    public void clearCart(UUID userId) {
+        ShoppingCart cart = shoppingCartRepo.findByUserIdAndOrderedFalse(userId)
+                .orElseThrow(() -> new RuntimeException("No unordered shopping cart found for user: " + userId));
+
+        cartItemRepo.deleteAll(cart.getItems());
+        cart.getItems().clear();
+
+        // Update the cart total
+        updateCartTotal(cart);
+
+        shoppingCartRepo.save(cart);
     }
 
 

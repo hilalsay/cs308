@@ -78,8 +78,8 @@ public class ShoppingCartController {
 
 
     // Endpoint to remove an item from the cart
-    @DeleteMapping("/remove/{itemId}")
-    public ResponseEntity<ShoppingCart> removeItemFromCart(
+    @DeleteMapping("/decrease/{itemId}")
+    public ResponseEntity<?> removeItemFromCart(
             @RequestHeader("Authorization") String token,
             @PathVariable UUID itemId) {
         try {
@@ -87,10 +87,44 @@ public class ShoppingCartController {
             String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
             UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
 
-            ShoppingCart cart = shoppingCartService.removeItemFromCart(userId, itemId);
+            ShoppingCart cart = shoppingCartService.removeOneItemFromCart(userId, itemId);
             return ResponseEntity.ok(cart);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    // Endpoint to remove a specific product from the cart completely
+    @DeleteMapping("/remove/{productId}")
+    public ResponseEntity<?> removeProductFromCart(
+            @RequestHeader("Authorization") String token,
+            @PathVariable UUID productId) {
+        try {
+            // Extract user ID from the token
+            String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
+            UUID userId = userService.getUserIdByUsername(username);
+
+            // Remove the product from the shopping cart
+            ShoppingCart updatedCart = shoppingCartService.removeProductFromCart(userId, productId);
+            return ResponseEntity.ok(updatedCart);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
+    // Endpoint to delete all products from the shopping cart
+    @DeleteMapping("/clear")
+    public ResponseEntity<?> clearShoppingCart(@RequestHeader("Authorization") String token) {
+        try {
+            // Extract user ID from the token
+            String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
+            UUID userId = userService.getUserIdByUsername(username);
+
+            // Clear the user's shopping cart
+            shoppingCartService.clearCart(userId);
+            return ResponseEntity.ok("All products have been removed from your shopping cart.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
 
