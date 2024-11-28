@@ -3,7 +3,9 @@ package edu.sabanciuniv.cs308.controller;
 import edu.sabanciuniv.cs308.model.Order;
 import edu.sabanciuniv.cs308.model.OrderStatus;
 import edu.sabanciuniv.cs308.service.InvoiceService;
+import edu.sabanciuniv.cs308.service.JwtService;
 import edu.sabanciuniv.cs308.service.OrderService;
+import edu.sabanciuniv.cs308.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,10 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
-
+    @Autowired
+    private JwtService jwtService;
+    @Autowired
+    private UserService userService;
     // Endpoint to view all orders
     @GetMapping
     public ResponseEntity<List<Order>> getAllOrders() {
@@ -28,13 +33,25 @@ public class OrderController {
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
-    // Endpoint to view an order by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrderById(@PathVariable UUID id) {
-        Optional<Order> order = orderService.findById(id);
-        return order.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    @GetMapping("/user/orders")
+    public ResponseEntity<?> getOrdersByUser(@RequestHeader("Authorization") String token) {
+        try {
+            // Extract user ID from the token
+            String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
+            UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
+
+            // Fetch orders belonging to the user
+            List<Order> userOrders = orderService.findOrdersByUserId(userId);
+            if (userOrders.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No orders found for the user.");
+            }
+
+            return ResponseEntity.ok(userOrders);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
+
 
     // Endpoint to delete all orders
     @DeleteMapping

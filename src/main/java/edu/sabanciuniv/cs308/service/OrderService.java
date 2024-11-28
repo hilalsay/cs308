@@ -36,7 +36,15 @@ public class OrderService {
         }
         return false;
     }
-
+    /**
+     * Fetch all orders for a specific user.
+     *
+     * @param userId the ID of the user whose orders are being retrieved.
+     * @return a list of orders belonging to the specified user.
+     */
+    public List<Order> findOrdersByUserId(UUID userId) {
+        return orderRepository.findByUserId(userId);
+    }
     // Method to update the order status
     public Order updateOrderStatus(UUID orderId, OrderStatus status) {
         Order order = orderRepository.findById(orderId)
