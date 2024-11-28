@@ -16,8 +16,8 @@ import java.util.Properties;
 @Service
 public class EmailSender {
 
-    public void sendEmailWithPdf(String pdfFilePath) {
-
+    public void sendEmailWithPdf(String recipientEmail ,String pdfFilePath) {
+        System.out.println(recipientEmail);
         File pdfFile = new File(pdfFilePath);
         final String username = "jewelryshop308@gmail.com";
         final String password = "omcm vnot cykr uvjf"; // App-specific password
@@ -44,7 +44,7 @@ public class EmailSender {
             message.setFrom(new InternetAddress(username));
             message.setRecipients(
                     Message.RecipientType.TO,
-                    InternetAddress.parse("jewelryshop308@gmail.com, jewelryshop308@outlook.com") //test gmails
+                    InternetAddress.parse(recipientEmail) //test gmails
             );
             message.setSubject("Test Email with Generated PDF Attachment");
 

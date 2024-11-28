@@ -39,7 +39,7 @@ class InvoiceServiceTest {
         UUID orderId = UUID.randomUUID();
         Order mockOrder = new Order();
         String mockPdfPath = "path/to/generated/invoice.pdf";
-
+        String mockEmail = "mockEmail";
         when(orderRepoMock.findById(orderId)).thenReturn(Optional.of(mockOrder));
         when(pdfServiceMock.createPdf(mockOrder)).thenReturn(mockPdfPath);
 
@@ -49,7 +49,7 @@ class InvoiceServiceTest {
         // Assert
         verify(orderRepoMock, times(1)).findById(orderId);
         verify(pdfServiceMock, times(1)).createPdf(mockOrder);
-        verify(emailServiceMock, times(1)).sendEmailWithPdf(mockPdfPath);
+        verify(emailServiceMock, times(1)).sendEmailWithPdf(mockEmail,mockPdfPath);
     }
 
     @Test
@@ -94,10 +94,11 @@ class InvoiceServiceTest {
         UUID orderId = UUID.randomUUID();
         Order mockOrder = new Order();
         String mockPdfPath = "path/to/generated/invoice.pdf";
+        String mockEmail = "email";
 
         when(orderRepoMock.findById(orderId)).thenReturn(Optional.of(mockOrder));
-        when(pdfServiceMock.createPdf(mockOrder)).thenReturn(mockPdfPath);
-        doThrow(new RuntimeException("Email sending failed")).when(emailServiceMock).sendEmailWithPdf(mockPdfPath);
+        when(pdfServiceMock.createPdf(mockOrder)).thenReturn(mockEmail,mockPdfPath);
+        doThrow(new RuntimeException("Email sending failed")).when(emailServiceMock).sendEmailWithPdf(mockEmail,mockPdfPath);
 
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
@@ -106,6 +107,6 @@ class InvoiceServiceTest {
 
         verify(orderRepoMock, times(1)).findById(orderId);
         verify(pdfServiceMock, times(1)).createPdf(mockOrder);
-        verify(emailServiceMock, times(1)).sendEmailWithPdf(mockPdfPath);
+        verify(emailServiceMock, times(1)).sendEmailWithPdf(mockEmail,mockPdfPath);
     }
 }
