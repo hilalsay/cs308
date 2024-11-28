@@ -29,6 +29,7 @@ const AuthProvider = ({ children }) => {
       }
     }
   }, []);
+  
 
   // Function to log in the user and store the token in localStorage
   const login = (token) => {

@@ -1,12 +1,13 @@
 import React from "react";
 import Products from "./Products";
 
-const Collection = () => {
+const BraceletsPage = () => {
   return (
     <div>
-      <Products></Products>
+      <Products category="bracelets" /> {/* Pass category as prop */}
+         
     </div>
   );
 };
 
-export default Collection;
+export default BraceletsPage;

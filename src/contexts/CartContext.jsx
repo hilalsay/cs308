@@ -16,19 +16,28 @@ export const CartProvider = ({ children }) => {
   
 
   const fetchCartFromDB = async () => {
+    const token = localStorage.getItem("token");
+  
+    // Token mevcut mu?
+    if (!token) {
+      console.error("No token found. Please log in.");
+      return; // Token yoksa işlem yapılmaz
+    }
+  
     try {
       console.log("cart token:", localStorage.getItem("token"));
       const response = await axios.get("http://localhost:8080/api/cart/view", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        },  
       });
       const data = response.data;
       console.log(data);
       setCartItems(data.items);
       console.log(cartItems);
     } catch (error) {
-      console.error("Failed to fetch cart from DB:", error);
+      // Hata mesajını daha ayrıntılı göster
+      console.error("Failed to fetch cart from DB:", error.response ? error.response.data : error.message);
     }
   };
 
@@ -167,6 +176,7 @@ export const CartProvider = ({ children }) => {
     };
   
     if (token) {
+
       try {
         // Send a request to add the product to the backend cart
         await axios.post(
@@ -274,7 +284,7 @@ export const CartProvider = ({ children }) => {
       try {
         await axios.delete("http://localhost:8080/api/cart/clear", {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         console.log("Cart cleared on the backend");
