@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -53,4 +54,30 @@ public class Product {
                 ", category=" + category +
                 '}';
     }
+
+//    @OneToMany(mappedBy = "product")
+//    private List<Order> orders; // Assuming you have an Order class that tracks product sales
+//     @OneToMany(mappedBy = "product")
+//    private List<Rating> ratings; // Assuming you have a Rating class that stores user ratings for products
+
+/**
+ *
+ public double getSalesCount() {
+ return orders != null ? orders.size() : 0; // If orders are stored in a list, return the size.
+ }
+ */
+
+/**
+ *     public double getAverageRating() {
+ *         if (ratings != null && !ratings.isEmpty()) {
+ *             double sum = 0;
+ *             for (Rating rating : ratings) {
+ *                 sum += rating.getRatingValue(); // Assuming each Rating has a `getRatingValue()` method
+ *             }
+ *             return sum / ratings.size();
+ *         }
+ *         return 0; // If no ratings exist, return 0 or a default value.
+ *         }
+ */
+
 }

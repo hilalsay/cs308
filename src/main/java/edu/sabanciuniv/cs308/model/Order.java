@@ -43,4 +43,15 @@ public class Order {
 
     @Column(name = "payment_method")
     private String paymentMethod;
+
+    /**
+     *     // Adding Many-to-Many relationship with Product
+     *     @ManyToMany
+     *     @JoinTable(
+     *             name = "order_products",
+     *             joinColumns = @JoinColumn(name = "order_id"),
+     *             inverseJoinColumns = @JoinColumn(name = "product_id")
+     *     )
+     *     private List<Product> products; // List of products in this order
+     */
 }
