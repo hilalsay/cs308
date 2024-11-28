@@ -1,91 +1,101 @@
-import React, { useState } from "react";
-import { useCart } from "../contexts/CartContext";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { AuthContext } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
 
 const CheckPage = () => {
-  const { cartItems } = useCart();
+  const { cartItems, clearCart } = useCart();
+  const { token } = useContext(AuthContext);
+  const [checkoutData, setCheckoutData] = useState({
+    address: "",
+    paymentMethod: "Credit Card", // Default payment method
+  });
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("credit_card");
 
-  // Calculate total price
-  const calculateTotal = (items) =>
-    items.reduce((sum, item) => sum + item.price * item.quantityInCart, 0);
-
-  const totalPrice = calculateTotal(cartItems);
-
-  const handleCardNumberChange = (e) => {
-    let value = e.target.value.replace(/\D/g, ""); // Remove non-digit characters
-    if (value.length > 4) {
-      value = value.replace(/(\d{4})(?=\d)/g, "$1 "); // Add space after every 4 digits
-    }
-    e.target.value = value.substring(0, 19); // Limit to 19 characters
-  };
-
-  const handleCheckout = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const expirationMonth = e.target.elements.expirationMonth?.value;
-    const expirationYear = e.target.elements.expirationYear?.value;
-
-    if (!expirationMonth || !expirationYear) {
-      alert("Expiration date is required.");
-      return;
-    }
-
-    const token = localStorage.getItem("authToken");
+  // Check if token is available
+  useEffect(() => {
     if (!token) {
-      alert("You must be logged in to complete the checkout.");
-      setLoading(false);
+      alert("You must be logged in to proceed with the checkout.");
+      navigate("/login"); // Redirect to login page if no token
+    }
+  }, [token, navigate]);
+
+  // Handle checkout
+  const handleCheckout = async () => {
+    if (!checkoutData.address.trim()) {
+      alert("Please provide a valid address.");
       return;
     }
-
-    // Gather user and payment data
-    const checkoutData = {
-      paymentMethod,
-      userInfo: {
-        fullName: e.target.fullName.value,
-        email: e.target.email.value,
-        address: e.target.address.value,
-      },
-      cartItems,
-      totalPrice,
-      ...(paymentMethod === "credit_card" && {
-        paymentDetails: {
-          cardNumber: e.target.cardNumber.value.replace(/\s/g, ""), // Remove spaces
-          expirationDate: `${e.target.expirationMonth.value}/${e.target.expirationYear.value}`,
-          cvv: e.target.cvv.value,
-        },
-      }),
-    };
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/cart/confirm",
-        checkoutData,
+      // Make the API call to confirm the order
+      console.log("checkpage Token:", token);
+      const response = await fetch(
+        "http://localhost:8080/api/cart/confirm?paymentMethod=" +
+          checkoutData.paymentMethod,
         {
+          method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`,
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         }
       );
 
-      if (response.status === 200) {
-        navigate("/invoice", { state: response.data });
+      const responseText = await response.text(); // Get the response as text
+      console.log("Response Text:", responseText);
+
+      try {
+        const data = JSON.parse(responseText);
+        if (response.status === 200) {
+          navigate("/invoice", { state: data });
+          clearCart(); // Optionally clear the cart after successful order
+        } else {
+          console.error("Checkout failed:", data);
+          alert("Error: " + (data.message || "Unable to process your order."));
+        }
+      } catch (e) {
+        console.error("Response parsing error:", e);
+        alert("Error: " + responseText); // Show the raw response in case of parsing failure
       }
+      
     } catch (error) {
-      console.error("Checkout failed:", error.response || error.message);
-      alert("Failed to complete the order. Please try again.");
-    } finally {
-      setLoading(false);
+      console.error("Checkout failed:", error);
+      alert("An error occurred while processing your order. Please try again.");
     }
   };
 
   return (
-    <div className="flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border -t">
-      <div className="flex flex-col gap-4 w-full sm:max-w-[480px]"></div>
+    <div className="checkout-page">
+      <h2>Checkout</h2>
+      <div className="form">
+        <div className="form-group">
+          <label htmlFor="address">Address:</label>
+          <input
+            type="text"
+            id="address"
+            value={checkoutData.address}
+            onChange={(e) =>
+              setCheckoutData({ ...checkoutData, address: e.target.value })
+            }
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="paymentMethod">Payment Method:</label>
+          <select
+            id="paymentMethod"
+            value={checkoutData.paymentMethod}
+            onChange={(e) =>
+              setCheckoutData({ ...checkoutData, paymentMethod: e.target.value })
+            }
+          >
+            <option value="Credit Card">Credit Card</option>
+            <option value="PayPal">PayPal</option>
+          </select>
+        </div>
+        <button onClick={handleCheckout}>Confirm Order</button>
+      </div>
     </div>
   );
 };

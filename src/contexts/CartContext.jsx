@@ -72,6 +72,43 @@ export const CartProvider = ({ children }) => {
     await fetchCartFromDB();
   };
 
+  const confirmCheckout = async (checkoutData, token, navigate, setLoading) => {
+    try {
+      console.log("Stored token:", localStorage.getItem("token"));
+      console.log("Token from AuthContext:", token);
+  
+      const response = await axios.post(
+        "http://localhost:8080/api/cart/confirm",
+        checkoutData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Use token from AuthContext
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        navigate("/invoice", { state: response.data }); // Navigate to the invoice page with response data
+      }
+    } catch (error) {
+      console.error("Checkout failed:", error);
+  
+      if (error.response) {
+        console.error("Response error:", error.response);
+        if (error.response.status === 401) {
+          alert("Session expired. Please log in again.");
+        } else {
+          alert(`Error: ${error.response.data.message || "Checkout failed."}`);
+        }
+      } else {
+        alert("Failed to complete the order. Please try again.");
+      }
+    } finally {
+      setLoading(false); // Stop the loading state
+    }
+  };
+  
+
   
   useEffect(() => {
     console.log("cart token:", token);
@@ -250,7 +287,7 @@ export const CartProvider = ({ children }) => {
 
   return (
     <CartContext.Provider
-      value={{ cartItems, addToCart, removeFromCart, clearCart }}
+      value={{ cartItems, addToCart, removeFromCart, clearCart, confirmCheckout }}
     >
       {children}
     </CartContext.Provider>
