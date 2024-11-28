@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
+import axios from "axios";
 
 const CheckPage = () => {
   const { cartItems, clearCart } = useCart();
@@ -22,33 +23,33 @@ const CheckPage = () => {
 
   // Handle checkout
   const handleCheckout = async () => {
+    /*
     if (!checkoutData.address.trim()) {
       alert("Please provide a valid address.");
       return;
     }
+    */
 
     try {
       // Make the API call to confirm the order
       console.log("checkpage Token:", token);
-      const response = await fetch(
-        "http://localhost:8080/api/cart/confirm?paymentMethod=" +
-          checkoutData.paymentMethod,
+      const response = await axios.post(
+        `http://localhost:8080/api/cart/confirm?paymentMethod=${encodeURIComponent(paymentMethod)}`,
+        {},
         {
-          method: "POST",
           headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          }
         }
       );
 
-      const responseText = await response.text(); // Get the response as text
-      console.log("Response Text:", responseText);
+      //const responseText = await response; // Get the response as text
+      //console.log("Response Text:", responseText);
 
       try {
-        const data = JSON.parse(responseText);
+        //const data = JSON.parse(responseText);
         if (response.status === 200) {
-          navigate("/invoice", { state: data });
+          navigate("/invoice");
           clearCart(); // Optionally clear the cart after successful order
         } else {
           console.error("Checkout failed:", data);
@@ -56,7 +57,7 @@ const CheckPage = () => {
         }
       } catch (e) {
         console.error("Response parsing error:", e);
-        alert("Error: " + responseText); // Show the raw response in case of parsing failure
+        //alert("Error: " + responseText); // Show the raw response in case of parsing failure
       }
       
     } catch (error) {
@@ -70,16 +71,20 @@ const CheckPage = () => {
       <h2>Checkout</h2>
       <div className="form">
         <div className="form-group">
+          {/*
           <label htmlFor="address">Address:</label>
           <input
             type="text"
             id="address"
             value={checkoutData.address}
+            
             onChange={(e) =>
               setCheckoutData({ ...checkoutData, address: e.target.value })
             }
             required
           />
+           */}
+          
         </div>
         <div className="form-group">
           <label htmlFor="paymentMethod">Payment Method:</label>

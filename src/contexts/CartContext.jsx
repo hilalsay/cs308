@@ -18,10 +18,10 @@ export const CartProvider = ({ children }) => {
   const fetchCartFromDB = async () => {
     const token = localStorage.getItem("token");
   
-    // Token mevcut mu?
+
     if (!token) {
       console.error("No token found. Please log in.");
-      return; // Token yoksa işlem yapılmaz
+      return; 
     }
   
     try {
@@ -36,7 +36,7 @@ export const CartProvider = ({ children }) => {
       setCartItems(data.items);
       console.log(cartItems);
     } catch (error) {
-      // Hata mesajını daha ayrıntılı göster
+     
       console.error("Failed to fetch cart from DB:", error.response ? error.response.data : error.message);
     }
   };
