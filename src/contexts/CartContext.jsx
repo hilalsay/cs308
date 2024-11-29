@@ -83,9 +83,6 @@ export const CartProvider = ({ children }) => {
 
   const confirmCheckout = async (checkoutData, token, navigate, setLoading) => {
     try {
-      console.log("Stored token:", localStorage.getItem("token"));
-      console.log("Token from AuthContext:", token);
-  
       const response = await axios.post(
         "http://localhost:8080/api/cart/confirm",
         checkoutData,
