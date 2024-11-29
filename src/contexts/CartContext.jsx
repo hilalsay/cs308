@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const CartContext = createContext();
 
@@ -12,6 +13,20 @@ export const CartProvider = ({ children }) => {
   });
   const [isSyncing, setIsSyncing] = useState(false);
 
+
+  const onToast = (s) => {
+      toast.error(s, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: false,
+        progress: undefined,
+        theme: "light",
+      });
+    
+  };
   
   
 
@@ -203,6 +218,7 @@ export const CartProvider = ({ children }) => {
         console.log("Added to cart and synced with backend");
       } catch (error) {
         console.error("Failed to sync cart with backend:", error);
+        onToast(error.response.data);
       }
     } else {
       // For local cart when not logged in
