@@ -19,7 +19,7 @@ public class PdfCreator {
             Document document = new Document(pdf);
 
             // Add content to the document
-            document.add(new Paragraph("Hello! This is a sample PDF file created for testing."));
+            document.add(new Paragraph("Hello! Thank you for shopping from us."));
 
             // Close the document
             document.close();

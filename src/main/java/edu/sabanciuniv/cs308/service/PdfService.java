@@ -6,9 +6,10 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import edu.sabanciuniv.cs308.model.Order;
-import edu.sabanciuniv.cs308.model.Product;
-import edu.sabanciuniv.cs308.repo.OrderRepo;
-import edu.sabanciuniv.cs308.repo.ProductRepo;
+import edu.sabanciuniv.cs308.model.ShoppingCart;
+import edu.sabanciuniv.cs308.model.CartItem;
+import edu.sabanciuniv.cs308.repo.ShoppingCartRepo;
+import edu.sabanciuniv.cs308.repo.CartItemRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,41 +17,87 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class PdfService {
 
     @Autowired
-    private OrderRepo repo;
+    private ShoppingCartRepo shoppingCartRepo;
+
+    @Autowired
+    private CartItemRepo cartItemRepo;
 
     public String createPdf(Order order) {
         try {
-            String filePath = "invoices/invoice_" + order.getId() + ".pdf";
+            // Directory and file path
+            String directoryPath = "invoices";
+            File directory = new File(directoryPath);
+
+            // Ensure directory exists
+            if (!directory.exists()) {
+                boolean dirCreated = directory.mkdirs(); // Create directory
+                if (!dirCreated) {
+                    throw new RuntimeException("Failed to create directory: " + directoryPath);
+                }
+            }
+
+            // File path for the PDF
+            String filePath = directoryPath + "/invoice_" + order.getId() + ".pdf";
+
+            // Create the PDF file
             PdfWriter writer = new PdfWriter(new FileOutputStream(filePath));
             PdfDocument pdfDocument = new PdfDocument(writer);
             Document document = new Document(pdfDocument);
 
+            // Add title to the document
             document.add(new Paragraph("Invoice").setBold().setFontSize(14));
 
-            Table table = new Table(new float[]{1, 2, 3, 4});
-            table.addCell("User Name");
-            table.addCell("Total Amount");
-            table.addCell("Date");
-            table.addCell("Payment Method");
+            // Add order details (User, Total, Date, Payment Method)
+            document.add(new Paragraph("Order ID: " + order.getId()));
+            document.add(new Paragraph("User: " + order.getUser().getName()));
+            document.add(new Paragraph("Total Amount: " + order.getTotalAmount()));
+            document.add(new Paragraph("Order Date: " + order.getCreatedAt()));
+            document.add(new Paragraph("Payment Method: " + order.getPaymentMethod()));
 
+            // Fetch the shopping cart using shop_id from the order
+            Optional<ShoppingCart> shoppingCartOptional = shoppingCartRepo.findById(order.getShop_id());
+            if (shoppingCartOptional.isPresent()) {
+                ShoppingCart shoppingCart = shoppingCartOptional.get();
 
-            table.addCell(order.getUser().getName());
-            table.addCell(order.getTotalAmount().toString());
-            table.addCell(order.getCreatedAt().toString());
-            table.addCell(order.getPaymentMethod());
+                // Add a space
+                document.add(new Paragraph("\n"));
 
-            document.add(table);
+                // Add table header for the shopping cart items
+                Table table = new Table(new float[]{1, 3, 2, 2});
+                table.addCell("Item ID");
+                table.addCell("Product Name");
+                table.addCell("Quantity");
+                table.addCell("Price");
+
+                // Fetch the cart items for the shopping cart
+                List<CartItem> cartItems = shoppingCart.getItems();  // Get items in the shopping cart
+
+                // Add each cart item to the table
+                for (CartItem item : cartItems) {
+                    table.addCell(item.getProduct().getId().toString());  // Assuming CartItem has Product and Product has ID
+                    table.addCell(item.getProduct().getName());  // Assuming Product has Name
+                    table.addCell(String.valueOf(item.getQuantity()));
+                    table.addCell(String.valueOf(item.getProduct().getPrice()));  // Assuming Product has Price
+                }
+
+                // Add the table to the document
+                document.add(table);
+            } else {
+                document.add(new Paragraph("No items found for this shopping cart."));
+            }
+
+            // Close the document
             document.close();
-            return filePath;
+
+            return filePath; // Return the path to the created PDF
         } catch (Exception e) {
             e.printStackTrace();
+            return ""; // If something goes wrong, return empty string
         }
-        return "";
     }
 }

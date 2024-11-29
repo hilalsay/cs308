@@ -46,14 +46,14 @@ public class EmailSender {
                     Message.RecipientType.TO,
                     InternetAddress.parse(recipientEmail) //test gmails
             );
-            message.setSubject("Test Email with Generated PDF Attachment");
+            message.setSubject("Thank you for shopping from us! Hope to see you again.");
 
             // Create a multipart message
             Multipart multipart = new MimeMultipart();
 
             // Text part
             MimeBodyPart textPart = new MimeBodyPart();
-            textPart.setText("Please find the attached PDF file.");
+            textPart.setText("Please find your invoice in the attached PDF file.");
             multipart.addBodyPart(textPart);
 
             // File part
@@ -75,24 +75,4 @@ public class EmailSender {
             e.printStackTrace();
         }
     }
-
-//    public static void main(String[] args) {
-//        PdfService service = new PdfService();
-//        // Path to save the generated PDF
-//        String pdfPath = "C:\\Users\\sudel\\OneDrive\\Masaüstü\\products.pdf";
-//
-//        String uuidString = "9f0110a5-c4fe-469f-ad75-b9789b20f128"; // Geçerli bir UUID string
-//        UUID uuid = UUID.fromString(uuidString); // UUID nesnesine dönüştürme
-//
-//        // Generate the PDF
-//        service.createPdf(pdfPath, uuid);
-//        File pdfFile = new File(pdfPath);
-//
-//        // Send the email with the generated PDF
-//        if (pdfFile != null && pdfFile.exists()) {
-//            sendEmailWithPdf(pdfFile);
-//        } else {
-//            System.out.println("Failed to generate PDF. Email not sent.");
-//        }
-//    }
 }
