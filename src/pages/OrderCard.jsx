@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import ReviewCard from "./ReviewCard"; // Import the new component
 
 const OrderCard = ({ order }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchOrderProducts = async () => {
       try {
-        const token = localStorage.getItem("token");
-
         if (!token) {
           setError("No token found. Please log in.");
           return;
@@ -39,7 +39,7 @@ const OrderCard = ({ order }) => {
     if (order?.shop_id) {
       fetchOrderProducts();
     }
-  }, [order?.shop_id]);
+  }, [order?.shop_id, token]);
 
   const orderDate = order?.createdAt
     ? new Date(order.createdAt).toLocaleString("en-US", {
@@ -87,32 +87,39 @@ const OrderCard = ({ order }) => {
               key={product.id}
               style={{
                 display: "flex",
+                flexDirection: "column",
                 border: "1px solid #ddd",
                 borderRadius: "8px",
                 padding: "16px",
-                alignItems: "center",
               }}
             >
-              <img
-                src={`data:image/jpeg;base64,${product.product?.imageData}`}
-                alt={product.product?.name || "Product"}
-                style={{
-                  width: "100px",
-                  height: "100px",
-                  objectFit: "cover",
-                  borderRadius: "8px",
-                }}
-              />
-              <div style={{ marginLeft: "16px" }}>
-                <Link
-                  to={`/product/${product.product?.id}`}
-                  style={{ color: "#007BFF", textDecoration: "none" }}
-                >
-                  <strong>{product.product?.name || "Unknown"}</strong>
-                </Link>
-                <p>Quantity: {product.quantity || 0}</p>
-                <p>Price: ${product.price?.toFixed(2) || "N/A"}</p>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <img
+                  src={`data:image/jpeg;base64,${product.product?.imageData}`}
+                  alt={product.product?.name || "Product"}
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                  }}
+                />
+                <div style={{ marginLeft: "16px", flexGrow: 1 }}>
+                  <Link
+                    to={`/product/${product.product?.id}`}
+                    style={{ color: "#007BFF", textDecoration: "none" }}
+                  >
+                    <strong>{product.product?.name || "Unknown"}</strong>
+                  </Link>
+                  <p>Quantity: {product.quantity || 0}</p>
+                  <p>Price: ${product.price?.toFixed(2) || "N/A"}</p>
+                </div>
               </div>
+              <ReviewCard
+                productId={product.product?.id}
+                existingReview={product.review} // Pass existing review details, if any
+                token={token}
+              />
             </div>
           ))}
         </div>
