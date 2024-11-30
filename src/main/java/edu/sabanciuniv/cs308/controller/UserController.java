@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/auth")
@@ -52,5 +53,20 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-
+    // New endpoint to get user information by userId
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<User> getUserById(@PathVariable UUID userId) {
+        try {
+            User user = userService.getUserById(userId);
+            if (user != null) {
+                return ResponseEntity.ok(user);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(null);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(null);
+        }
+    }
 }
