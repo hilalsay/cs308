@@ -9,7 +9,7 @@ import { useSearchContext } from "../contexts/SearchContext"; // Import SearchCo
 
 const Navbar = () => {
   const { token, logout } = useContext(AuthContext);
-  const { cartItems } = useCart();
+  const { cartItems, syncCartToDB,fetchCartFromDB } = useCart(); 
   const { setSearchResults } = useSearchContext(); // Use SearchContext for managing results
   const [searchQuery, setSearchQuery] = useState(""); // Added searchQuery state
   const [visible, setVisible] = useState(false);
@@ -45,6 +45,12 @@ const Navbar = () => {
       } catch (error) {
         console.error("Error fetching search results:", error);
       }
+    }
+  };
+
+  const handleCartClick = async () => {
+    if (token) {
+      await fetchCartFromDB(); // Sync cart to the backend
     }
   };
 
@@ -124,7 +130,7 @@ const Navbar = () => {
         </div>
 
         {/* Cart Icon */}
-        <Link to="/cart" className="relative">
+        <Link to="/cart" className="relative" onClick={handleCartClick}>
           <img
             className="w-9 cursor-pointer"
             src={assets.cart_real}

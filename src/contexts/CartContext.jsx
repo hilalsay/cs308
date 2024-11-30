@@ -171,7 +171,7 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   const addToCart = async (product) => {
-    const existingItem = cartItems.find((item) => item.id === product.id);
+    const existingItem = cartItems.find((item) => item.product.id === product.id);
     let updatedCart;
   
     // Ensure that the product is structured correctly before adding it to the cart
@@ -204,7 +204,7 @@ export const CartProvider = ({ children }) => {
         // Update the local cart
         if (existingItem) {
           updatedCart = cartItems.map((item) =>
-            item.id === product.id
+            item.product.id === product.id
               ? { ...item, quantity: item.quantity + 1 }
               : item
           );
@@ -224,7 +224,7 @@ export const CartProvider = ({ children }) => {
       // For local cart when not logged in
       if (existingItem) {
         updatedCart = cartItems.map((item) =>
-          item.id === product.id
+          item.product.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
@@ -310,7 +310,7 @@ export const CartProvider = ({ children }) => {
 
   return (
     <CartContext.Provider
-      value={{ cartItems, addToCart, removeFromCart, clearCart, confirmCheckout }}
+      value={{ cartItems, addToCart, removeFromCart, syncCartToDB,fetchCartFromDB, confirmCheckout }}
     >
       {children}
     </CartContext.Provider>
