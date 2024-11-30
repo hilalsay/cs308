@@ -28,7 +28,7 @@ public class ReviewService {
     }
 
     // Approve a review
-    public Review approveReview(UUID reviewId) {
+    public Review approveComment(UUID reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("Review not found"));
         review.setApproved(true);
@@ -39,6 +39,11 @@ public class ReviewService {
         return reviewRepository.findAll();
     }
 
+    public List<Review> getApprovedReviewsByProduct(UUID productId) {
+        return reviewRepository.findByProductIdAndApproved(productId, true);
+    }
+
+
     public List<String> getApprovedCommentsByProduct(UUID productId) {
         return reviewRepository.findByProductIdAndApproved(productId, true)
                 .stream()
@@ -47,9 +52,9 @@ public class ReviewService {
                 .toList();
     }
 
-    // Fetch all approved ratings for a product
-    public List<Integer> getApprovedRatingsByProduct(UUID productId) {
-        return reviewRepository.findByProductIdAndApproved(productId, true)
+    // Fetch all ratings for a product
+    public List<Integer> getRatingsByProduct(UUID productId) {
+        return reviewRepository.findByProductId(productId)
                 .stream()
                 .map(Review::getRating)
                 .toList();
@@ -146,7 +151,7 @@ public class ReviewService {
     }
 
     public double getAverageRatingByProductId(UUID productId) {
-        List<Integer> ratings = getApprovedRatingsByProduct(productId); // Fetch all ratings for the product
+        List<Integer> ratings = getRatingsByProduct(productId); // Fetch all ratings for the product
 
         if (ratings.isEmpty()) {
             throw new IllegalArgumentException("No ratings found for the specified product.");

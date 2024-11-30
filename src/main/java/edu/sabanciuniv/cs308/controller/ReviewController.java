@@ -32,6 +32,14 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getAllReviews());
     }
 
+    // Get all approved reviews for a product
+    @GetMapping("/product/{productId}/reviews")
+    public ResponseEntity<List<Review>> getApprovedReviews(@PathVariable UUID productId) {
+        List<Review> approvedReviews = reviewService.getApprovedReviewsByProduct(productId);
+        return ResponseEntity.ok(approvedReviews);
+    }
+
+
     // Get all reviews for a product
     @GetMapping("/product/{productId}/comments")
     public ResponseEntity<List<String>> getApprovedComments(@PathVariable UUID productId) {
@@ -42,7 +50,7 @@ public class ReviewController {
     // Get all ratings for a product
     @GetMapping("/product/{productId}/ratings")
     public ResponseEntity<List<Integer>> getRatingsByProduct(@PathVariable UUID productId) {
-        List<Integer> ratings = reviewService.getApprovedRatingsByProduct(productId);
+        List<Integer> ratings = reviewService.getRatingsByProduct(productId);
         return ResponseEntity.ok(ratings);
     }
 
@@ -137,5 +145,17 @@ public class ReviewController {
             return ResponseEntity.badRequest().body(null); // Return bad request if the product has no ratings
         }
     }
+
+    // Approve a review by ID
+    @PutMapping("/{reviewId}/approve")
+    public ResponseEntity<String> approveComment(@PathVariable UUID reviewId) {
+        try {
+            reviewService.approveComment(reviewId); // Call the service method to approve the review
+            return ResponseEntity.ok("Comment approved successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 
 }

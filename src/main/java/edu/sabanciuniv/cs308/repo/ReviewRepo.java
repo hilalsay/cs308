@@ -15,5 +15,7 @@ public interface ReviewRepo extends JpaRepository<Review, UUID> {
     boolean existsByProductIdAndUserId(UUID productId, UUID userId);
     List<Review> findByProductIdAndApproved(UUID productId, boolean approved);
 
+    List<Review> findByProductId(UUID productId);
+
 
 }
