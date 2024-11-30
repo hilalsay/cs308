@@ -12,6 +12,8 @@ export const CartProvider = ({ children }) => {
     return savedCart ? JSON.parse(savedCart) : [];
   });
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isAdding, setisAdding] = useState(false);
+  const [isRemoving, setisRemoving] = useState(false);
 
 
   const onToast = (s) => {
@@ -31,6 +33,7 @@ export const CartProvider = ({ children }) => {
   
 
   const fetchCartFromDB = async () => {
+    console.log("FETCH FROM CART");
     const token = localStorage.getItem("token");
   
 
@@ -40,7 +43,7 @@ export const CartProvider = ({ children }) => {
     }
   
     try {
-      console.log("cart token:", localStorage.getItem("token"));
+      console.log("cart token fetch:", localStorage.getItem("token"));
       const response = await axios.get("http://localhost:8080/api/cart/view", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -48,6 +51,7 @@ export const CartProvider = ({ children }) => {
       });
       const data = response.data;
       console.log(data);
+      setCartItems([]);
       setCartItems(data.items);
       console.log(cartItems);
     } catch (error) {
@@ -67,6 +71,7 @@ export const CartProvider = ({ children }) => {
       for (const item of cartItems) {
         console.log(item);
         try {
+          console.log("SYNC TO CART");
           await axios.post(
             `http://localhost:8080/api/cart/add/${item.id}/${item.quantity}`,
             {
@@ -142,7 +147,7 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem('cart', JSON.stringify(cartItems));
       }
     }
-  }, [token]);  // Only re-run when token changes
+  }, [localStorage.getItem("token")]);  // Only re-run when token changes
 
   useEffect(() => {
     const handleLogout = () => {
@@ -158,7 +163,7 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     // Sync when the page loads (initial mount).
     console.log("Syncing cart on initial load");
-    if (token) {
+    if (localStorage.getItem("token")) {
       fetchCartFromDB(); // Fetch the cart from the database if a token exists.
     } else {
       const storedCart = localStorage.getItem('cart');
@@ -171,7 +176,13 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   const addToCart = async (product) => {
-    const existingItem = cartItems.find((item) => item.product.id === product.id);
+    if (isAdding) {
+      console.log("Adding already in progress.");
+      return;
+    }
+    setisAdding(true);
+
+    const existingItem = cartItems.find((item) => item.id === product.id);
     let updatedCart;
   
     // Ensure that the product is structured correctly before adding it to the cart
@@ -187,10 +198,11 @@ export const CartProvider = ({ children }) => {
       product: product,  // Ensure that the 'product' attribute is included
     };
   
-    if (token) {
+    if (localStorage.getItem("token")) {
 
       try {
         // Send a request to add the product to the backend cart
+        console.log("ADD TO CART");
         await axios.post(
           `http://localhost:8080/api/cart/add/${product.id}/1`,
           {},
@@ -204,7 +216,7 @@ export const CartProvider = ({ children }) => {
         // Update the local cart
         if (existingItem) {
           updatedCart = cartItems.map((item) =>
-            item.product.id === product.id
+            item.id === product.id
               ? { ...item, quantity: item.quantity + 1 }
               : item
           );
@@ -224,7 +236,7 @@ export const CartProvider = ({ children }) => {
       // For local cart when not logged in
       if (existingItem) {
         updatedCart = cartItems.map((item) =>
-          item.product.id === product.id
+          item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
@@ -235,6 +247,7 @@ export const CartProvider = ({ children }) => {
       setCartItems(updatedCart);
       localStorage.setItem("cart", JSON.stringify(updatedCart));
     }
+    setisAdding(false);
   };
   
 
@@ -243,25 +256,14 @@ export const CartProvider = ({ children }) => {
     console.log("Updated cart items:", cartItems);
   }, [cartItems]);
 
-  const addToLocalCart = async (product) => {
-
-    //for local cart
-    if (existingItem) {
-      updatedCart = cartItems.map((item) =>
-        item.id === product.id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      );
-    } else {
-      updatedCart = [...cartItems, { ...product, quantity: 1 }];
-    }
-
-    setCartItems(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-
-  }
 
   const removeFromCart = async (itemId) => {
+    if (isRemoving) {
+      console.log("Adding already in progress.");
+      return;
+    }
+    setisRemoving(true);
+
     console.log('Attempting to remove item:', itemId);
     if (token) {
       try {
@@ -286,31 +288,19 @@ export const CartProvider = ({ children }) => {
     const updatedCart = cartItems.filter((item) => item.id !== itemId.id);  // Ensure correct id property is used
     setCartItems(updatedCart);  // Update state to trigger re-render
     localStorage.setItem("cart", JSON.stringify(updatedCart));  // Sync with localStorage
+    setisRemoving(false);
   };
   
   
 
   const clearCart = async () => {
     setCartItems([]);
-    /*
-    if (token) {
-      try {
-        await axios.delete("http://localhost:8080/api/cart/clear", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log("Cart cleared on the backend");
-      } catch (error) {
-        console.error("Failed to clear cart on the backend:", error);
-      }
-    }*/
     localStorage.removeItem("cart");
   };
 
   return (
     <CartContext.Provider
-      value={{ cartItems, addToCart, removeFromCart, syncCartToDB,fetchCartFromDB, confirmCheckout }}
+      value={{ cartItems, addToCart, removeFromCart, clearCart,fetchCartFromDB, confirmCheckout }}
     >
       {children}
     </CartContext.Provider>

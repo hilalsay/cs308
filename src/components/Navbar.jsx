@@ -9,7 +9,7 @@ import { useSearchContext } from "../contexts/SearchContext"; // Import SearchCo
 
 const Navbar = () => {
   const { token, logout } = useContext(AuthContext);
-  const { cartItems, syncCartToDB,fetchCartFromDB } = useCart(); 
+  const { cartItems,fetchCartFromDB } = useCart(); 
   const { setSearchResults } = useSearchContext(); // Use SearchContext for managing results
   const [searchQuery, setSearchQuery] = useState(""); // Added searchQuery state
   const [visible, setVisible] = useState(false);
