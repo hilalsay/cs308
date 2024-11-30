@@ -93,7 +93,7 @@ public class ReviewService {
         review.setUserId(userId);
         review.setRating(rating);  // rating can be null
         review.setComments(comments);  // comments can be null
-        review.setApproved(false); // Default approval status
+        review.setApproved(true); // Default approval status --> CHANGE IT FALSE BEFORE DEMO
         return reviewRepository.save(review);
     }
 
@@ -160,4 +160,9 @@ public class ReviewService {
         // Calculate the average rating
         return ratings.stream().mapToInt(Integer::intValue).average().orElse(0.0);
     }
+
+    public int getReviewCountByProductId(UUID productId) {
+        return reviewRepository.countByProductId(productId);
+    }
+
 }

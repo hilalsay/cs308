@@ -146,6 +146,20 @@ public class ReviewController {
         }
     }
 
+    // Get popularity score for a product
+    @GetMapping("/product/{productId}/popularity-score")
+    public ResponseEntity<Double> findPopularityScore(@PathVariable UUID productId) {
+        try {
+            double averageRating = reviewService.getAverageRatingByProductId(productId);
+            int reviewCount = reviewService.getReviewCountByProductId(productId);
+            double popularityScore = averageRating * reviewCount; // Calculate popularity score
+            return ResponseEntity.ok(popularityScore);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null); // Return bad request if the product has no reviews
+        }
+    }
+
+
     // Approve a review by ID
     @PutMapping("/{reviewId}/approve")
     public ResponseEntity<String> approveComment(@PathVariable UUID reviewId) {
