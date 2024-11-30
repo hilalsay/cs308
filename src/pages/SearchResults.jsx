@@ -1,71 +1,111 @@
-import React from "react";
-import { Link } from "react-router-dom"; // For navigation
-import { useSearchContext } from "../contexts/SearchContext"; // Import the context hook
-import { useCart } from "../contexts/CartContext"; // Context for managing cart
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useSearchContext } from "../contexts/SearchContext";
+import { useCart } from "../contexts/CartContext";
+import "./Products.css"; // Reuse styles from Necklaces
 
 const SearchResultsPage = () => {
-  const { searchResults, searchQuery } = useSearchContext(); // Access search context values
-  const { addToCart } = useCart(); // Access cart context values
+  const { searchResults, searchQuery } = useSearchContext();
+  const { addToCart } = useCart();
+
+  const [sortedResults, setSortedResults] = useState([]);
+  const [sortOrder, setSortOrder] = useState("");
+
+  useEffect(() => {
+    // Apply sorting whenever sortOrder or searchResults changes
+    let sorted = [...searchResults];
+
+    if (sortOrder === "lowToHigh") {
+      sorted.sort((a, b) => a.price - b.price);
+    } else if (sortOrder === "highToLow") {
+      sorted.sort((a, b) => b.price - a.price);
+    }
+
+    setSortedResults(sorted);
+  }, [sortOrder, searchResults]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-800 mb-4">Search Results</h1>
-      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-200">
-        {searchResults.length > 0 ? (
-          searchResults.map((result) => {
-            // Define imageUrl based on result's imageData or use a placeholder
-            const imageUrl = result.imageData
-              ? `data:image/jpeg;base64,${result.imageData}`
-              : "https://via.placeholder.com/150"; // Placeholder if no image
+    <div>
+      <h2 className="collection-header">Search Results</h2>
+
+      {/* Search Query Display */}
+      {searchQuery && (
+        <p className="search-query">
+          Showing results for: <strong>{searchQuery}</strong>
+        </p>
+      )}
+
+      {/* Sorting Options */}
+      <div className="sorting-container">
+        <label htmlFor="sortOrder">Sort by: </label>
+        <select
+          id="sortOrder"
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
+        >
+          <option value="">Default</option>
+          <option value="lowToHigh">Price: Low to High</option>
+          <option value="highToLow">Price: High to Low</option>
+          <option value="popularity">Popularity</option>
+        </select>
+      </div>
+
+      {/* Product Display */}
+      <div className="product-container">
+        {sortedResults.length > 0 ? (
+          sortedResults.map((product) => {
+            const imageUrl = product.imageData
+              ? `data:image/jpeg;base64,${product.imageData}`
+              : "https://via.placeholder.com/150";
 
             return (
               <div
-                key={result.id}
-                className="min-w-[250px] max-w-[250px] bg-white shadow-md rounded-lg p-4 text-center transition-transform transform hover:scale-105 hover:shadow-lg"
+                key={product.id}
+                className="product-card"
               >
-                {/* Link to product page */}
-                <Link to={`/product/${result.id}`}>
+                {/* Link to product details */}
+                <Link to={`/product/${product.id}`}>
                   <img
                     className="w-full h-40 object-cover rounded-md mb-4"
                     src={imageUrl} // Use imageUrl here
-                    alt={result.name}
+                    alt={product.name}
                   />
                   <p className="text-lg font-semibold text-gray-700">
-                    {result.name}
+                    {product.name}
                   </p>
                 </Link>
                 <p className="text-red-600 text-lg font-bold">
-                  ${result.price}
+                  ${product.price}
                 </p>
 
                 {/* Stock Information */}
                 <p
                   className={`text-sm ${
-                    result.stockQuantity > 0 ? "text-green-600" : "text-red-600"
+                    product.stockQuantity > 0 ? "text-green-600" : "text-red-600"
                   }`}
                 >
-                  {result.stockQuantity > 0
-                    ? `In Stock: ${result.stockQuantity}`
+                  {product.stockQuantity > 0
+                    ? `In Stock: ${product.stockQuantity}`
                     : "Out of Stock"}
                 </p>
 
                 {/* Add to Cart Button */}
                 <button
                   className={`mt-4 w-full py-2 rounded-lg ${
-                    result.stockQuantity > 0
+                    product.stockQuantity > 0
                       ? "bg-blue-600 text-white hover:bg-blue-700"
                       : "bg-gray-400 text-gray-800 cursor-not-allowed"
                   }`}
-                  onClick={() => addToCart(result)}
-                  disabled={result.stockQuantity <= 0}
+                  onClick={() => addToCart(product)}
+                  disabled={product.stockQuantity <= 0}
                 >
-                  {result.stockQuantity > 0 ? "Add to Cart" : "Out of Stock"}
+                  {product.stockQuantity > 0 ? "Add to Cart" : "Out of Stock"}
                 </button>
               </div>
             );
           })
         ) : (
-          <p className="text-gray-600">No results found.</p>
+          <p>No results found.</p>
         )}
       </div>
     </div>
