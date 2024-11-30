@@ -1,35 +1,81 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const ReviewCard = ({ productId, existingReview, token }) => {
-  const [rating, setRating] = useState(existingReview?.rating || 0);
-  const [comment, setComment] = useState(existingReview?.comment || "");
+const ReviewCard = ({ productId, token }) => {
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [existingReview, setExistingReview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // Fetch the existing review for the product if user is authenticated
+    if (token) {
+      axios
+        .get("http://localhost:8080/api/reviews/user", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          const userReviews = response.data;
+          const userReviewForProduct = userReviews.find(
+            (review) => review.productId === productId
+          );
+          if (userReviewForProduct) {
+            setExistingReview(userReviewForProduct);
+            setRating(userReviewForProduct.rating || 0);
+            setComment(userReviewForProduct.comments || "");
+          }
+        })
+        .catch((err) => {
+          console.error("Error fetching user's reviews:", err);
+        });
+    }
+  }, [productId, token]);
 
   const handleSubmit = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const url = `http://localhost:8080/api/reviews`;
-
-      const params = new URLSearchParams();
-      params.append("productId", productId);
-      if (rating) params.append("rating", rating);
-      if (comment) params.append("comments", comment);
-
       const headers = {
         "Content-Type": "application/x-www-form-urlencoded",
         Authorization: `Bearer ${token}`,
       };
 
-      await axios.post(url, params, { headers });
+      if (existingReview) {
+        // Ensure reviewId is passed correctly
+        if (!existingReview.reviewId) {
+          throw new Error("Review ID is missing");
+        }
 
-      alert("Review submitted successfully!");
+        // Update existing review
+        await axios.put(
+          `http://localhost:8080/api/reviews/${existingReview.reviewId}/comment`, // Ensure correct reviewId is used
+          { newComment: comment },
+          { headers }
+        );
+        await axios.put(
+          `http://localhost:8080/api/reviews/${existingReview.reviewId}/rating`, // Ensure correct reviewId is used
+          { newRating: rating },
+          { headers }
+        );
+        alert("Review updated successfully!");
+      } else {
+        // Add a new review
+        await axios.post(
+          "http://localhost:8080/api/reviews",
+          new URLSearchParams({
+            productId,
+            rating,
+            comments: comment,
+          }),
+          { headers }
+        );
+        alert("Review submitted successfully!");
+      }
     } catch (err) {
       console.error("Error submitting review:", err);
-      setError(err.response?.data?.message || "Failed to submit review");
+      setError("Failed to submit review");
     } finally {
       setLoading(false);
     }
@@ -63,7 +109,7 @@ const ReviewCard = ({ productId, existingReview, token }) => {
         marginTop: "16px",
       }}
     >
-      <h4>Leave a Review</h4>
+      <h4>{existingReview ? "Update Your Review" : "Leave a Review"}</h4>
       <div style={{ marginBottom: "8px" }}>
         <label>
           <strong>Rating:</strong>
@@ -103,7 +149,11 @@ const ReviewCard = ({ productId, existingReview, token }) => {
           cursor: "pointer",
         }}
       >
-        {loading ? "Submitting..." : "Submit Review"}
+        {loading
+          ? "Submitting..."
+          : existingReview
+          ? "Update Review"
+          : "Submit Review"}
       </button>
     </div>
   );

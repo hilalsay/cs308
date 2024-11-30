@@ -24,8 +24,8 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { SearchProvider } from "./contexts/SearchContext";
 import AddProduct from "./pages/AddProduct";
 import Invoice from "./pages/Invoice";
-import { SortProvider } from "./contexts/SortContext"; 
-
+import { SortProvider } from "./contexts/SortContext";
+import MyProfile from "./pages/Profile";
 
 const App = () => {
   return (
@@ -52,7 +52,10 @@ const App = () => {
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/add-product" element={<AddProduct />} />
-                <Route path="/product/:productId" element={<ProductDetails />} />
+                <Route
+                  path="/product/:productId"
+                  element={<ProductDetails />}
+                />
                 <Route path="/necklaces" element={<Necklaces />} />
                 <Route path="/rings" element={<Rings />} />
                 <Route path="/bracelets" element={<Bracelets />} />
@@ -60,13 +63,14 @@ const App = () => {
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/search" element={<SearchResults />} />
                 <Route path="/invoice" element={<Invoice />} />
+                <Route path="/profile" element={<MyProfile />} />
                 {/* Updated route for product details */}
               </Routes>
             </div>
           </CartProvider>
         </AuthProvider>
       </SearchProvider>
-    </SortProvider> 
+    </SortProvider>
   );
 };
 

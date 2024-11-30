@@ -2,13 +2,14 @@ import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import CartContext from "../contexts/CartContext"; // Import CartContext
+import CommentCard from "./CommentCard"; // Import CommentCard
 
 const ProductDetails = () => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
   const [image, setImage] = useState("");
-  const [avgRating, setAvgRating] = useState(0); // State for average rating
-  const [totalReviews, setTotalReviews] = useState(0); // State for total reviews
+  const [avgRating, setAvgRating] = useState(0);
+  const [comments, setComments] = useState([]); // Store reviews
   const { addToCart } = useContext(CartContext); // Get addToCart from context
 
   useEffect(() => {
@@ -29,26 +30,34 @@ const ProductDetails = () => {
     axios
       .get(
         `http://localhost:8080/api/reviews/product/${productId}/average-rating`
-      ) // Backend endpoint
+      )
       .then((response) => {
-        setAvgRating(response.data || 0); // Example: { avgRating: 4.2 }
-        // Optionally, fetch the total number of reviews if available
-        // You can modify the backend to return this if needed
+        setAvgRating(response.data || 0);
       })
       .catch((error) =>
         console.error("Error fetching product ratings:", error)
+      );
+
+    // Fetch reviews for the product
+    axios
+      .get(`http://localhost:8080/api/reviews/product/${productId}/reviews`)
+      .then((response) => {
+        setComments(response.data || []);
+      })
+      .catch((error) =>
+        console.error("Error fetching product reviews:", error)
       );
   }, [productId]);
 
   const handleAddToCart = () => {
     if (product) {
-      addToCart(product); // Add product to the cart
+      addToCart(product);
     }
   };
 
-  const renderStars = () => {
-    const fullStars = Math.floor(avgRating);
-    const hasHalfStar = avgRating - fullStars >= 0.5;
+  const renderStars = (rating) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating - fullStars >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
     return (
@@ -107,8 +116,8 @@ const ProductDetails = () => {
           <p className="my-5 text-gray-500 md:w-4/5">{product.description}</p>
           {/* Average Rating */}
           <div className="my-4">
-            <strong>Rating:</strong> {avgRating.toFixed(1)} / 5 {renderStars()}{" "}
-            {/* Render the stars */}
+            <strong>Rating:</strong> {avgRating.toFixed(1)} / 5{" "}
+            {renderStars(avgRating)}
           </div>
           {/* Stock Quantity */}
           <p
@@ -120,23 +129,6 @@ const ProductDetails = () => {
               ? `In Stock: ${product.stockQuantity}`
               : "Out of Stock"}
           </p>
-          {/* Additional Details */}
-          <div className="mt-5 text-gray-700 space-y-2">
-            <p>
-              <strong>Model:</strong> {product.model || "N/A"}
-            </p>
-            <p>
-              <strong>Serial Number:</strong> {product.serialNumber || "N/A"}
-            </p>
-            <p>
-              <strong>Warranty Status:</strong>{" "}
-              {product.warrantyStatus || "N/A"}
-            </p>
-            <p>
-              <strong>Distributor:</strong>{" "}
-              {product.distributorInformation || "N/A"}
-            </p>
-          </div>
         </div>
       </div>
 
@@ -152,6 +144,16 @@ const ProductDetails = () => {
       >
         Add to Cart
       </button>
+
+      {/* Comment Section */}
+      <div className="mt-10">
+        <h2 className="text-2xl font-medium">Customer Reviews</h2>
+        {comments.length > 0 ? (
+          <CommentCard productId={productId} />
+        ) : (
+          <p>No reviews yet.</p>
+        )}
+      </div>
     </div>
   );
 };
