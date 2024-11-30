@@ -2,6 +2,7 @@ package edu.sabanciuniv.cs308.controller;
 
 import edu.sabanciuniv.cs308.model.User;
 import edu.sabanciuniv.cs308.model.LoginRequest;
+import edu.sabanciuniv.cs308.service.JwtService;
 import edu.sabanciuniv.cs308.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,8 @@ import java.util.UUID;
 @RequestMapping("api/auth")
 public class UserController {
     private final UserService userService;
-
+    @Autowired
+    private JwtService jwtService;
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
@@ -67,6 +69,33 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(null);
+        }
+    }
+    @GetMapping("/profile")
+    public ResponseEntity<User> getUserProfile(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            // Extract JWT token from the "Authorization" header
+            String token = authorizationHeader.substring(7); // Removing "Bearer " from the token
+
+            // Extract the user ID from the token (assuming the user ID is stored as a claim)
+
+            String username = jwtService.extractUserName(token);
+            UUID userIdFromToken = userService.getUserIdByUsername(username); // Convert username to userId
+
+            if (userIdFromToken == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            }
+
+            // Retrieve the user information using the user ID
+            User user = userService.getUserById(userIdFromToken);
+
+            if (user != null) {
+                return ResponseEntity.ok(user);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 }

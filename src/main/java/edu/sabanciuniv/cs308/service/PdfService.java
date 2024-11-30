@@ -55,6 +55,9 @@ public class PdfService {
             // Add order details (User, Total, Date, Payment Method)
             document.add(new Paragraph("Order ID: " + order.getId()));
             document.add(new Paragraph("User: " + order.getUser().getName()));
+            document.add(new Paragraph("Username: " + order.getUser().getUsername()));
+            document.add(new Paragraph("User Address: " + order.getUser().getHomeAddress()));
+            document.add(new Paragraph("Tax ID: " + order.getUser().getTaxId()));
             document.add(new Paragraph("Total Amount: " + order.getTotalAmount()));
             document.add(new Paragraph("Order Date: " + order.getCreatedAt()));
             document.add(new Paragraph("Payment Method: " + order.getPaymentMethod()));
