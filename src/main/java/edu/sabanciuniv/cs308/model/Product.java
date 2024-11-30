@@ -30,8 +30,9 @@ public class Product {
     private String distributorInformation;
     private String imageName;
     private String imageType;
-    @Getter
-    private int popularity;
+
+    @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Review> reviews; // Reviews related to this product
 
     @Lob
     private byte[] imageData;
@@ -40,7 +41,6 @@ public class Product {
     @JoinColumn(name = "category_id")
     @JsonBackReference // Prevents recursion by ignoring this field during serialization
     private Category category;
-
 
     @Override
     public String toString() {
@@ -57,35 +57,5 @@ public class Product {
                 ", category=" + category +
                 '}';
     }
-
-    public int getPopularity() {
-        return this.popularity;
-    }
-
-
-//    @OneToMany(mappedBy = "product")
-//    private List<Order> orders; // Assuming you have an Order class that tracks product sales
-//     @OneToMany(mappedBy = "product")
-//    private List<Rating> ratings; // Assuming you have a Rating class that stores user ratings for products
-
-/**
- *
- public double getSalesCount() {
- return orders != null ? orders.size() : 0; // If orders are stored in a list, return the size.
- }
- */
-
-/**
- *     public double getAverageRating() {
- *         if (ratings != null && !ratings.isEmpty()) {
- *             double sum = 0;
- *             for (Rating rating : ratings) {
- *                 sum += rating.getRatingValue(); // Assuming each Rating has a `getRatingValue()` method
- *             }
- *             return sum / ratings.size();
- *         }
- *         return 0; // If no ratings exist, return 0 or a default value.
- *         }
- */
 
 }

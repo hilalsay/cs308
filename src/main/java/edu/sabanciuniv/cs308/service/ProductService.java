@@ -1,6 +1,7 @@
 package edu.sabanciuniv.cs308.service;
 
 import edu.sabanciuniv.cs308.model.Product;
+import edu.sabanciuniv.cs308.model.Review;
 import edu.sabanciuniv.cs308.repo.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -73,15 +74,22 @@ public class ProductService {
         return repo.searchProducts(keyword);
     }
 
-    /**
-     * // Method to calculate the popularity score based on sales count and average rating
-     *     public double calculatePopularityScore(Product product) {
-     *         double weightSales = 0.7; // Weight for sales count (70%)
-     *         double weightRating = 0.3; // Weight for average rating (30%)
-     *
-     *         // Calculate popularity score by combining sales and rating
-     *         return (product.getSalesCount() * weightSales) + (product.getAverageRating() * weightRating);
-     */
+    private double calculatePopularityScore(Product product) {
+        List<Review> reviews = product.getReviews(); // Get reviews for the product
+
+        if (reviews == null || reviews.isEmpty()) {
+            return 0; // No reviews, popularity score is 0
+        }
+
+        int ratingCount = reviews.size(); // Number of reviews
+        double averageRating = reviews.stream()
+                .filter(review -> review.getRating() != null) // Ignore null ratings
+                .mapToInt(Review::getRating) // Get rating values
+                .average()
+                .orElse(0); // Calculate average or return 0 if empty
+
+        return averageRating * ratingCount; // Popularity score formula
+    }
 
     // Method to get products sorted based on the given sort criteria
     public List<Product> getSortedProducts(String sortBy) {
@@ -95,16 +103,12 @@ public class ProductService {
         else if ("priceHighToLow".equalsIgnoreCase(sortBy)) {
             products.sort(Comparator.comparing(Product::getPrice).reversed()); // Sort by price (high to low)
         }
-        /**
-         * // Sort by popularity (calculated score)
-         *         else if ("popularity".equalsIgnoreCase(sortBy)) {
-         *             // Sort by popularity score (higher score comes first)
-         *             products.sort((p1, p2) -> Double.compare(
-         *                     calculatePopularityScore(p2), calculatePopularityScore(p1)));
-         *         }
-         */
 
+        // Sort by popularity (calculated score)
+        else if ("popularity".equalsIgnoreCase(sortBy)) {
+          // Sort by popularity score (higher score comes first)
+            products.sort((p1, p2) -> Double.compare(calculatePopularityScore(p2), calculatePopularityScore(p1)));
+        }
         return products; // Return the sorted list of products
     }
-
 }

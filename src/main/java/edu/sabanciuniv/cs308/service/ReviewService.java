@@ -92,9 +92,6 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
-
-
-
     private boolean hasUserOrderedProduct(UUID userId, UUID productId) {
         // Fetch all orders by the user
         List<Order> userOrders = orderRepository.findByUserId(userId);
@@ -111,7 +108,6 @@ public class ReviewService {
         }
         return false;
     }
-
 
     public Review updateReviewComment(UUID reviewId, String newComment) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("Review not found"));
@@ -132,8 +128,6 @@ public class ReviewService {
     public void deleteReview(UUID reviewId) {
         reviewRepository.deleteById(reviewId);
     }
-
-
 
     // Delete only the comment of a review
     public void deleteComment(UUID reviewId) {
@@ -161,6 +155,4 @@ public class ReviewService {
         // Calculate the average rating
         return ratings.stream().mapToInt(Integer::intValue).average().orElse(0.0);
     }
-
-
 }
