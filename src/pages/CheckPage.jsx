@@ -228,8 +228,10 @@ const CheckPage = () => {
                   ))}
                 </select>
               </div>
-              <div>
-                <label htmlFor="expiryYear" className="block font-medium mb-1">
+              
+            </div>
+            <div>
+                <label htmlFor="expiryMonth" className="block font-medium mb-1">
                   Expiry Year:
                 </label>
                 <select
@@ -250,7 +252,6 @@ const CheckPage = () => {
                   ))}
                 </select>
               </div>
-            </div>
             <div className="form-group">
               <label htmlFor="cvv" className="block font-medium mb-1">
                 CVV:

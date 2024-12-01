@@ -75,7 +75,7 @@ const ReviewCard = ({ productId, token }) => {
       }
     } catch (err) {
       console.error("Error submitting review:", err);
-      setError("Failed to submit review");
+      setError(err.response.data);
     } finally {
       setLoading(false);
     }
