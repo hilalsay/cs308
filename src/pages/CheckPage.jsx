@@ -9,7 +9,7 @@ const CheckPage = () => {
   const { token } = useContext(AuthContext);
   const [userInfo, setUserInfo] = useState({
     username: "",
-    email: "",
+    //email: "",
     homeAddress: "",
   });
   const [checkoutData, setCheckoutData] = useState({
@@ -42,7 +42,7 @@ const CheckPage = () => {
       if (response.status === 200) {
         setUserInfo({
           username: response.data.username,
-          email: response.data.email,
+          //email: response.data.email,
           homeAddress: response.data.homeAddress,
         });
       } else {
@@ -66,7 +66,7 @@ const CheckPage = () => {
 
   // Handle checkout (API call)
   const handleCheckout = async () => {
-    if (!userInfo.username || !userInfo.email || !userInfo.homeAddress) {
+    if (!userInfo.username || /*!userInfo.email ||*/ !userInfo.homeAddress) {
       alert("Please provide your user name, email, and address.");
       return;
     }
@@ -90,8 +90,10 @@ const CheckPage = () => {
       const response = await axios.post(
         `http://localhost:8080/api/cart/confirm?paymentMethod=${encodeURIComponent(
           checkoutData.paymentMethod
+        )}&ordererName=${encodeURIComponent(username)}&address=${encodeURIComponent(
+          homeAddress
         )}`,
-        { userInfo, cartItems, totalPrice },
+        {},
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -145,7 +147,9 @@ const CheckPage = () => {
             required
           />
         </div>
-        <div className="form-group">
+        
+          {/*
+          <div className="form-group">
           <label htmlFor="email" className="block font-medium mb-1">
             Email:
           </label>
@@ -160,6 +164,8 @@ const CheckPage = () => {
             required
           />
         </div>
+          */}
+          
         <div className="form-group">
           <label htmlFor="homeAddress" className="block font-medium mb-1">
             Address:

@@ -19,7 +19,6 @@ const Home = () => {
 
   return (
     <div className="home-containerH">
-      <SortSelector /> {/* Sıralama seçici bileşeni */}
       <h2 className="section-titleH">Popular Products</h2>
       <div className="products-carouselH">
         {products.map((product) => (

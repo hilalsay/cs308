@@ -2,27 +2,20 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSearchContext } from "../contexts/SearchContext";
 import { useCart } from "../contexts/CartContext";
+import { useSort } from "../contexts/SortContext";
 import "./Products.css"; // Reuse styles from Necklaces
 
 const SearchResultsPage = () => {
   const { searchResults, searchQuery } = useSearchContext();
   const { addToCart } = useCart();
+  const { sort, setSortBy, sortedResults } = useSort();
+  const [sortOrder, setSortOrder] = useState("popularity"); // Default to popularity
 
-  const [sortedResults, setSortedResults] = useState([]);
-  const [sortOrder, setSortOrder] = useState("");
-
+  // Trigger sorting whenever sortOrder changes
   useEffect(() => {
-    // Apply sorting whenever sortOrder or searchResults changes
-    let sorted = [...searchResults];
-
-    if (sortOrder === "lowToHigh") {
-      sorted.sort((a, b) => a.price - b.price);
-    } else if (sortOrder === "highToLow") {
-      sorted.sort((a, b) => b.price - a.price);
-    }
-
-    setSortedResults(sorted);
-  }, [sortOrder, searchResults]);
+    setSortBy(sortOrder); // Update the global sortBy state
+    sort(searchResults, sortOrder); // Sort search results
+  }, [sortOrder, searchResults, setSortBy, sort]);
 
   return (
     <div>
@@ -43,26 +36,22 @@ const SearchResultsPage = () => {
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value)}
         >
-          <option value="">Default</option>
+          <option value="popularity">Popularity</option>
           <option value="lowToHigh">Price: Low to High</option>
           <option value="highToLow">Price: High to Low</option>
-          <option value="popularity">Popularity</option>
         </select>
       </div>
 
       {/* Product Display */}
       <div className="product-container">
-        {sortedResults.length > 0 ? (
+        {sortedResults && sortedResults.length > 0 ? (
           sortedResults.map((product) => {
             const imageUrl = product.imageData
               ? `data:image/jpeg;base64,${product.imageData}`
               : "https://via.placeholder.com/150";
 
             return (
-              <div
-                key={product.id}
-                className="product-card"
-              >
+              <div key={product.id} className="product-card">
                 {/* Link to product details */}
                 <Link to={`/product/${product.id}`}>
                   <img
