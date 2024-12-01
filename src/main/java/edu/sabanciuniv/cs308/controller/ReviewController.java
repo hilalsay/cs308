@@ -66,6 +66,7 @@ public class ReviewController {
     @PostMapping
     public ResponseEntity<?> addReview(
             @RequestParam UUID productId,
+            @RequestParam UUID orderId,
             @RequestHeader("Authorization") String token,
             @RequestParam(required = false) Integer rating,
             @RequestParam(required = false) String comments) {
@@ -75,7 +76,7 @@ public class ReviewController {
             UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
 
             // Call the service method to add the review with rating and comments (which can be null)
-            Review review = reviewService.addReview(productId, userId, rating, comments);
+            Review review = reviewService.addReview(productId, orderId, userId, rating, comments);
             return ResponseEntity.ok(review);
         } catch (IllegalArgumentException e) {
             // If an exception is thrown, return the error message
