@@ -8,9 +8,9 @@ const CheckPage = () => {
   const { cartItems, clearCart } = useCart();
   const { token } = useContext(AuthContext);
   const [userInfo, setUserInfo] = useState({
-    fullName: "",
+    username: "",
     email: "",
-    address: "",
+    homeAddress: "",
   });
   const [checkoutData, setCheckoutData] = useState({
     paymentMethod: "Credit Card", // Default payment method
@@ -24,28 +24,58 @@ const CheckPage = () => {
 
   // Check if token is available and user is logged in
   useEffect(() => {
+    console.log("checkpage token:", token);
     if (!token) {
       alert("You must be logged in to proceed with the checkout.");
       navigate("/login"); // Redirect to login page if no token
+    } else {
+      // Fetch user information from the profile API
+      fetchUserInfo();
     }
   }, [token, navigate]);
+
+  const fetchUserInfo = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/auth/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.status === 200) {
+        setUserInfo({
+          username: response.data.username,
+          email: response.data.email,
+          homeAddress: response.data.homeAddress,
+        });
+      } else {
+        console.error("Failed to fetch user info:", response.data);
+        alert("Unable to fetch your information. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error fetching user info:", error);
+      alert("An error occurred while fetching your profile. Please try again.");
+    }
+  };
+
+
 
   // Calculate total price
   const calculateTotal = (items) => {
     return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
-  
+
   const totalPrice = calculateTotal(cartItems);
-  
+
   // Handle checkout (API call)
   const handleCheckout = async () => {
-    if (!userInfo.fullName || !userInfo.email || !userInfo.address) {
-      alert("Please provide your full name, email, and address.");
+    if (!userInfo.username || !userInfo.email || !userInfo.homeAddress) {
+      alert("Please provide your user name, email, and address.");
       return;
     }
 
     // Validate payment method (for credit/debit card)
-    if (checkoutData.paymentMethod === "Credit Card" || checkoutData.paymentMethod === "Debit Card") {
+    if (
+      checkoutData.paymentMethod === "Credit Card" ||
+      checkoutData.paymentMethod === "Debit Card"
+    ) {
       if (!checkoutData.cardNumber || checkoutData.cardNumber.length !== 19) {
         alert("Please enter a valid 16-digit card number with spaces.");
         return;
@@ -57,9 +87,10 @@ const CheckPage = () => {
     }
 
     try {
-      // Real API interaction (POST request with token and paymentMethod)
       const response = await axios.post(
-        `http://localhost:8080/api/cart/confirm?paymentMethod=${encodeURIComponent(checkoutData.paymentMethod)}`,
+        `http://localhost:8080/api/cart/confirm?paymentMethod=${encodeURIComponent(
+          checkoutData.paymentMethod
+        )}`,
         { userInfo, cartItems, totalPrice },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -74,7 +105,8 @@ const CheckPage = () => {
       } else {
         console.error("Checkout failed:", response.data);
         alert(
-          "Error: " + (response.data?.message || "Unable to process your order.")
+          "Error: " +
+            (response.data?.message || "Unable to process your order.")
         );
       }
     } catch (error) {
@@ -99,14 +131,16 @@ const CheckPage = () => {
       <div className="form space-y-4">
         {/* User Information */}
         <div className="form-group">
-          <label htmlFor="fullName" className="block font-medium mb-1">
-            Full Name:
+          <label htmlFor="username" className="block font-medium mb-1">
+            User Name:
           </label>
           <input
             type="text"
-            id="fullName"
-            value={userInfo.fullName}
-            onChange={(e) => setUserInfo({ ...userInfo, fullName: e.target.value })}
+            id="username"
+            value={userInfo.username}
+            onChange={(e) =>
+              setUserInfo({ ...userInfo, username: e.target.value })
+            }
             className="border rounded-lg p-2 w-full"
             required
           />
@@ -119,20 +153,24 @@ const CheckPage = () => {
             type="email"
             id="email"
             value={userInfo.email}
-            onChange={(e) => setUserInfo({ ...userInfo, email: e.target.value })}
+            onChange={(e) =>
+              setUserInfo({ ...userInfo, email: e.target.value })
+            }
             className="border rounded-lg p-2 w-full"
             required
           />
         </div>
         <div className="form-group">
-          <label htmlFor="address" className="block font-medium mb-1">
+          <label htmlFor="homeAddress" className="block font-medium mb-1">
             Address:
           </label>
           <input
             type="text"
-            id="address"
-            value={userInfo.address}
-            onChange={(e) => setUserInfo({ ...userInfo, address: e.target.value })}
+            id="homeAddress"
+            value={userInfo.homeAddress}
+            onChange={(e) =>
+              setUserInfo({ ...userInfo, address: e.target.value })
+            }
             className="border rounded-lg p-2 w-full"
             required
           />
@@ -182,7 +220,10 @@ const CheckPage = () => {
                   id="expiryMonth"
                   value={checkoutData.expiryMonth}
                   onChange={(e) =>
-                    setCheckoutData({ ...checkoutData, expiryMonth: e.target.value })
+                    setCheckoutData({
+                      ...checkoutData,
+                      expiryMonth: e.target.value,
+                    })
                   }
                   className="border rounded-lg p-2 w-full"
                 >
@@ -201,7 +242,10 @@ const CheckPage = () => {
                   id="expiryYear"
                   value={checkoutData.expiryYear}
                   onChange={(e) =>
-                    setCheckoutData({ ...checkoutData, expiryYear: e.target.value })
+                    setCheckoutData({
+                      ...checkoutData,
+                      expiryYear: e.target.value,
+                    })
                   }
                   className="border rounded-lg p-2 w-full"
                 >
@@ -236,11 +280,12 @@ const CheckPage = () => {
           <p>Total Price: ${totalPrice.toFixed(2)}</p>
         </div>
 
+        {/* Submit Button */}
         <button
           onClick={handleCheckout}
-          className="bg-blue-500 text-white p-2 rounded-lg w-full mt-4"
+          className="bg-blue-500 text-white p-2 rounded-lg"
         >
-          Confirm Order
+          Place Order
         </button>
       </div>
     </div>

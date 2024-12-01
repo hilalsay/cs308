@@ -27,9 +27,9 @@ const Invoice = () => {
       <div className="border p-4 rounded-lg">
         {/* User Information */}
         <h2 className="text-xl font-semibold mb-2">User Information</h2>
-        <p><strong>Name:</strong> {userInfo?.fullName || "N/A"}</p>
+        <p><strong>Name:</strong> {userInfo?.username || "N/A"}</p>
         <p><strong>Email:</strong> {userInfo?.email || "N/A"}</p>
-        <p><strong>Address:</strong> {userInfo?.address || "N/A"}</p>
+        <p><strong>Address:</strong> {userInfo?.homeAddress || "N/A"}</p>
 
         {/* Order Summary */}
         <h2 className="text-xl font-semibold mt-4 mb-2">Order Summary</h2>
