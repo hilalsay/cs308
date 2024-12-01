@@ -9,6 +9,7 @@ import edu.sabanciuniv.cs308.repo.OrderRepo;
 import edu.sabanciuniv.cs308.repo.ProductRepo;
 import edu.sabanciuniv.cs308.repo.ReviewRepo;
 import edu.sabanciuniv.cs308.repo.ShoppingCartRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,15 +18,15 @@ import java.util.UUID;
 @Service
 public class ReviewService {
 
-    private final ReviewRepo reviewRepository;
-    private final OrderRepo orderRepository;
-    private final ShoppingCartRepo shoppingCartRepository;
+    @Autowired
+    private ReviewRepo reviewRepository;
+    @Autowired
+    private OrderRepo orderRepository;
+    @Autowired
+    private ShoppingCartRepo shoppingCartRepository;
+    @Autowired
+    private ProductRepo productRepo;
 
-    public ReviewService(ReviewRepo reviewRepository, OrderRepo orderRepository, ShoppingCartRepo shoppingCartRepository) {
-        this.reviewRepository = reviewRepository;
-        this.orderRepository = orderRepository;
-        this.shoppingCartRepository = shoppingCartRepository;
-    }
 
     // Approve a review
     public Review approveComment(UUID reviewId) {
@@ -94,7 +95,9 @@ public class ReviewService {
         review.setRating(rating);  // rating can be null
         review.setComments(comments);  // comments can be null
         review.setApproved(true); // Default approval status --> CHANGE IT FALSE BEFORE DEMO
-        return reviewRepository.save(review);
+        Review rew = reviewRepository.save(review);
+        updateProductRating(productId);
+        return rew;
     }
 
     private boolean hasUserOrderedProduct(UUID userId, UUID productId) {
@@ -126,12 +129,45 @@ public class ReviewService {
         }
         Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("Review not found"));
         review.setRating(newRating);
-        return reviewRepository.save(review);
+        Review rew = reviewRepository.save(review);
+        updateProductRating(review.getProductId());
+        return rew;
+    }
+
+    private void updateProductRating(UUID productId) {
+        List<Review> reviews = reviewRepository.findByProductId(productId);
+
+        int totalRating = 0;
+        int ratingCount = 0;
+
+        for (Review review : reviews) {
+            if (review.getRating() != null) {
+                totalRating += review.getRating();
+                ratingCount++;
+            }
+        }
+
+        if (ratingCount > 0) {
+            double averageRating = totalRating / (double) ratingCount;
+            int overallRating = totalRating;
+
+            Optional<Product> productOpt = productRepo.findById(productId);
+            if (productOpt.isPresent()) {
+                Product product = productOpt.get();
+                product.setAverageRating(averageRating);
+                product.setOverallRating(overallRating);
+                productRepo.save(product);
+            }
+        }
     }
 
     // Delete a review by its ID
     public void deleteReview(UUID reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("Review not found"));
+        UUID productId = review.getProductId();
         reviewRepository.deleteById(reviewId);
+        updateProductRating(productId);
     }
 
     // Delete only the comment of a review
@@ -148,6 +184,7 @@ public class ReviewService {
                 .orElseThrow(() -> new IllegalArgumentException("Review not found"));
         review.setRating(null);
         reviewRepository.save(review);
+        updateProductRating(review.getProductId());
     }
 
     public double getAverageRatingByProductId(UUID productId) {

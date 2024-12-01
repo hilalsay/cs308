@@ -16,15 +16,12 @@ import java.util.UUID;
 @RequestMapping("/api/reviews")
 public class ReviewController {
 
-    private final ReviewService reviewService;
-    private final UserService userService;
-    private final JwtService jwtService;
-
-    public ReviewController(ReviewService reviewService, UserService userService, JwtService jwtService) {
-        this.reviewService = reviewService;
-        this.userService = userService;
-        this.jwtService = jwtService;
-    }
+    @Autowired
+    private ReviewService reviewService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private JwtService jwtService;
 
     // Get all reviews
     @GetMapping

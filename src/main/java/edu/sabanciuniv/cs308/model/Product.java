@@ -30,6 +30,10 @@ public class Product {
     private String distributorInformation;
     private String imageName;
     private String imageType;
+    @Column
+    private Double averageRating;
+    @Column
+    private Integer overallRating;
 
     @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews; // Reviews related to this product

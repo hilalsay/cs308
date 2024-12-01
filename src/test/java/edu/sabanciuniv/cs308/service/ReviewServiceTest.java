@@ -19,13 +19,15 @@ public class ReviewServiceTest {
     private ReviewRepo reviewRepoMock;
     private OrderRepo orderRepoMock;
     private ShoppingCartRepo shoppingCartRepoMock;
+    private ProductRepo productRepoMock;
 
     @BeforeEach
     public void setUp() {
         reviewRepoMock = Mockito.mock(ReviewRepo.class);
         orderRepoMock = Mockito.mock(OrderRepo.class);
         shoppingCartRepoMock = Mockito.mock(ShoppingCartRepo.class);
-        reviewService = new ReviewService(reviewRepoMock, orderRepoMock, shoppingCartRepoMock);
+        productRepoMock = Mockito.mock(ProductRepo.class);
+        reviewService = new ReviewService(reviewRepoMock, orderRepoMock, shoppingCartRepoMock, productRepoMock);
     }
 
     @Test
