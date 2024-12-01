@@ -64,10 +64,7 @@ public class ProductController {
                                                  @RequestPart("product") String productJson,
                                                  @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        Product product = objectMapper.readValue(productJson, Product.class);
-
-        Product updatedProduct = service.updateProduct(id, product, image);
+        Product updatedProduct = service.updateProduct(id, productJson, image);
 
         return ResponseEntity.ok(updatedProduct);
     }
@@ -88,6 +85,11 @@ public class ProductController {
     @GetMapping("/products/search")
     public ResponseEntity<List<Product>> searchProduct(@RequestParam String keyword){
         System.out.println("searching with " + keyword);
+        // Check if the keyword is null, empty, or contains only whitespace
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Return 400 Bad Request
+        }
+
         List<Product> products = service.searchProducts(keyword);
         return new ResponseEntity<>(products, HttpStatus.OK);
     }

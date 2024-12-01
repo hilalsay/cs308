@@ -1,5 +1,6 @@
 package edu.sabanciuniv.cs308.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.sabanciuniv.cs308.model.Product;
 import edu.sabanciuniv.cs308.model.Review;
 import edu.sabanciuniv.cs308.repo.ProductRepo;
@@ -42,27 +43,52 @@ public class ProductService {
     }
 
 
-    public Product updateProduct(UUID productId, Product updatedProduct, MultipartFile image) throws IOException {
+    public Product updateProduct(UUID productId, String productJson, MultipartFile image) throws IOException {
+        // Deserialize the incoming product JSON
+        ObjectMapper objectMapper = new ObjectMapper();
+        Product updatedProduct = objectMapper.readValue(productJson, Product.class);
+
+        // Fetch the existing product
         Product existingProduct = repo.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        // Update fields
-        existingProduct.setName(updatedProduct.getName());
-        existingProduct.setModel(updatedProduct.getModel());
-        existingProduct.setSerialNumber(updatedProduct.getSerialNumber());
-        existingProduct.setDescription(updatedProduct.getDescription());
-        existingProduct.setStockQuantity(updatedProduct.getStockQuantity());
-        existingProduct.setPrice(updatedProduct.getPrice());
-        existingProduct.setWarrantyStatus(updatedProduct.getWarrantyStatus());
-        existingProduct.setDistributorInformation(updatedProduct.getDistributorInformation());
-        existingProduct.setCategory(updatedProduct.getCategory());
+        // Update fields only if provided in the request
+        if (updatedProduct.getName() != null) {
+            existingProduct.setName(updatedProduct.getName());
+        }
+        if (updatedProduct.getModel() != null) {
+            existingProduct.setModel(updatedProduct.getModel());
+        }
+        if (updatedProduct.getSerialNumber() != null) {
+            existingProduct.setSerialNumber(updatedProduct.getSerialNumber());
+        }
+        if (updatedProduct.getDescription() != null) {
+            existingProduct.setDescription(updatedProduct.getDescription());
+        }
+        if (updatedProduct.getStockQuantity() != null) {
+            existingProduct.setStockQuantity(updatedProduct.getStockQuantity());
+        }
+        if (updatedProduct.getPrice() != null) {
+            existingProduct.setPrice(updatedProduct.getPrice());
+        }
+        if (updatedProduct.getWarrantyStatus() != null) {
+            existingProduct.setWarrantyStatus(updatedProduct.getWarrantyStatus());
+        }
+        if (updatedProduct.getDistributorInformation() != null) {
+            existingProduct.setDistributorInformation(updatedProduct.getDistributorInformation());
+        }
+        if (updatedProduct.getCategory() != null) {
+            existingProduct.setCategory(updatedProduct.getCategory());
+        }
 
+        // Handle image update if provided
         if (image != null && !image.isEmpty()) {
             existingProduct.setImageName(image.getOriginalFilename());
             existingProduct.setImageType(image.getContentType());
             existingProduct.setImageData(image.getBytes());
         }
 
+        // Save and return the updated product
         return repo.save(existingProduct);
     }
 
