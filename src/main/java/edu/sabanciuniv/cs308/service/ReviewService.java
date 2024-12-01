@@ -65,11 +65,19 @@ public class ReviewService {
         return reviewRepository.findByUserId(userId);
     }
 
-    public Review addReview(UUID productId, UUID userId, Integer rating, String comments) {
+    public Review addReview(UUID productId, UUID orderId,  UUID userId, Integer rating, String comments) {
         // Check if the user has ordered this product
-        boolean hasOrderedProduct = hasUserOrderedProduct(userId, productId);
-        if (!hasOrderedProduct) {
-            throw new IllegalArgumentException("User has not purchased this product");
+        // Fetch the order using the orderId
+        Optional<Order> orderOpt = orderRepository.findById(orderId);
+        if (orderOpt.isEmpty()) {
+            throw new IllegalArgumentException("Order not found");
+        }
+
+        Order order = orderOpt.get();
+
+        // Check if the order status is DELIVERED
+        if (!order.getOrderStatus().equals(OrderStatus.DELIVERED)) {
+            throw new IllegalArgumentException("User has not purchased this product or order is not delivered");
         }
 
         // Check if the user has already reviewed this product
@@ -97,7 +105,7 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
-    private boolean hasUserOrderedProduct(UUID userId, UUID productId) {
+    private boolean hasUserOrderedProduct(UUID userId, UUID productId, UUID orderId) {
         // Fetch all orders by the user
         List<Order> userOrders = orderRepository.findByUserId(userId);
 
@@ -111,6 +119,7 @@ public class ReviewService {
                 }
             }
         }
+
         return false;
     }
 
