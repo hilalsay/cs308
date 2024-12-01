@@ -10,6 +10,35 @@ const ProductCard = ({ product }) => {
     ? `data:image/jpeg;base64,${product.imageData}` // Assuming imageData is base64 encoded
     : "https://via.placeholder.com/150"; // Placeholder if no image
 
+
+
+    const renderStars = (rating) => {
+      const fullStars = Math.floor(rating);
+      const hasHalfStar = rating - fullStars >= 0.5;
+      const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+  
+      return (
+        <div>
+          {Array.from({ length: fullStars }, (_, i) => (
+            <span
+              key={`full-${i}`}
+              style={{ color: "#FFD700", fontSize: "24px" }}
+            >
+              ★
+            </span>
+          ))}
+          {hasHalfStar && (
+            <span style={{ color: "#FFD700", fontSize: "24px" }}>☆</span>
+          )}
+          {Array.from({ length: emptyStars }, (_, i) => (
+            <span key={`empty-${i}`} style={{ color: "#ccc", fontSize: "24px" }}>
+              ★
+            </span>
+          ))}
+        </div>
+      );
+    };
+
   return (
     <div className="product-card bg-white shadow-md rounded-lg p-4 hover:shadow-lg transition">
       {/* Link to product detail page */}
@@ -21,6 +50,11 @@ const ProductCard = ({ product }) => {
         />
         <h3 className="text-lg font-semibold text-gray-700">{product.name}</h3>
       </Link>
+
+      <div className="my-4">
+            <strong>Rating:</strong> {product.averageRating} / 5{" "}
+            {renderStars(product.averageRating)}
+      </div>
 
       <p className="text-sm text-gray-500">Model: {product.model}</p>
       <p className="text-red-600 font-bold">${product.price.toFixed(2)}</p>

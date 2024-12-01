@@ -7,21 +7,34 @@ import { useSort } from '../contexts/SortContext'; // Context'i kullan
 
 const Home = () => {
   const [products, setProducts] = useState([]);
-  const { sortBy, setSortBy } = useSort(); // Context üzerinden sıralama durumunu al
+  const [topFiveProducts, setTopFiveProducts] = useState([]);
+  const { sort, setSortBy, sortedResults } = useSort();
+  const [sortOrder, setSortOrder] = useState("popularity"); // Default to popularity
 
   useEffect(() => {
     // Fetch popular products
     axios
-      .get(`http://localhost:8080/api/products/sorted?sortBy=${sortBy}`) // Assuming this endpoint provides the products
+      .get(`http://localhost:8080/api/products/sorted?sortBy=${sortOrder}`) // Assuming this endpoint provides the products
       .then((response) => setProducts(response.data))
       .catch((error) => console.error("Error fetching products:", error));
-  }, [sortBy]);
+  }, []);
+
+  useEffect(() => {
+    setSortBy(sortOrder); // Update the global sortBy state
+    sort(products, sortOrder); // Sort search results
+  }, [sortOrder, products, setSortBy,topFiveProducts]);
+
+  useEffect(() => {
+    // Get the top 5 products after filtering and sorting
+    const filteredProducts = products.slice(0, 5); // Take the top 5
+      setTopFiveProducts(filteredProducts); // Update the separate state
+  }, [products]);
 
   return (
     <div className="home-containerH">
       <h2 className="section-titleH">Popular Products</h2>
       <div className="products-carouselH">
-        {products.map((product) => (
+        {topFiveProducts.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>

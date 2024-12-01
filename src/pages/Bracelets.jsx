@@ -2,13 +2,16 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ProductCard from "./ProductCard";
 import "./Products.css";
+import { useSort } from "../contexts/SortContext";
 
 const Bracelets = () => {
   const [necklaceProducts, setNecklaceProducts] = useState([]);
   const [sortedProducts, setSortedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortOrder, setSortOrder] = useState(""); // State for sorting order
+  const { sort, setSortBy, sortedResults } = useSort();
+  const [sortOrder, setSortOrder] = useState("popularity"); // Default to popularity
+
 
   useEffect(() => {
     // Fetch categories and filter for "Bracelets" products
@@ -37,20 +40,14 @@ const Bracelets = () => {
       .finally(() => setLoading(false));
   }, []);
 
+
+  // Trigger sorting whenever sortOrder changes
   useEffect(() => {
-    // Apply sorting whenever the sortOrder changes
-    if (sortOrder === "lowToHigh") {
-      setSortedProducts(
-        [...necklaceProducts].sort((a, b) => a.price - b.price)
-      );
-    } else if (sortOrder === "highToLow") {
-      setSortedProducts(
-        [...necklaceProducts].sort((a, b) => b.price - a.price)
-      );
-    } else {
-      setSortedProducts(necklaceProducts); // Default: no sorting
-    }
-  }, [sortOrder, necklaceProducts]);
+    setSortBy(sortOrder); // Update the global sortBy state
+    sort(sortedProducts, sortOrder); // Sort search results
+  }, [sortOrder, sortedProducts, setSortBy, sort]);
+
+
 
   if (loading) return <div>Loading Bracelets...</div>;
   if (error) return <div>{error}</div>;
@@ -67,10 +64,9 @@ const Bracelets = () => {
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value)}
         >
-          <option value="">Default</option>
+          <option value="popularity">Popularity</option>
           <option value="lowToHigh">Price: Low to High</option>
           <option value="highToLow">Price: High to Low</option>
-          <option value="popularity">Popularity</option>
         </select>
       </div>
 

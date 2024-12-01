@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ProductCard from "./ProductCard";
 import "./Products.css";
+import { useSort } from "../contexts/SortContext";
 
 const Necklaces = () => {
-  const [necklaceProducts, setNecklaceProducts] = useState([]);
   const [sortedProducts, setSortedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortOrder, setSortOrder] = useState(""); // State for sorting order
+  const { sort, setSortBy, sortedResults } = useSort();
+  const [sortOrder, setSortOrder] = useState("popularity"); // Default to popularity
 
   useEffect(() => {
     // Fetch categories and filter for "Necklaces" products
@@ -24,7 +25,6 @@ const Necklaces = () => {
 
         // Set the necklace products if the category is found
         if (necklacesCategory) {
-          setNecklaceProducts(necklacesCategory.products);
           setSortedProducts(necklacesCategory.products); // Initialize sorted products
         } else {
           setError("Necklaces category not found");
@@ -37,20 +37,11 @@ const Necklaces = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    // Apply sorting whenever the sortOrder changes
-    if (sortOrder === "lowToHigh") {
-      setSortedProducts(
-        [...necklaceProducts].sort((a, b) => a.price - b.price)
-      );
-    } else if (sortOrder === "highToLow") {
-      setSortedProducts(
-        [...necklaceProducts].sort((a, b) => b.price - a.price)
-      );
-    } else {
-      setSortedProducts(necklaceProducts); // Default: no sorting
-    }
-  }, [sortOrder, necklaceProducts]);
+   // Trigger sorting whenever sortOrder changes
+   useEffect(() => {
+    setSortBy(sortOrder); // Update the global sortBy state
+    sort(sortedProducts, sortOrder); // Sort search results
+  }, [sortOrder, sortedProducts, setSortBy, sort]);
 
   if (loading) return <div>Loading necklaces...</div>;
   if (error) return <div>{error}</div>;
