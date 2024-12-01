@@ -87,11 +87,13 @@ const CheckPage = () => {
     }
 
     try {
+      console.log("username: ",username.value);
+      console.log("adress: ",homeAddress.value);
       const response = await axios.post(
         `http://localhost:8080/api/cart/confirm?paymentMethod=${encodeURIComponent(
           checkoutData.paymentMethod
-        )}&ordererName=${encodeURIComponent(username)}&address=${encodeURIComponent(
-          homeAddress
+        )}&ordererName=${encodeURIComponent(username.value)}&address=${encodeURIComponent(
+          homeAddress.value
         )}`,
         {},
         {
