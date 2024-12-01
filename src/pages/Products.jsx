@@ -3,6 +3,7 @@ import axios from "axios";
 import ProductCard from "./ProductCard";
 import SortSelector from '../components/SortSelector'; // Ortak bileşeni import et
 import { useSort } from '../contexts/SortContext'; // Context'i kullan
+import "./Products.css";
 
 const Products = () => {
   const [products, setProducts] = useState([]);

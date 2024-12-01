@@ -51,10 +51,13 @@ const ProductCard = ({ product }) => {
         <h3 className="text-lg font-semibold text-gray-700">{product.name}</h3>
       </Link>
 
-      <div className="my-4">
-            <strong>Rating:</strong> {product.averageRating} / 5{" "}
-            {renderStars(product.averageRating)}
-      </div>
+      {product.averageRating !== null && (
+        <div className="my-4"> 
+          <strong>Rating:</strong> {product.averageRating.toFixed(2)} / 5{" "}
+          {renderStars(product.averageRating)}
+        </div>
+      )}
+
 
       <p className="text-sm text-gray-500">Model: {product.model}</p>
       <p className="text-red-600 font-bold">${product.price.toFixed(2)}</p>
