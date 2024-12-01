@@ -149,24 +149,6 @@ const CheckPage = () => {
             required
           />
         </div>
-        
-          {/*
-          <div className="form-group">
-          <label htmlFor="email" className="block font-medium mb-1">
-            Email:
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={userInfo.email}
-            onChange={(e) =>
-              setUserInfo({ ...userInfo, email: e.target.value })
-            }
-            className="border rounded-lg p-2 w-full"
-            required
-          />
-        </div>
-          */}
           
         <div className="form-group">
           <label htmlFor="homeAddress" className="block font-medium mb-1">

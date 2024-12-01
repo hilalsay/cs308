@@ -28,7 +28,6 @@ const Invoice = () => {
         {/* User Information */}
         <h2 className="text-xl font-semibold mb-2">User Information</h2>
         <p><strong>Name:</strong> {userInfo?.username || "N/A"}</p>
-        <p><strong>Email:</strong> {userInfo?.email || "N/A"}</p>
         <p><strong>Address:</strong> {userInfo?.homeAddress || "N/A"}</p>
 
         {/* Order Summary */}

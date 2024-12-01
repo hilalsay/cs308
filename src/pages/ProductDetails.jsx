@@ -149,7 +149,7 @@ const ProductDetails = () => {
       <div className="mt-10">
         <h2 className="text-2xl font-medium">Customer Reviews</h2>
         {comments.length > 0 ? (
-          <CommentCard productId={productId} />
+          <CommentCard  />
         ) : (
           <p>No reviews yet.</p>
         )}
