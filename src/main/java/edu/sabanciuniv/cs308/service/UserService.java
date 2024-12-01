@@ -96,5 +96,7 @@ public class UserService {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
     }
-
+    public User getUserById(UUID userId) {
+        return userRepo.findById(userId).orElse(null); // Returns null if user is not found
+    }
 }
