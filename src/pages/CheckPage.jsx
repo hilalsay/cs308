@@ -36,13 +36,16 @@ const CheckPage = () => {
 
   const fetchUserInfo = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/auth/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        "http://localhost:8080/api/auth/profile",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (response.status === 200) {
         setUserInfo({
           username: response.data.username,
-          //email: response.data.email,
+          email: response.data.email,
           homeAddress: response.data.homeAddress,
         });
       } else {
@@ -55,8 +58,6 @@ const CheckPage = () => {
     }
   };
 
-
-
   // Calculate total price
   const calculateTotal = (items) => {
     return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -67,7 +68,7 @@ const CheckPage = () => {
   // Handle checkout (API call)
   const handleCheckout = async () => {
     if (!userInfo.username || /*!userInfo.email ||*/ !userInfo.homeAddress) {
-      alert("Please provide your user name, email, and address.");
+      alert("Please provide your user name, and address.");
       return;
     }
 
@@ -87,14 +88,14 @@ const CheckPage = () => {
     }
 
     try {
-      console.log("username: ",username.value);
-      console.log("adress: ",homeAddress.value);
+      console.log("username: ", username.value);
+      console.log("adress: ", homeAddress.value);
       const response = await axios.post(
         `http://localhost:8080/api/cart/confirm?paymentMethod=${encodeURIComponent(
           checkoutData.paymentMethod
-        )}&ordererName=${encodeURIComponent(username.value)}&address=${encodeURIComponent(
-          homeAddress.value
-        )}`,
+        )}&ordererName=${encodeURIComponent(
+          username.value
+        )}&address=${encodeURIComponent(homeAddress.value)}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -149,25 +150,7 @@ const CheckPage = () => {
             required
           />
         </div>
-        
-          {/*
-          <div className="form-group">
-          <label htmlFor="email" className="block font-medium mb-1">
-            Email:
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={userInfo.email}
-            onChange={(e) =>
-              setUserInfo({ ...userInfo, email: e.target.value })
-            }
-            className="border rounded-lg p-2 w-full"
-            required
-          />
-        </div>
-          */}
-          
+
         <div className="form-group">
           <label htmlFor="homeAddress" className="block font-medium mb-1">
             Address:
@@ -177,7 +160,7 @@ const CheckPage = () => {
             id="homeAddress"
             value={userInfo.homeAddress}
             onChange={(e) =>
-              setUserInfo({ ...userInfo, address: e.target.value })
+              setUserInfo({ ...userInfo, homeAddress: e.target.value })
             }
             className="border rounded-lg p-2 w-full"
             required
@@ -193,7 +176,10 @@ const CheckPage = () => {
             id="paymentMethod"
             value={checkoutData.paymentMethod}
             onChange={(e) =>
-              setCheckoutData({ ...checkoutData, paymentMethod: e.target.value })
+              setCheckoutData({
+                ...checkoutData,
+                paymentMethod: e.target.value,
+              })
             }
             className="border rounded-lg p-2 w-full"
           >
