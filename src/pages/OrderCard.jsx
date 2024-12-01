@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import ReviewCard from "./ReviewCard"; // Import the new component
+import ReviewCard from "./ReviewCard";
 
 const OrderCard = ({ order }) => {
   const [products, setProducts] = useState([]);
@@ -117,7 +117,7 @@ const OrderCard = ({ order }) => {
               </div>
               <ReviewCard
                 productId={product.product?.id}
-                existingReview={product.review} // Pass existing review details, if any
+                orderId={order?.id} // Pass the orderId to the ReviewCard
                 token={token}
               />
             </div>

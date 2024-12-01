@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const ReviewCard = ({ productId, token }) => {
+const ReviewCard = ({ productId, orderId, token }) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [existingReview, setExistingReview] = useState(null);
@@ -9,7 +9,6 @@ const ReviewCard = ({ productId, token }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch the existing review for the product if user is authenticated
     if (token) {
       axios
         .get("http://localhost:8080/api/reviews/user", {
@@ -43,29 +42,29 @@ const ReviewCard = ({ productId, token }) => {
       };
 
       if (existingReview) {
-        // Ensure reviewId is passed correctly
         if (!existingReview.reviewId) {
           throw new Error("Review ID is missing");
         }
 
         // Update existing review
         await axios.put(
-          `http://localhost:8080/api/reviews/${existingReview.reviewId}/comment`, // Ensure correct reviewId is used
-          { newComment: comment },
+          `http://localhost:8080/api/reviews/${existingReview.reviewId}/comment`,
+          new URLSearchParams({ newComment: comment }),
           { headers }
         );
         await axios.put(
-          `http://localhost:8080/api/reviews/${existingReview.reviewId}/rating`, // Ensure correct reviewId is used
-          { newRating: rating },
+          `http://localhost:8080/api/reviews/${existingReview.reviewId}/rating`,
+          new URLSearchParams({ newRating: rating }),
           { headers }
         );
         alert("Review updated successfully!");
       } else {
-        // Add a new review
+        // Add a new review with `orderId`
         await axios.post(
           "http://localhost:8080/api/reviews",
           new URLSearchParams({
             productId,
+            orderId,
             rating,
             comments: comment,
           }),
@@ -75,7 +74,7 @@ const ReviewCard = ({ productId, token }) => {
       }
     } catch (err) {
       console.error("Error submitting review:", err);
-      setError(err.response.data);
+      setError(err.response?.data || "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -90,7 +89,7 @@ const ReviewCard = ({ productId, token }) => {
           onClick={() => setRating(starValue)}
           style={{
             cursor: "pointer",
-            color: starValue <= rating ? "#FFD700" : "#ccc", // Gold for selected, gray for unselected
+            color: starValue <= rating ? "#FFD700" : "#ccc",
             fontSize: "24px",
           }}
         >
