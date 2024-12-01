@@ -122,7 +122,7 @@ const CheckPage = () => {
 
   // Format card number input
   const handleCardNumberChange = (e) => {
-    const input = e.target.value.replace(/\s/g, "");
+    const input = e.target.value.replace(/\D/g, "");
     const formatted = input
       .match(/.{1,4}/g)
       ?.join(" ")
@@ -203,6 +203,7 @@ const CheckPage = () => {
                 onChange={handleCardNumberChange}
                 className="border rounded-lg p-2 w-full"
                 maxLength="19"
+                inputMode="numeric"
               />
             </div>
             <div className="form-group flex space-x-2">
@@ -260,11 +261,13 @@ const CheckPage = () => {
                 type="text"
                 id="cvv"
                 value={checkoutData.cvv}
-                onChange={(e) =>
-                  setCheckoutData({ ...checkoutData, cvv: e.target.value })
-                }
+                onChange={(e) => {
+                  const numericValue = e.target.value.replace(/\D/g, "");
+                  setCheckoutData({ ...checkoutData, cvv: numericValue });
+                }}
                 className="border rounded-lg p-2 w-full"
                 maxLength="3"
+                inputMode="numeric"
               />
             </div>
           </>
