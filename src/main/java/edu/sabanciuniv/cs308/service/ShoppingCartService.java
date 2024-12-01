@@ -199,7 +199,7 @@ public class ShoppingCartService {
     }
 
     // Method to convert shopping cart to an order
-    public Order convertToOrder(UUID userId, String paymentMethod) {
+    public Order convertToOrder(UUID userId, String paymentMethod, String ordererName, String address) {
         // Ensure the shopping cart is not null
         // Check if there is an existing unordered shopping cart
         ShoppingCart shoppingCart = shoppingCartRepo.findByUserIdAndOrderedFalse(userId)
@@ -228,6 +228,7 @@ public class ShoppingCartService {
         newCart.setModifiedAt(LocalDateTime.now());
         newCart.setOrdered(false);
 
+
         newCart.setItems(new ArrayList<>());
 
         shoppingCartRepo.save(newCart);
@@ -243,6 +244,8 @@ public class ShoppingCartService {
         order.setCreatedAt(LocalDateTime.now()); // Set the creation time
         order.setUpdatedAt(LocalDateTime.now()); // Set the last updated time
         order.setPaymentMethod(paymentMethod); // Set the payment method from the user input
+        order.setOrderAddress(address);
+        order.setOrdererName(ordererName);
 
         // If payment is confirmed, set the payment date (for simplicity, we assume payment is done)
         order.setPaymentDate(LocalDateTime.now());

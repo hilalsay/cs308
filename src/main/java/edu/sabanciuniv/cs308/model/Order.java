@@ -44,6 +44,12 @@ public class Order {
     @Column(name = "payment_method")
     private String paymentMethod;
 
+    @Column(nullable = false)
+    private String ordererName;
+
+    @Column(nullable = false)
+    private String orderAddress;
+
     /**
      *     // Adding Many-to-Many relationship with Product
      *     @ManyToMany

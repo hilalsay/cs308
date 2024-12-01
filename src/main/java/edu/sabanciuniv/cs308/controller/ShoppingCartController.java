@@ -174,12 +174,14 @@ public class ShoppingCartController {
     @PostMapping("/confirm")
     public ResponseEntity<?> confirmOrder(
             @RequestHeader("Authorization") String token,
-            @RequestParam String paymentMethod) {
+            @RequestParam String paymentMethod,
+            @RequestParam String ordererName,
+            @RequestParam String address) {
         try {
             String username = jwtService.extractUserName(token.substring(7)); // Remove "Bearer " prefix
             UUID userId = userService.getUserIdByUsername(username); // Convert username to userId
 
-            Order order = shoppingCartService.convertToOrder(userId, paymentMethod);
+            Order order = shoppingCartService.convertToOrder(userId, paymentMethod, ordererName, address);
             invoiceService.generateInvoiceAndSendEmail(order.getId());
             return ResponseEntity.ok(order);
         } catch (RuntimeException e) {
