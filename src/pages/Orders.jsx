@@ -28,14 +28,17 @@ const Orders = () => {
         );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch orders");
+          throw new Error(
+            `Failed to fetch orders: ${response.status} ${response.statusText}`
+          );
         }
 
-        const data = await response.json();
-        setOrders(data || []);
+        const text = await response.text(); // Get the raw text response
+        const data = text ? JSON.parse(text) : []; // Parse only if text is not empty
+        setOrders(data);
       } catch (err) {
         console.error("Error fetching orders:", err);
-        setError(err.message);
+        setError(err.message || "An unexpected error occurred");
       } finally {
         setLoading(false);
       }

@@ -79,7 +79,9 @@ const CommentCard = () => {
               {renderStars(review.rating)}
             </div>
             {/* Check approval status */}
-            {review.approved || review.comments == null ? (
+            {review.comments === null || review.comments === "" ? (
+              <p className="italic text-gray-500"></p>
+            ) : review.approved ? (
               <p>{review.comments}</p>
             ) : (
               <p className="italic text-gray-500">
