@@ -118,6 +118,7 @@ const OrderCard = ({ order }) => {
               <ReviewCard
                 productId={product.product?.id}
                 orderId={order?.id} // Pass the orderId to the ReviewCard
+                orderStatus={status} // Pass orderStatus to the ReviewCard
                 token={token}
               />
             </div>

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const ReviewCard = ({ productId, orderId, token }) => {
+const ReviewCard = ({ productId, orderId, token, orderStatus }) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [existingReview, setExistingReview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const isEditable = orderStatus === "DELIVERED"; // Check if reviews can be edited
 
   useEffect(() => {
     if (token) {
@@ -86,9 +87,9 @@ const ReviewCard = ({ productId, orderId, token }) => {
       return (
         <span
           key={starValue}
-          onClick={() => setRating(starValue)}
+          onClick={() => isEditable && setRating(starValue)} // Disable click if not editable
           style={{
-            cursor: "pointer",
+            cursor: isEditable ? "pointer" : "not-allowed",
             color: starValue <= rating ? "#FFD700" : "#ccc",
             fontSize: "24px",
           }}
@@ -124,6 +125,7 @@ const ReviewCard = ({ productId, orderId, token }) => {
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
+          disabled={!isEditable}
           style={{
             marginLeft: "8px",
             width: "100%",
@@ -132,20 +134,22 @@ const ReviewCard = ({ productId, orderId, token }) => {
             border: "1px solid #000",
             borderRadius: "4px",
             outline: "2px solid #007BFF",
+            backgroundColor: !isEditable ? "#f9f9f9" : "white",
+            cursor: !isEditable ? "not-allowed" : "text",
           }}
         />
       </div>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <button
         onClick={handleSubmit}
-        disabled={loading || rating === 0}
+        disabled={!isEditable || loading || rating === 0}
         style={{
           padding: "8px 16px",
           border: "none",
-          backgroundColor: rating === 0 ? "#ccc" : "#007BFF",
+          backgroundColor: !isEditable || rating === 0 ? "#ccc" : "#007BFF",
           color: "#fff",
           borderRadius: "4px",
-          cursor: rating === 0 ? "not-allowed" : "pointer",
+          cursor: !isEditable || rating === 0 ? "not-allowed" : "pointer",
         }}
       >
         {loading
@@ -154,6 +158,11 @@ const ReviewCard = ({ productId, orderId, token }) => {
           ? "Update Review"
           : "Submit Review"}
       </button>
+      {!isEditable && (
+        <p style={{ color: "red", marginTop: "8px" }}>
+          Reviews can only be updated or sent for delivered orders.
+        </p>
+      )}
     </div>
   );
 };
