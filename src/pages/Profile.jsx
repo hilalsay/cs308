@@ -41,9 +41,12 @@ const MyProfile = () => {
             },
           }
         );
+        
         setUserReviews(reviewsResponse.data); // Set the user's reviews
+        console.log("userprofile: ", profileResponse.data);
 
         setLoading(false); // Stop loading after fetching
+
       } catch (error) {
         setError("Failed to fetch profile or reviews. Please try again.");
         setLoading(false); // Stop loading on error
@@ -63,12 +66,13 @@ const MyProfile = () => {
   }
 
   return (
+    
     <div className="profile-page">
       <h2 className="text-2xl font-bold mb-4">My Profile</h2>
       <div className="profile-info space-y-4">
         <div className="form-group">
           <label className="block font-medium mb-1">Full Name:</label>
-          <p>{userProfile.name}</p>
+          <p>{userProfile.username}</p>
         </div>
         <div className="form-group">
           <label className="block font-medium mb-1">Email:</label>
