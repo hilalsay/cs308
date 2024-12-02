@@ -34,103 +34,95 @@ public class ReviewServiceTest {
     public void testAddReview_Successful() {
         UUID productId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
         Integer rating = 4;
         String comment = "Great product!";
 
-        // Mocking order and shopping cart data
-        Order order = new Order();
-        order.setOrderStatus(OrderStatus.DELIVERED);
-        ShoppingCart shoppingCart = mockShoppingCartWithProduct(productId);
-
-        // Mock repository methods
-        Mockito.when(orderRepoMock.findByUserId(userId)).thenReturn(Collections.singletonList(order));
-        Mockito.when(shoppingCartRepoMock.findById(order.getShop_id())).thenReturn(Optional.of(shoppingCart));
+        // Mock dependencies
+        Order order = createMockOrder(orderId, OrderStatus.DELIVERED, productId);
+        Mockito.when(orderRepoMock.findById(orderId)).thenReturn(Optional.of(order));
         Mockito.when(reviewRepoMock.existsByProductIdAndUserId(productId, userId)).thenReturn(false);
         Mockito.when(reviewRepoMock.save(Mockito.any(Review.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Call service and assert
-        Review review = reviewService.addReview(productId, userId, rating, comment);
-        assertReviewDetails(review, productId, userId, rating, comment);
+        Review review = reviewService.addReview(productId, orderId, userId, rating, comment);
+        assertNotNull(review);
+        assertEquals(productId, review.getProductId());
+        assertEquals(userId, review.getUserId());
+        assertEquals(rating, review.getRating());
+        assertEquals(comment, review.getComments());
     }
 
     @Test
-    public void testAddReview_UserNotOrderedProduct() {
+    public void testAddReview_OrderNotDelivered() {
         UUID productId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
 
-        // Mock repository method
-        Mockito.when(orderRepoMock.findByUserId(userId)).thenReturn(Collections.emptyList());
+        // Mock dependencies
+        Order order = createMockOrder(orderId, OrderStatus.PENDING, productId);
+        Mockito.when(orderRepoMock.findById(orderId)).thenReturn(Optional.of(order));
 
-        // Assert exception is thrown
+        // Assert exception
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                reviewService.addReview(productId, userId, 4, "Great product!"));
-        assertEquals("User has not purchased this product", exception.getMessage());
+                reviewService.addReview(productId, orderId, userId, 4, "Great product!"));
+        assertEquals("User has not purchased this product or order is not delivered", exception.getMessage());
     }
 
     @Test
-    public void testAddReview_UserAlreadyReviewedProduct() {
+    public void testAddReview_UserAlreadyReviewed() {
         UUID productId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
 
-    // Mock order with DELIVERED status
-        Order mockOrder = new Order();
-        mockOrder.setOrderStatus(OrderStatus.DELIVERED);
-        mockOrder.setShop_id(UUID.randomUUID());
-
-    // Mock shopping cart with the product
-        ShoppingCart mockCart = mockShoppingCartWithProduct(productId);
-
-    // Mock repository methods
-        Mockito.when(orderRepoMock.findByUserId(userId)).thenReturn(Collections.singletonList(mockOrder));
-        Mockito.when(shoppingCartRepoMock.findById(mockOrder.getShop_id())).thenReturn(Optional.of(mockCart));
+        // Mock dependencies
+        Order order = createMockOrder(orderId, OrderStatus.DELIVERED, productId);
+        Mockito.when(orderRepoMock.findById(orderId)).thenReturn(Optional.of(order));
         Mockito.when(reviewRepoMock.existsByProductIdAndUserId(productId, userId)).thenReturn(true);
 
-    // Assert exception is thrown
+        // Assert exception
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                reviewService.addReview(productId, userId, 4, "Great product!")
-        );
+                reviewService.addReview(productId, orderId, userId, 4, "Great product!"));
         assertEquals("User has already reviewed this product", exception.getMessage());
     }
-
 
     @Test
     public void testUpdateReviewComment_Successful() {
         UUID reviewId = UUID.randomUUID();
         String newComment = "Updated comment!";
 
-        // Mock review data
-        Review review = new Review();
-        review.setReviewId(reviewId);
-        review.setComments("Old comment");
+        // Mock dependencies
+        Review review = createMockReview(reviewId, "Old comment", null);
         Mockito.when(reviewRepoMock.findById(reviewId)).thenReturn(Optional.of(review));
         Mockito.when(reviewRepoMock.save(Mockito.any(Review.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Call service and assert
         Review updatedReview = reviewService.updateReviewComment(reviewId, newComment);
+        assertNotNull(updatedReview);
         assertEquals(newComment, updatedReview.getComments());
     }
 
     @Test
     public void testUpdateReviewComment_ReviewNotFound() {
         UUID reviewId = UUID.randomUUID();
-        String newComment = "Updated comment!";
 
-        // Mock review not found
+        // Mock dependencies
         Mockito.when(reviewRepoMock.findById(reviewId)).thenReturn(Optional.empty());
 
-        // Assert exception is thrown
+        // Assert exception
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                reviewService.updateReviewComment(reviewId, newComment));
+                reviewService.updateReviewComment(reviewId, "Updated comment!"));
         assertEquals("Review not found", exception.getMessage());
     }
 
     @Test
-    public void testGetAverageRatingByProductId() {
+    public void testGetAverageRatingByProductId_Successful() {
         UUID productId = UUID.randomUUID();
-        List<Integer> ratings = Arrays.asList(5, 3, 4);
+        List<Integer> ratings = Arrays.asList(5, 4, 3);
 
-        // Mock review data
-        Mockito.when(reviewRepoMock.findByProductId(productId)).thenReturn(createMockReviewsForProduct(productId, ratings));
+        // Mock dependencies
+        Mockito.when(reviewRepoMock.findByProductId(productId))
+                .thenReturn(createMockReviewsForProduct(productId, ratings));
 
         // Call service and assert
         double averageRating = reviewService.getAverageRatingByProductId(productId);
@@ -138,43 +130,54 @@ public class ReviewServiceTest {
     }
 
     @Test
-    public void testGetAverageRatingByProductId_NoReviews() {
+    public void testGetAverageRatingByProductId_NoRatings() {
         UUID productId = UUID.randomUUID();
 
-        // Mock no reviews for product
+        // Mock dependencies
         Mockito.when(reviewRepoMock.findByProductId(productId)).thenReturn(Collections.emptyList());
 
-        // Assert exception is thrown
+        // Assert exception
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 reviewService.getAverageRatingByProductId(productId));
         assertEquals("No ratings found for the specified product.", exception.getMessage());
     }
 
-    // Helper method to create a ShoppingCart with a product
+    // Helper methods
+    private Order createMockOrder(UUID orderId, OrderStatus status, UUID productId) {
+        Order order = new Order();
+        order.setId(orderId);
+        order.setOrderStatus(status);
+        ShoppingCart shoppingCart = mockShoppingCartWithProduct(productId);
+        order.setShop_id(shoppingCart.getId());
+        return order;
+    }
+
     private ShoppingCart mockShoppingCartWithProduct(UUID productId) {
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.setId(UUID.randomUUID());
         Product product = new Product();
         product.setId(productId);
-        ShoppingCart shoppingCart = new ShoppingCart();
-        shoppingCart.setItems(Collections.singletonList(new CartItem(product, 1, shoppingCart)));
+        CartItem item = new CartItem();
+        item.setProduct(product);
+        shoppingCart.setItems(Collections.singletonList(item));
         return shoppingCart;
     }
 
-    // Helper method to assert review details
-    private void assertReviewDetails(Review review, UUID productId, UUID userId, Integer rating, String comment) {
-        assertNotNull(review);
-        assertAll("Review Details",
-                () -> assertEquals(productId, review.getProductId()),
-                () -> assertEquals(userId, review.getUserId()),
-                () -> assertEquals(rating, review.getRating()),
-                () -> assertEquals(comment, review.getComments())
-        );
+    private Review createMockReview(UUID reviewId, String comments, Integer rating) {
+        Review review = new Review();
+        review.setReviewId(reviewId);
+        review.setComments(comments);
+        review.setRating(rating);
+        return review;
     }
 
-    // Helper method to create mock reviews for a product
     private List<Review> createMockReviewsForProduct(UUID productId, List<Integer> ratings) {
         List<Review> reviews = new ArrayList<>();
         for (Integer rating : ratings) {
-            reviews.add(new Review(UUID.randomUUID(), productId, UUID.randomUUID(), rating, "Sample comment", null));
+            Review review = new Review();
+            review.setProductId(productId);
+            review.setRating(rating);
+            reviews.add(review);
         }
         return reviews;
     }

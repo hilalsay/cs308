@@ -3,6 +3,8 @@ package edu.sabanciuniv.cs308.service;
 import edu.sabanciuniv.cs308.model.Order;
 import edu.sabanciuniv.cs308.repo.OrderRepo;
 import edu.sabanciuniv.cs308.repo.UserRepo;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Service
 public class InvoiceService {
     @Autowired
