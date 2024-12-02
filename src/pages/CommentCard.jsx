@@ -67,7 +67,9 @@ const CommentCard = () => {
         commentsWithUsernames.map((review) => (
           <div className="border-b py-4" key={review.reviewId}>
             <div className="flex justify-between">
-              <span className="font-medium">{review.username}</span>
+              <span className="font-medium">
+                {review.username} (ID: {review.reviewId}) {/* Display ID */}
+              </span>
               <span className="text-gray-500 text-sm">
                 {new Date(review.createdAt).toLocaleString()}
               </span>
