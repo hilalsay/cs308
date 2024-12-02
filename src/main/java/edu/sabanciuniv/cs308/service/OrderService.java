@@ -66,7 +66,17 @@ public class OrderService {
         // Save and return the updated order
         return orderRepository.save(order);
     }
+    // Simulate the delivery process
+    public Order simulateTransit(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
 
+        // Simulate the delivery process (you can add additional logic here)
+        order.setOrderStatus(OrderStatus.IN_TRANSIT); // Update status to DELIVERED
+
+        // Save and return the updated order
+        return orderRepository.save(order);
+    }
     public Order createOrder(Order order) {
         // You can modify this logic to fit your validation and order creation process
         order.setCreatedAt(LocalDateTime.now());

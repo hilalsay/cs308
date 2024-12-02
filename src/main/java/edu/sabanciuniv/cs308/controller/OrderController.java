@@ -117,5 +117,15 @@ public class OrderController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Order not found
         }
     }
+    // Endpoint to simulate the delivery process
+    @PutMapping("/{orderId}/simulate-transit")
+    public ResponseEntity<Order> simulateTransit(@PathVariable UUID orderId) {
+        try {
+            Order updatedOrder = orderService.simulateTransit(orderId);
+            return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Order not found
+        }
+    }
 }
 
