@@ -53,7 +53,7 @@ const ProductCard = ({ product }) => {
 
       {product.averageRating !== null && (
         <div className="my-4"> 
-          <strong>Rating:</strong> {product.averageRating.toFixed(2)} / 5{" "}
+          <strong>Rating:</strong> {product.averageRating.toFixed(1)} / 5{" "}
           {renderStars(product.averageRating)}
         </div>
       )}
