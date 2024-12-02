@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,6 +47,29 @@ public class Product {
     @JsonBackReference // Prevents recursion by ignoring this field during serialization
     private Category category;
 
+    public Product(String name, String model, String serialNumber,
+                   String description, Integer stockQuantity, BigDecimal price,
+                   String warrantyStatus, String distributorInformation, String imageName,
+                   String imageType, Double averageRating, Integer overallRating,
+                   List<Review> reviews, byte[] imageData, Category category) {
+        this.id = UUID.randomUUID();
+        this.name = name;
+        this.model = model;
+        this.serialNumber = serialNumber;
+        this.description = description;
+        this.stockQuantity = stockQuantity;
+        this.price = price;
+        this.warrantyStatus = warrantyStatus;
+        this.distributorInformation = distributorInformation;
+        this.imageName = imageName;
+        this.imageType = imageType;
+        this.averageRating = averageRating;
+        this.overallRating = overallRating;
+        this.reviews = reviews;
+        this.imageData = imageData;
+        this.category = category;
+    }
+
     @Override
     public String toString() {
         return "Product{" +
@@ -58,8 +82,13 @@ public class Product {
                 ", price=" + price +
                 ", warrantyStatus='" + warrantyStatus + '\'' +
                 ", distributorInformation='" + distributorInformation + '\'' +
+                ", imageName='" + imageName + '\'' +
+                ", imageType='" + imageType + '\'' +
+                ", averageRating=" + averageRating +
+                ", overallRating=" + overallRating +
+                ", reviews=" + reviews +
+                ", imageData=" + Arrays.toString(imageData) +
                 ", category=" + category +
                 '}';
     }
-
 }

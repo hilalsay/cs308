@@ -27,6 +27,12 @@ public class ReviewService {
     @Autowired
     private ProductRepo productRepo;
 
+    public ReviewService(ReviewRepo reviewRepository, OrderRepo orderRepository, ShoppingCartRepo shoppingCartRepository, ProductRepo productRepo) {
+        this.reviewRepository = reviewRepository;
+        this.orderRepository = orderRepository;
+        this.shoppingCartRepository = shoppingCartRepository;
+        this.productRepo = productRepo;
+    }
 
     // Approve a review
     public Review approveComment(UUID reviewId) {
