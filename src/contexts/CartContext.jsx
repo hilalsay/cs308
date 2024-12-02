@@ -234,12 +234,19 @@ export const CartProvider = ({ children }) => {
       }
     } else {
       // For local cart when not logged in
+    
       if (existingItem) {
-        updatedCart = cartItems.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
+        updatedCart = cartItems.map((item) => {
+          if (item.id === product.id) {
+            if (item.quantity + 1 > product.stockQuantity) {
+              onToast(`Error:Insufficient stock for the product: ${item.name}`);
+              //throw new Error("Cannot add more items than available in stock");
+              return item;
+            }
+            return { ...item, quantity: item.quantity + 1 };
+          }
+          return item;
+        });
       } else {
         updatedCart = [...cartItems, { ...formattedProduct, quantity: 1 }];
       }
