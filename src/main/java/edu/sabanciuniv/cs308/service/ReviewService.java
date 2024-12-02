@@ -45,7 +45,10 @@ public class ReviewService {
     public List<Review> getAllReviews() {
         return reviewRepository.findAll();
     }
+    public List<Review> getAllReviewsByProduct(UUID productId) {
+        return reviewRepository.findByProductId(productId);
 
+    }
     public List<Review> getApprovedReviewsByProduct(UUID productId) {
         return reviewRepository.findByProductIdAndApproved(productId, true);
     }
