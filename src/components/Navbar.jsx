@@ -6,27 +6,24 @@ import { useCart } from "../contexts/CartContext";
 import axios from "axios"; // Import axios for HTTP requests
 import { useNavigate } from "react-router-dom";
 import { useSearchContext } from "../contexts/SearchContext"; // Import SearchContext hook
+import shopAppLogo from "../assets/shopapp2.png";
 
 const Navbar = () => {
   const { token, logout } = useContext(AuthContext);
-  const { cartItems,fetchCartFromDB } = useCart(); 
+  const { cartItems, fetchCartFromDB } = useCart();
   const { setSearchResults } = useSearchContext(); // Use SearchContext for managing results
   const [searchQuery, setSearchQuery] = useState(""); // Added searchQuery state
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
 
-  const cartCount = cartItems.reduce(
-    (count, item) => {
-      // Validate quantity before adding it to the total
-      const quantity = item.quantity && !isNaN(item.quantity)
+  const cartCount = cartItems.reduce((count, item) => {
+    // Validate quantity before adding it to the total
+    const quantity =
+      item.quantity && !isNaN(item.quantity)
         ? Number(item.quantity) // Use item.quantity directly
         : 0; // Default to 0 if invalid
-      return count + quantity;
-    },
-    0
-  );
-  
-  
+    return count + quantity;
+  }, 0);
 
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
@@ -56,7 +53,14 @@ const Navbar = () => {
 
   return (
     <div className="flex items-center justify-between py-5 font-medium">
-      <p>ShopApp</p>
+      <div className="flex items-center gap-4">
+        <img
+          src={shopAppLogo}
+          alt="ShopApp Logo"
+          className="w-20 h-20 object-contain"
+        />
+        <p className="text-2xl font-bold">ShopApp</p>
+      </div>
 
       <div className="flex items-center justify-center">
         <div className="flex items-center justify-between border border-gray-400 px-8 py-3 my-5 ms-3 rounded-full w-4/5 sm:w-3/4">
