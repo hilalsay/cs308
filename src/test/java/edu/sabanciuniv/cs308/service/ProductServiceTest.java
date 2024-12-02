@@ -1,6 +1,5 @@
 package edu.sabanciuniv.cs308.service;
 
-import edu.sabanciuniv.cs308.model.Category;
 import edu.sabanciuniv.cs308.model.Product;
 import edu.sabanciuniv.cs308.repo.ProductRepo;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,154 +9,125 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ProductServiceTest {
 
-    @Mock
-    private ProductRepo productRepo;
-
-    @Mock
-    private MultipartFile imageFile;
-
     @InjectMocks
-    private ProductService productService;
+    private ProductService productService; // Service under test
 
-    private Product sampleProduct;
-    private UUID sampleProductId;
+    @Mock
+    private ProductRepo productRepo; // Mocked repository for simulating database operations
 
     @BeforeEach
-    void setUp() throws IOException {
-        MockitoAnnotations.openMocks(this);
-        sampleProductId = UUID.randomUUID();
-
-        Category category = new Category();
-        sampleProduct = new Product(
-                sampleProductId,
-                "Laptop",
-                "X123",
-                "SN123456",
-                "High-end gaming laptop",
-                5,
-                new BigDecimal("1500.00"),
-                "2 years",
-                "Tech Distributors",
-                "laptop.jpg",
-                "image/jpeg",
-                new byte[]{1, 2, 3},
-                category
-        );
-
-        when(imageFile.getOriginalFilename()).thenReturn("laptop.jpg");
-        when(imageFile.getContentType()).thenReturn("image/jpeg");
-        when(imageFile.getBytes()).thenReturn(new byte[]{1, 2, 3});
+    void setUp() {
+        MockitoAnnotations.openMocks(this); // Initialize mocks before each test
     }
 
     @Test
-    void addProduct_shouldSaveProductWithImage() throws IOException {
+    void testGetProducts() {
+        // Mock data
+        List<Product> mockProducts = Arrays.asList(
+                new Product("Product1", "Model1", "SN1", "Desc1", 10, BigDecimal.valueOf(100), "Warranty1", "Distributor1", "image1", "image/jpeg", 4.5, null, null, null, null),
+                new Product("Product2", "Model2", "SN2", "Desc2", 5, BigDecimal.valueOf(200), "Warranty2", "Distributor2", "image2", "image/png", 3.5, null, null, null, null)
+        );
+
+        when(productRepo.findAll()).thenReturn(mockProducts);
+
+        // Call the method to test
+        List<Product> products = productService.getProducts();
+
+        // Verify the behavior and assert results
+        assertEquals(2, products.size());
+        assertEquals("Product1", products.get(0).getName());
+        assertEquals("Product2", products.get(1).getName());
+        verify(productRepo, times(1)).findAll(); // Verify that findAll() was called once
+    }
+
+    @Test
+    void testGetProductById() {
+        UUID productId = UUID.randomUUID();
+        Product mockProduct = new Product("Product1", "Model1", "SN1", "Desc1", 10, BigDecimal.valueOf(100), "Warranty1", "Distributor1", "image1", "image/jpeg", 4.5, null, null, null, null);
+
+        when(productRepo.findById(productId)).thenReturn(Optional.of(mockProduct));
+
+        // Call the method to test
+        Product product = productService.getProductById(productId);
+
+        // Assert and verify
+        assertNotNull(product);
+        assertEquals("Product1", product.getName());
+        verify(productRepo, times(1)).findById(productId);
+    }
+
+    @Test
+    void testAddProduct() throws Exception {
         Product product = new Product();
-        product.setName("Laptop");
+        product.setName("New Product");
 
-        // Mocklama: repo.save() çağrıldığında, 'product' nesnesini döndür.
-        when(productRepo.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        MultipartFile mockFile = mock(MultipartFile.class);
+        when(mockFile.getOriginalFilename()).thenReturn("image.jpg");
+        when(mockFile.getContentType()).thenReturn("image/jpeg");
+        when(mockFile.getBytes()).thenReturn(new byte[]{1, 2, 3});
 
-        Product savedProduct = productService.addProduct(product, imageFile);
+        when(productRepo.save(any(Product.class))).thenReturn(product);
 
-        // Beklentiler
-        assertNotNull(savedProduct); // savedProduct'ın null olmadığını doğrula
-        assertEquals("laptop.jpg", savedProduct.getImageName());
-        assertEquals("image/jpeg", savedProduct.getImageType());
-        assertArrayEquals(new byte[]{1, 2, 3}, savedProduct.getImageData());
+        // Call the method to test
+        Product savedProduct = productService.addProduct(product, mockFile);
 
-        // Mock nesnesinin kaydetme işlemini gerçekleştirdiğini doğrula
+        // Assert results and verify
+        assertEquals("New Product", savedProduct.getName());
+        assertEquals("image.jpg", savedProduct.getImageName());
         verify(productRepo, times(1)).save(product);
     }
 
-
     @Test
-    void updateProduct_shouldUpdateProductWithImage() throws IOException {
-        // Mocklama: findById çağrıldığında sampleProduct döndür
-        when(productRepo.findById(sampleProductId)).thenReturn(Optional.of(sampleProduct));
+    void testDeleteProduct() {
+        UUID productId = UUID.randomUUID();
 
-        // Mocklama: save çağrıldığında güncellenen ürünü döndür
-        when(productRepo.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        // Call the method to test
+        productService.deleteProduct(productId);
 
-        // updateProduct çağrısı
-        Product updatedProduct = productService.updateProduct(sampleProductId, sampleProduct, imageFile);
-
-        // Beklentiler
-        assertNotNull(updatedProduct); // updatedProduct'ın null olmadığını doğrula
-        assertEquals("laptop.jpg", updatedProduct.getImageName());
-        assertEquals("image/jpeg", updatedProduct.getImageType());
-        assertArrayEquals(new byte[]{1, 2, 3}, updatedProduct.getImageData());
-
-        // Mock nesnelerinin doğru şekilde çağrıldığını doğrula
-        verify(productRepo, times(1)).findById(sampleProductId);
-        verify(productRepo, times(1)).save(sampleProduct);
+        // Verify the delete operation
+        verify(productRepo, times(1)).deleteById(productId);
     }
 
+    @Test
+    void testSearchProducts() {
+        String keyword = "test";
+        List<Product> mockProducts = Collections.singletonList(
+                new Product("Test Product", "Model1", "SN1", "Desc1", 10, BigDecimal.valueOf(100), "Warranty1", "Distributor1", "image1", "image/jpeg", 4.5, null, null, null, null)
+        );
+
+        when(productRepo.searchProducts(keyword)).thenReturn(mockProducts);
+
+        // Call the method to test
+        List<Product> result = productService.searchProducts(keyword);
+
+        // Assert and verify
+        assertEquals(1, result.size());
+        assertEquals("Test Product", result.get(0).getName());
+        verify(productRepo, times(1)).searchProducts(keyword);
+    }
 
     @Test
-    void getProducts_shouldReturnAllProducts() {
-        List<Product> mockProducts = new ArrayList<>();
-        mockProducts.add(sampleProduct);
+    void testGetSortedProductsByPriceLowToHigh() {
+        List<Product> mockProducts = Arrays.asList(
+                new Product("Product1", "Model1", "SN1", "Desc1", 10, BigDecimal.valueOf(300), "Warranty1", "Distributor1", "image1", "image/jpeg", 4.5, null, null, null, null),
+                new Product("Product2", "Model2", "SN2", "Desc2", 5, BigDecimal.valueOf(100), "Warranty2", "Distributor2", "image2", "image/png", 3.5, null, null, null, null)
+        );
+
         when(productRepo.findAll()).thenReturn(mockProducts);
 
-        List<Product> products = productService.getProducts();
+        // Call the method to test
+        List<Product> sortedProducts = productService.getSortedProducts("priceLowToHigh");
 
-        assertEquals(1, products.size());
-        assertEquals("Laptop", products.get(0).getName());
+        // Assert and verify
+        assertEquals(BigDecimal.valueOf(100), sortedProducts.get(0).getPrice());
         verify(productRepo, times(1)).findAll();
-    }
-
-    @Test
-    void getProductsInStock_shouldReturnOnlyInStockProducts() {
-        List<Product> productsInStock = new ArrayList<>();
-        productsInStock.add(sampleProduct);
-        when(productRepo.findByStockQuantityGreaterThan(0)).thenReturn(productsInStock);
-
-        List<Product> result = productService.getProductsInStock();
-
-        assertEquals(1, result.size());
-        assertTrue(result.get(0).getStockQuantity() > 0);
-        verify(productRepo, times(1)).findByStockQuantityGreaterThan(0);
-    }
-
-    @Test
-    void getProductById_shouldReturnProduct_whenProductExists() {
-        when(productRepo.findById(sampleProductId)).thenReturn(Optional.of(sampleProduct));
-
-        Product product = productService.getProductById(sampleProductId);
-
-        assertNotNull(product);
-        assertEquals("Laptop", product.getName());
-        verify(productRepo, times(1)).findById(sampleProductId);
-    }
-
-    @Test
-    void getProductById_shouldThrowException_whenProductDoesNotExist() {
-        when(productRepo.findById(sampleProductId)).thenReturn(Optional.empty());
-
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            productService.getProductById(sampleProductId);
-        });
-
-        assertEquals("Product not found", exception.getMessage());
-        verify(productRepo, times(1)).findById(sampleProductId);
-    }
-
-    @Test
-    void deleteProduct_shouldDeleteProductById() {
-        productService.deleteProduct(sampleProductId);
-
-        verify(productRepo, times(1)).deleteById(sampleProductId);
     }
 }

@@ -32,7 +32,9 @@ public class ReviewController {
     // Get all approved reviews for a product
     @GetMapping("/product/{productId}/reviews")
     public ResponseEntity<List<Review>> getApprovedReviews(@PathVariable UUID productId) {
-        List<Review> approvedReviews = reviewService.getApprovedReviewsByProduct(productId);
+     //   List<Review> approvedReviews = reviewService.getAllReviews(productId);
+        List<Review> approvedReviews = reviewService.getAllReviewsByProduct(productId);
+
         return ResponseEntity.ok(approvedReviews);
     }
 
@@ -135,12 +137,12 @@ public class ReviewController {
 
     // Get average rating for a product
     @GetMapping("/product/{productId}/average-rating")
-    public ResponseEntity<Double> getAverageRatingByProduct(@PathVariable UUID productId) {
+    public ResponseEntity<?> getAverageRatingByProduct(@PathVariable UUID productId) {
         try {
             double averageRating = reviewService.getAverageRatingByProductId(productId);
             return ResponseEntity.ok(averageRating);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null); // Return bad request if the product has no ratings
+            return ResponseEntity.badRequest().body(e.getMessage()); // Return bad request if the product has no ratings
         }
     }
 
@@ -164,6 +166,16 @@ public class ReviewController {
         try {
             reviewService.approveComment(reviewId); // Call the service method to approve the review
             return ResponseEntity.ok("Comment approved successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    // Decline a comment: Set comment to empty/null but keep rating
+    @PutMapping("/{reviewId}/decline")
+    public ResponseEntity<String> declineComment(@PathVariable UUID reviewId) {
+        try {
+            reviewService.deleteComment(reviewId); // Call the service method to decline the comment
+            return ResponseEntity.ok("Comment declined successfully. Rating retained.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

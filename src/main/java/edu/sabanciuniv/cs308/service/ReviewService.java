@@ -27,6 +27,12 @@ public class ReviewService {
     @Autowired
     private ProductRepo productRepo;
 
+    public ReviewService(ReviewRepo reviewRepository, OrderRepo orderRepository, ShoppingCartRepo shoppingCartRepository, ProductRepo productRepo) {
+        this.reviewRepository = reviewRepository;
+        this.orderRepository = orderRepository;
+        this.shoppingCartRepository = shoppingCartRepository;
+        this.productRepo = productRepo;
+    }
 
     // Approve a review
     public Review approveComment(UUID reviewId) {
@@ -39,7 +45,10 @@ public class ReviewService {
     public List<Review> getAllReviews() {
         return reviewRepository.findAll();
     }
+    public List<Review> getAllReviewsByProduct(UUID productId) {
+        return reviewRepository.findByProductId(productId);
 
+    }
     public List<Review> getApprovedReviewsByProduct(UUID productId) {
         return reviewRepository.findByProductIdAndApproved(productId, true);
     }
