@@ -11,34 +11,42 @@ const AuthProvider = ({ children }) => {
     return savedCart ? JSON.parse(savedCart) : [];
   });
 
+  const decodeJWT = (token) => {
+    try {
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/"); // Convert Base64URL to Base64
+      return JSON.parse(atob(base64));
+    } catch (error) {
+      console.error("Failed to decode token:", error);
+      return null;
+    }
+  };
+
+  
   // Initialize the token state from localStorage when the app loads
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     if (storedToken) {
-      try {
-        const payload = JSON.parse(atob(storedToken.split(".")[1])); // Decode JWT payload
-        if (payload.exp * 1000 > Date.now()) {
-          setToken(storedToken);
-        } else {
-          console.warn("Token expired, logging out...");
-          logout();
-        }
-      } catch (err) {
-        console.error("Invalid token format", err);
+      console.log("Token in localStorage:", storedToken);
+      const payload = decodeJWT(storedToken);
+      if (payload && payload.exp * 1000 > Date.now()) {
+        setToken(storedToken);
+      } else {
+        console.warn("Token expired or invalid, logging out...");
         logout();
       }
     }
   }, []);
-
-  const login = (token) => {
-    const tokenString = token.token || token; // Extract token string if it's an object
-    setToken(tokenString);
-    console.log("auth token: ", tokenString);
-    localStorage.setItem("token", tokenString); // Store the token string
   
-    // Dispatch a custom event to signal that the user logged in
-    window.dispatchEvent(new Event("userLoggedIn"));
+
+
+  const login = (receivedToken) => {
+    const tokenString = typeof receivedToken === "string" ? receivedToken : receivedToken.token;
+    console.log("Storing token:", tokenString);
+    setToken(tokenString);
+    localStorage.setItem("token", tokenString);
   };
+  
   
 
   // Function to log out the user and clear the token from localStorage
