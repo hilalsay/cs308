@@ -138,14 +138,14 @@ const ReviewCard = ({ productId, orderId, token }) => {
       {error && <p style={{ color: "red" }}>{error}</p>}
       <button
         onClick={handleSubmit}
-        disabled={loading}
+        disabled={loading || rating === 0}
         style={{
           padding: "8px 16px",
           border: "none",
-          backgroundColor: "#007BFF",
+          backgroundColor: rating === 0 ? "#ccc" : "#007BFF",
           color: "#fff",
           borderRadius: "4px",
-          cursor: "pointer",
+          cursor: rating === 0 ? "not-allowed" : "pointer",
         }}
       >
         {loading
