@@ -114,11 +114,31 @@ const ProductDetails = () => {
           <h1 className="font-medium text-2xl mt-2">{product.name}</h1>
           <p className="mt-5 text-3xl font-medium">${product.price}</p>
           <p className="my-5 text-gray-500 md:w-4/5">{product.description}</p>
+
+          {/* Additional Product Details */}
+          <p className="my-2">
+            <strong>Product ID:</strong> {productId}
+          </p>
+          <p className="my-2">
+            <strong>Model:</strong> {product.model}
+          </p>
+          <p className="my-2">
+            <strong>Serial Number:</strong> {product.serialNumber}
+          </p>
+          <p className="my-2">
+            <strong>Warranty Status:</strong> {product.warrantyStatus}
+          </p>
+          <p className="my-2">
+            <strong>Distributor Information:</strong>{" "}
+            {product.distributorInformation}
+          </p>
+
           {/* Average Rating */}
           <div className="my-4">
             <strong>Rating:</strong> {avgRating.toFixed(1)} / 5{" "}
             {renderStars(avgRating)}
           </div>
+
           {/* Stock Quantity */}
           <p
             className={`my-2 ${
@@ -149,7 +169,7 @@ const ProductDetails = () => {
       <div className="mt-10">
         <h2 className="text-2xl font-medium">Customer Reviews</h2>
         {comments.length > 0 ? (
-          <CommentCard  />
+          <CommentCard comments={comments} />
         ) : (
           <p>No reviews yet.</p>
         )}
