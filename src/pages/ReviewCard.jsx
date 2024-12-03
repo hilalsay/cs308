@@ -47,30 +47,38 @@ const ReviewCard = ({ productId, orderId, token, orderStatus }) => {
           throw new Error("Review ID is missing");
         }
 
-        // Update existing review
-        await axios.put(
-          `http://localhost:8080/api/reviews/${existingReview.reviewId}/comment`,
-          new URLSearchParams({ newComment: comment }),
-          { headers }
-        );
-        await axios.put(
-          `http://localhost:8080/api/reviews/${existingReview.reviewId}/rating`,
-          new URLSearchParams({ newRating: rating }),
-          { headers }
-        );
+        // Update the comment (rating is optional)
+        if (comment) {
+          await axios.put(
+            `http://localhost:8080/api/reviews/${existingReview.reviewId}/comment`,
+            new URLSearchParams({ newComment: comment }),
+            { headers }
+          );
+        }
+
+        if (rating > 0) {
+          await axios.put(
+            `http://localhost:8080/api/reviews/${existingReview.reviewId}/rating`,
+            new URLSearchParams({ newRating: rating }),
+            { headers }
+          );
+        }
+
         alert("Review updated successfully!");
       } else {
         // Add a new review with `orderId`
-        await axios.post(
-          "http://localhost:8080/api/reviews",
-          new URLSearchParams({
-            productId,
-            orderId,
-            rating,
-            comments: comment,
-          }),
-          { headers }
-        );
+        const formData = new URLSearchParams({
+          productId,
+          orderId,
+          comments: comment,
+        });
+        if (rating > 0) {
+          formData.append("rating", rating);
+        }
+
+        await axios.post("http://localhost:8080/api/reviews", formData, {
+          headers,
+        });
         alert("Review submitted successfully!");
       }
     } catch (err) {
@@ -139,17 +147,26 @@ const ReviewCard = ({ productId, orderId, token, orderStatus }) => {
           }}
         />
       </div>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {/* {error && <p style={{ color: "red" }}>{error}</p>}
+      {!comment && rating === 0 && (
+        <p style={{ color: "red", marginTop: "8px" }}>
+          Please provide a comment or a rating.
+        </p>
+      )} */}
       <button
         onClick={handleSubmit}
-        disabled={!isEditable || loading || rating === 0}
+        disabled={!isEditable || loading || (!comment && rating === 0)}
         style={{
           padding: "8px 16px",
           border: "none",
-          backgroundColor: !isEditable || rating === 0 ? "#ccc" : "#007BFF",
+          backgroundColor:
+            !isEditable || (!comment && rating === 0) ? "#ccc" : "#007BFF",
           color: "#fff",
           borderRadius: "4px",
-          cursor: !isEditable || rating === 0 ? "not-allowed" : "pointer",
+          cursor:
+            !isEditable || (!comment && rating === 0)
+              ? "not-allowed"
+              : "pointer",
         }}
       >
         {loading

@@ -6,7 +6,7 @@ a.active hr {
   display: block;
 }
 
-::-webkit-scrollbar{
+::-webkit-scrollbar {
   display: none;
 }
 

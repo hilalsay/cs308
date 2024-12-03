@@ -64,32 +64,45 @@ const CommentCard = () => {
   return (
     <div>
       {commentsWithUsernames.length > 0 ? (
-        commentsWithUsernames.map((review) => (
-          <div className="border-b py-4" key={review.reviewId}>
-            <div className="flex justify-between">
-              <span className="font-medium">
-                {review.username} (ID: {review.reviewId}) {/* Display ID */}
-              </span>
-              <span className="text-gray-500 text-sm">
-                {new Date(review.createdAt).toLocaleString()}
-              </span>
+        commentsWithUsernames.map((review) => {
+          // Skip review if both comment and rating are null
+          if (
+            (review.comments === null || review.comments.trim() === "") &&
+            (review.rating === null || review.rating === undefined)
+          ) {
+            return null; // Skip this review
+          }
+
+          return (
+            <div className="border-b py-4" key={review.reviewId}>
+              <div className="flex justify-between">
+                <span className="font-medium">
+                  {review.username} (ID: {review.reviewId}) {/* Display ID */}
+                </span>
+                <span className="text-gray-500 text-sm">
+                  {new Date(review.createdAt).toLocaleString()}
+                </span>
+              </div>
+              {/* Only show rating if it's not null */}
+              {review.rating !== null && review.rating !== undefined && (
+                <div className="flex items-center my-2">
+                  <span className="font-bold mr-2">Rating:</span>
+                  {renderStars(review.rating)}
+                </div>
+              )}
+              {/* Check approval status */}
+              {review.comments !== null && review.comments.trim() !== "" ? (
+                review.approved ? (
+                  <p>{review.comments}</p>
+                ) : (
+                  <p className="italic text-gray-500">
+                    Comment is pending approval.
+                  </p>
+                )
+              ) : null}
             </div>
-            <div className="flex items-center my-2">
-              <span className="font-bold mr-2">Rating:</span>
-              {renderStars(review.rating)}
-            </div>
-            {/* Check approval status */}
-            {review.comments === null || review.comments === "" ? (
-              <p className="italic text-gray-500"></p>
-            ) : review.approved ? (
-              <p>{review.comments}</p>
-            ) : (
-              <p className="italic text-gray-500">
-                Comment is pending approval.
-              </p>
-            )}
-          </div>
-        ))
+          );
+        })
       ) : (
         <p>No reviews found for this product.</p>
       )}
