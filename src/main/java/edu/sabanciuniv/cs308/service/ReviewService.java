@@ -111,7 +111,7 @@ public class ReviewService {
         review.setUserId(userId);
         review.setRating(rating);  // rating can be null
         review.setComments(comments);  // comments can be null
-        review.setApproved(true); // Default approval status --> CHANGE IT FALSE BEFORE DEMO
+        review.setApproved(false); // Default approval status --> CHANGE IT FALSE BEFORE DEMO
         Review rew = reviewRepository.save(review);
         updateProductRating(productId);
         return rew;
@@ -212,9 +212,14 @@ public class ReviewService {
             throw new IllegalArgumentException("No ratings found for the specified product.");
         }
 
-        // Calculate the average rating
-        return ratings.stream().mapToInt(Integer::intValue).average().orElse(0.0);
+        // Filter out null values and calculate the average rating
+        return ratings.stream()
+                .filter(rating -> rating != null) // Exclude null ratings
+                .mapToInt(Integer::intValue)
+                .average()
+                .orElseThrow(() -> new IllegalArgumentException("No valid ratings found for the specified product."));
     }
+
 
     public int getReviewCountByProductId(UUID productId) {
         return reviewRepository.countByProductId(productId);
