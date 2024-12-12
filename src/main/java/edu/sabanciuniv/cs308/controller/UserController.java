@@ -2,6 +2,7 @@ package edu.sabanciuniv.cs308.controller;
 
 import edu.sabanciuniv.cs308.model.User;
 import edu.sabanciuniv.cs308.model.LoginRequest;
+import edu.sabanciuniv.cs308.repo.UserRepo;
 import edu.sabanciuniv.cs308.service.JwtService;
 import edu.sabanciuniv.cs308.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -21,6 +23,8 @@ public class UserController {
     private final UserService userService;
     @Autowired
     private JwtService jwtService;
+    @Autowired
+    private UserRepo userRepository;
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
@@ -96,6 +100,19 @@ public class UserController {
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    @PutMapping("/change-role")
+    public ResponseEntity<String> changeUserRole(@RequestParam String username, @RequestParam String newRole) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setRole(newRole);  // Update the role
+            userRepository.save(user); // Save the updated user
+            return ResponseEntity.ok("User role updated successfully.");
+        } else {
+            return ResponseEntity.status(404).body("User not found.");
         }
     }
 }

@@ -35,16 +35,20 @@ public class User {
     @Column(nullable = false)
     private String taxId;
 
+    @Column(nullable = false)
+    private String role;
+
     public User() {
         this.name = "No name";
     }
 
     // Constructor
-    public User(String name, String email, String password) {
+    public User(String name, String email, String password, String role ) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.createdAt = LocalDateTime.now();
+        this.role = role;
     }
 
     public User(String mail) {
