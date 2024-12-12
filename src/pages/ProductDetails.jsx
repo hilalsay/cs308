@@ -11,6 +11,7 @@ const ProductDetails = () => {
   const [avgRating, setAvgRating] = useState(0);
   const [comments, setComments] = useState([]); // Store reviews
   const { addToCart } = useContext(CartContext); // Get addToCart from context
+  const [wishlistStatus, setWishlistStatus] = useState(false); // Track wishlist status
 
   useEffect(() => {
     // Fetch product details
@@ -52,6 +53,32 @@ const ProductDetails = () => {
   const handleAddToCart = () => {
     if (product) {
       addToCart(product);
+    }
+  };
+
+  const handleAddToWishlist = () => {
+    const token = localStorage.getItem("token"); // Get the JWT token
+    if (token && product) {
+      axios
+        .post(
+          `http://localhost:8080/api/wishlist/me/add/${product.id}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then(() => {
+          setWishlistStatus(true); // Update wishlist status
+          alert("Product added to wishlist!");
+        })
+        .catch((error) => {
+          console.error("Error adding product to wishlist:", error);
+          alert("Failed to add to wishlist.");
+        });
+    } else {
+      alert("You need to log in first.");
     }
   };
 
@@ -163,6 +190,19 @@ const ProductDetails = () => {
         disabled={product.stockQuantity <= 0}
       >
         Add to Cart
+      </button>
+
+      {/* Add to Wishlist Button */}
+      <button
+        className={`px-8 py-3 text-sm mt-5 ml-3 ${
+          wishlistStatus
+            ? "bg-gray-400 text-gray-800 cursor-not-allowed"
+            : "bg-blue-500 text-white"
+        }`}
+        onClick={handleAddToWishlist}
+        disabled={wishlistStatus}
+      >
+        {wishlistStatus ? "Added to Wishlist" : "Add to Wishlist"}
       </button>
 
       {/* Comment Section */}

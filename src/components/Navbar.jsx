@@ -99,6 +99,12 @@ const Navbar = () => {
                     MyProfile
                   </Link>
                   <Link
+                    to="/wishlist"
+                    className="cursor-pointer hover:text-black"
+                  >
+                    Wishlist
+                  </Link>
+                  <Link
                     to="/orders"
                     className="cursor-pointer hover:text-black"
                   >

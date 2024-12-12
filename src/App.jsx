@@ -26,6 +26,7 @@ import AddProduct from "./pages/AddProduct";
 import Invoice from "./pages/Invoice";
 import { SortProvider } from "./contexts/SortContext";
 import MyProfile from "./pages/Profile";
+import Wishlist from "./pages/Wishlist";
 
 const App = () => {
   return (
@@ -64,6 +65,7 @@ const App = () => {
                 <Route path="/search" element={<SearchResults />} />
                 <Route path="/invoice" element={<Invoice />} />
                 <Route path="/profile" element={<MyProfile />} />
+                <Route path="/wishlist" element={<Wishlist />} />
                 {/* Updated route for product details */}
               </Routes>
             </div>
