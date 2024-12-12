@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { AuthContext } from "../contexts/AuthContext";
@@ -15,6 +15,27 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState(""); // Added searchQuery state
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
+  const [userRole, setUserRole] = useState(null);
+
+  // Fetch user profile on component mount to get user role
+  useEffect(() => {
+    if (token) {
+      const fetchUserProfile = async () => {
+        try {
+          const response = await axios.get("/api/auth/profile", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setUserRole(response.data.role); // Set the user role from the profile response
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+          setUserRole(null); // Handle error if fetching user profile fails
+        }
+      };
+      fetchUserProfile();
+    }
+  }, [token]);
 
   const cartCount = cartItems.reduce((count, item) => {
     // Validate quantity before adding it to the total
@@ -92,6 +113,14 @@ const Navbar = () => {
             <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
               {token ? (
                 <>
+                  {userRole === "ProductManager" && (
+                    <Link
+                      to="/manageproducts"
+                      className="cursor-pointer hover:text-black"
+                    >
+                      Manage Products
+                    </Link>
+                  )}
                   <Link
                     to="/profile"
                     className="cursor-pointer hover:text-black"
