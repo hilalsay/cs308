@@ -63,7 +63,7 @@ const Login = () => {
     const data =
       activeButton === "login"
         ? { username, password }
-        : { username, email, password, taxId, homeAddress };
+        : { username, email, password, taxId, homeAddress, role: "Customer" };
 
     try {
       const response = await axios.post(url, data);
