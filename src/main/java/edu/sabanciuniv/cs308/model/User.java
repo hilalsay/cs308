@@ -29,10 +29,10 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Column
+    @Column(nullable = false)
     private String homeAddress;
 
-    @Column
+    @Column(nullable = false)
     private String taxId;
 
     public User() {
@@ -45,5 +45,8 @@ public class User {
         this.email = email;
         this.password = password;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public User(String mail) {
     }
 }

@@ -2,13 +2,22 @@ package edu.sabanciuniv.cs308.repo;
 
 import edu.sabanciuniv.cs308.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface ProductRepo extends JpaRepository<Product, UUID> {
     // Custom query to get products with stock quantity greater than 0
     List<Product> findByStockQuantityGreaterThan(Integer stockQuantity);
+    @Query("SELECT p from Product p WHERE " + "LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+            + "LOWER(p.model) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+            + "LOWER(p.serialNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+            + "LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+            + "LOWER(p.distributorInformation) LIKE LOWER(CONCAT('%', :keyword, '%'))"
+    )
+    List<Product> searchProducts(String keyword);
 }

@@ -1,14 +1,18 @@
 package edu.sabanciuniv.cs308.model;
 
-import edu.sabanciuniv.cs308.repo.ProductRepo;
 import jakarta.persistence.*;
+
 import lombok.Data;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
-@Entity
+
+import java.math.BigDecimal;
+
 @Data
+@Entity
 public class CartItem {
 
     @Id
@@ -16,29 +20,41 @@ public class CartItem {
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "cart_id", nullable = false)
-    private ShoppingCart shoppingCart;
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
+
+    private Integer quantity; // Quantity of the product in the cart
+    private BigDecimal price; // Price at the time of adding to the cart (in case it changes later)
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @Column(nullable = false)
-    private UUID productId; // ID of the product added to the cart
+    private LocalDateTime modifiedAt;
 
-    private int quantity; // Quantity of the product
+    @ManyToOne
+    @JoinColumn(name = "cart_id", nullable = false)
+    @JsonBackReference
+    private ShoppingCart shoppingCart;// Reference to the associated ShoppingCart
 
 
-    // Constructor for ease of creating new CartItems
-    public CartItem(ShoppingCart shoppingCart, UUID productId, int quantity, BigDecimal price) {
-        this.shoppingCart = shoppingCart;
-        this.productId = productId;
-        this.quantity = quantity;
-
-    }
 
     public CartItem() {
     }
 
-    // Method to get the actual Product object from the productId
-    public Product getProduct(ProductRepo productRepo) {
-        // Assuming ProductRepo is passed into this method
-        return productRepo.findById(this.productId).orElse(null);  // Fetch the product by productId, or return null if not found
+
+    public CartItem(Product product, Integer quantity, ShoppingCart shoppingCart) {
+        this.product = product;
+        this.quantity = quantity;
+        this.price = product.getPrice(); // Set price to the product's price
+        this.shoppingCart = shoppingCart;
+        this.createdAt = LocalDateTime.now();
+        this.modifiedAt = LocalDateTime.now();
     }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+        this.modifiedAt = LocalDateTime.now(); // Update modifiedAt when quantity changes
+    }
+
 }

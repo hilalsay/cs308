@@ -2,32 +2,45 @@ package edu.sabanciuniv.cs308.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-
-@Entity
 @Data
+@Entity
 public class ShoppingCart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)  // Many shopping carts can belong to one user
-    @JoinColumn(name = "user_id", nullable = false)  // Foreign key to the User table
-    private User user;  // Reference to User
-
-    private double total;
-
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
-
     @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<CartItem> items;
 
+    @Column(nullable = false)
+    private UUID userId;  // Unique ID for the user
 
+    @Column(nullable = false)
+    private BigDecimal total;  // Total price of the cart
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime modifiedAt;
+
+    @Column(nullable = false)
+    private boolean ordered = false;  // Flag to check if the cart is ordered
+
+    public ShoppingCart() {
+        this.total = BigDecimal.ZERO;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
 }
