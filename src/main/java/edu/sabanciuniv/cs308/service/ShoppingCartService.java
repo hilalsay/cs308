@@ -70,7 +70,7 @@ public class ShoppingCartService {
         // Check if there is an existing unordered shopping cart
 
         ShoppingCart cart = shoppingCartRepo.findByUserIdAndOrderedFalse(userId)
-                .orElseThrow(() -> new RuntimeException("Shoppinng cart not found")); // Create a new cart if not found
+                .orElseThrow(() -> new RuntimeException("Shopping cart not found")); // Create a new cart if not found
 
         // Find the product by productId
         Product product = productRepo.findById(productId)
