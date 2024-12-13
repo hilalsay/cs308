@@ -27,7 +27,7 @@ const ManageReviewsPage = () => {
   // Handle approve review
   const handleApprove = async (reviewId) => {
     try {
-      await axios.post(`http://localhost:8080/api/reviews/${reviewId}/approve`);
+      await axios.put(`http://localhost:8080/api/reviews/${reviewId}/approve`);
       setReviews(reviews.filter((review) => review.reviewId !== reviewId)); // Remove the approved review from the list
     } catch (err) {
       console.error("Error approving review:", err);
@@ -37,7 +37,7 @@ const ManageReviewsPage = () => {
   // Handle decline review
   const handleDecline = async (reviewId) => {
     try {
-      await axios.post(`http://localhost:8080/api/reviews/${reviewId}/decline`);
+      await axios.put(`http://localhost:8080/api/reviews/${reviewId}/decline`);
       setReviews(reviews.filter((review) => review.reviewId !== reviewId)); // Remove the declined review from the list
     } catch (err) {
       console.error("Error declining review:", err);
@@ -59,55 +59,57 @@ const ManageReviewsPage = () => {
       </h1>
 
       <div className="reviews-list">
-        {reviews.length === 0 ? (
-          <p>No reviews available.</p>
+        {reviews.filter((review) => review.comments !== null).length === 0 ? (
+          <p>No reviews available for approval.</p>
         ) : (
-          reviews.map((review) => (
-            <div
-              key={review.reviewId}
-              className="review-card mb-4 p-4 border rounded-lg shadow-md"
-            >
-              <p className="font-semibold">Review by User: {review.userId}</p>
-              <p>
-                <strong>Product ID:</strong> {review.productId}
-              </p>
-              <p>
-                <strong>Rating:</strong> {review.rating} / 5
-              </p>
-              <p>
-                <strong>Comments:</strong> {review.comments}
-              </p>
-              <p>
-                <strong>Created At:</strong>{" "}
-                {new Date(review.createdAt).toLocaleString()}
-              </p>
-              <p>
-                <strong>Status:</strong>{" "}
-                {review.approved ? "Approved" : "Pending"}
-              </p>
-              <div className="mt-4 flex justify-end space-x-4">
-                {!review.approved && (
-                  <>
-                    <button
-                      onClick={() => handleApprove(review.reviewId)}
-                      className="px-4 py-2 bg-green-500 text-white rounded-lg"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => handleDecline(review.reviewId)}
-                      className="px-4 py-2 bg-red-500 text-white rounded-lg"
-                    >
-                      Decline
-                    </button>
-                  </>
-                )}
-                {review.approved && (
-                  <p className="text-green-500">Review Approved</p>
-                )}
+          reviews
+            .filter((review) => review.comments !== null) // Exclude reviews with null comments
+            .map((review) => (
+              <div
+                key={review.reviewId}
+                className="review-card mb-4 p-4 border rounded-lg shadow-md"
+              >
+                <p className="font-semibold">Review by User: {review.userId}</p>
+                <p>
+                  <strong>Product ID:</strong> {review.productId}
+                </p>
+                <p>
+                  <strong>Rating:</strong> {review.rating} / 5
+                </p>
+                <p>
+                  <strong>Comments:</strong> {review.comments}
+                </p>
+                <p>
+                  <strong>Created At:</strong>{" "}
+                  {new Date(review.createdAt).toLocaleString()}
+                </p>
+                <p>
+                  <strong>Status:</strong>{" "}
+                  {review.approved ? "Approved" : "Pending"}
+                </p>
+                <div className="mt-4 flex justify-end space-x-4">
+                  {!review.approved && (
+                    <>
+                      <button
+                        onClick={() => handleApprove(review.reviewId)}
+                        className="px-4 py-2 bg-green-500 text-white rounded-lg"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleDecline(review.reviewId)}
+                        className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                      >
+                        Decline
+                      </button>
+                    </>
+                  )}
+                  {review.approved && (
+                    <p className="text-green-500">Review Approved</p>
+                  )}
+                </div>
               </div>
-            </div>
-          ))
+            ))
         )}
       </div>
     </div>
