@@ -17,7 +17,7 @@ public class SalesManagerController {
 
     // Endpoint to assign sales manager role
     @PutMapping("/assign/{userId}")
-    public ResponseEntity<String> assignSalesManagerRole(@PathVariable UUID userId) {
+    public ResponseEntity<?> assignSalesManagerRole(@PathVariable UUID userId) {
         salesManagerService.assignSalesManagerRole(userId);
         return new ResponseEntity<>("Sales Manager role assigned successfully.", HttpStatus.OK);
     }

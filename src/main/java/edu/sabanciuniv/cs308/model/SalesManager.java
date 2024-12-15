@@ -47,11 +47,8 @@ public class SalesManager {
                 .toList();
     }
 
-    public void setUser(User user) {
-        this.id = user.getId();
-        this.name = user.getName();
-        this.email = user.getEmail();
-        this.password = user.getPassword();
-    }
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false) // Connection with User
+    private User user;
 
 }

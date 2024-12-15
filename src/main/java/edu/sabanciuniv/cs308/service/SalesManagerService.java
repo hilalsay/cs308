@@ -1,9 +1,6 @@
 package edu.sabanciuniv.cs308.service;
 
-import edu.sabanciuniv.cs308.model.Order;
-import edu.sabanciuniv.cs308.model.OrderStatus;
-import edu.sabanciuniv.cs308.model.SalesManager;
-import edu.sabanciuniv.cs308.model.User;
+import edu.sabanciuniv.cs308.model.*;
 import edu.sabanciuniv.cs308.repo.OrderRepo;
 import edu.sabanciuniv.cs308.repo.SalesManagerRepo;
 import edu.sabanciuniv.cs308.repo.UserRepo;
@@ -52,16 +49,14 @@ public class SalesManagerService {
 
     // Assign sales manager role to a user
     public void assignSalesManagerRole(UUID userId) {
-        // Verify user exists
-        Optional<User> userOptional = userRepo.findById(userId);
-        if (userOptional.isEmpty()) {
-            throw new IllegalArgumentException("User not found");
+        // Check if the user exists
+        var user = userRepo.findById(userId).orElse(null);
+        if (user != null) {
+            SalesManager salesManager = new SalesManager();
+            salesManager.setUser(user); // Assign the user to the product manager
+            salesManagerRepo.save(salesManager); // Save the updated user with the new role
         }
-
-        // Assign role logic
-        User user = userOptional.get();
-        user.setRole("SALES_MANAGER");
-        userRepo.save(user);
     }
+
 
 }
