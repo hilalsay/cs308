@@ -54,14 +54,8 @@ public class Order {
     @Column(nullable = false)
     private String orderAddress;
 
-    /**
-     *     // Adding Many-to-Many relationship with Product
-     *     @ManyToMany
-     *     @JoinTable(
-     *             name = "order_products",
-     *             joinColumns = @JoinColumn(name = "order_id"),
-     *             inverseJoinColumns = @JoinColumn(name = "product_id")
-     *     )
-     *     private List<Product> products; // List of products in this order
-     */
+    // Many-to-One relationship with SalesManager
+    @ManyToOne
+    @JoinColumn(name = "sales_manager_id", referencedColumnName = "id")
+    private SalesManager salesManager;
 }
