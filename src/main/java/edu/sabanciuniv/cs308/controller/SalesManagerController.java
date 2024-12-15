@@ -21,4 +21,16 @@ public class SalesManagerController {
         salesManagerService.assignSalesManagerRole(userId);
         return new ResponseEntity<>("Sales Manager role assigned successfully.", HttpStatus.OK);
     }
+
+    // Endpoint to get the delivered products report
+    @GetMapping("/delivered-products/{userId}")
+    public ResponseEntity<String> getDeliveredProductsReport(@PathVariable UUID userId) {
+        String report = salesManagerService.generateDeliveredProductsReport(userId);
+
+        if (report.equals("You are not authorized to view this report.")) {
+            return ResponseEntity.status(403).body(report);  // 403 Forbidden if unauthorized
+        }
+
+        return ResponseEntity.ok(report);  // Return the report if authorized
+    }
 }

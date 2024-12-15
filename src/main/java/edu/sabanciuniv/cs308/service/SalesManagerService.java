@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -26,14 +25,27 @@ public class SalesManagerService {
         this.orderRepo = orderRepo;
     }
 
-    // Generate a report of delivered products
-    public String generateDeliveredProductsReport() {
+    // Generate a report of all delivered products for the Sales Manager
+    public String generateDeliveredProductsReport(UUID userId) {
+        // Check if the user exists and has the 'SALES_MANAGER' role
+        var user = userRepo.findById(userId).orElse(null);
+        if (user == null) {
+            return "User not found.";
+        }
+
+        // Check if the user has the 'SALES_MANAGER' role
+        if (!user.getRole().equals("SALES_MANAGER")) {
+            return "You are not authorized to view this report.";
+        }
+
+        // Fetch all delivered orders from the repository (for all users)
         List<Order> deliveredOrders = viewDeliveredProducts();
 
         if (deliveredOrders.isEmpty()) {
             return "No delivered orders found.";
         }
 
+        // Return formatted delivered orders
         return deliveredOrders.stream()
                 .map(order -> String.format(
                         "Order ID: %s\nOrderer: %s\nTotal Amount: %s\nDelivery Address: %s\n\n",
@@ -42,9 +54,9 @@ public class SalesManagerService {
                 .collect(Collectors.joining());
     }
 
-    // Fetch delivered orders
+    // Fetch all delivered orders from the repository
     public List<Order> viewDeliveredProducts() {
-        return orderRepo.findDeliveredOrders();
+        return orderRepo.findDeliveredOrders();  // Assume this method returns delivered orders
     }
 
     // Assign sales manager role to a user
@@ -52,11 +64,12 @@ public class SalesManagerService {
         // Check if the user exists
         var user = userRepo.findById(userId).orElse(null);
         if (user != null) {
+            // Assign the user as a Sales Manager
             SalesManager salesManager = new SalesManager();
-            salesManager.setUser(user); // Assign the user to the product manager
-            salesManagerRepo.save(salesManager); // Save the updated user with the new role
+            salesManager.setUser(user);
+            salesManagerRepo.save(salesManager);  // Save the updated user with the Sales Manager role
+        } else {
+            throw new IllegalArgumentException("User not found");
         }
     }
-
-
 }
