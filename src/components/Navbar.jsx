@@ -121,6 +121,14 @@ const Navbar = () => {
                       Manage Products
                     </Link>
                   )}
+                  {userRole === "SALES_MANAGER" && (
+                    <Link
+                      to="/orderedproducts"
+                      className="cursor-pointer hover:text-black"
+                    >
+                      Ordered Products
+                    </Link>
+                  )}
                   <Link
                     to="/profile"
                     className="cursor-pointer hover:text-black"

@@ -28,6 +28,7 @@ import { SortProvider } from "./contexts/SortContext";
 import MyProfile from "./pages/Profile";
 import Wishlist from "./pages/Wishlist";
 import ManageProductsPage from "./pages/ManageProductsPage";
+import OrderedProducts from "./pages/OrderedProducts"
 
 const App = () => {
   return (
@@ -70,6 +71,10 @@ const App = () => {
                 <Route
                   path="/manageproducts"
                   element={<ManageProductsPage />}
+                />
+                <Route
+                  path="/orderedproducts"
+                  element={<OrderedProducts/>}
                 />
 
                 {/* Updated route for product details */}
