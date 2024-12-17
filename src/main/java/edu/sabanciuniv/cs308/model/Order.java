@@ -53,9 +53,4 @@ public class Order {
 
     @Column(nullable = false)
     private String orderAddress;
-
-    // Many-to-One relationship with SalesManager
-    @ManyToOne
-    @JoinColumn(name = "sales_manager_id", referencedColumnName = "id")
-    private SalesManager salesManager;
 }

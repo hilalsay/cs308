@@ -1,9 +1,11 @@
 package edu.sabanciuniv.cs308.controller;
 
+import edu.sabanciuniv.cs308.model.Order;
 import edu.sabanciuniv.cs308.model.User;
 import edu.sabanciuniv.cs308.model.LoginRequest;
 import edu.sabanciuniv.cs308.repo.UserRepo;
 import edu.sabanciuniv.cs308.service.JwtService;
+import edu.sabanciuniv.cs308.service.OrderService;
 import edu.sabanciuniv.cs308.service.UserService;
 import edu.sabanciuniv.cs308.service.SalesManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ import java.util.UUID;
 @RequestMapping("api/auth")
 public class UserController {
     private final UserService userService;
+    @Autowired
+    private OrderService orderService;
     @Autowired
     private SalesManagerService salesManagerService;
     @Autowired
@@ -119,38 +123,29 @@ public class UserController {
         }
     }
 
-    // Endpoint to get delivered products report (only for SALES_MANAGER)
-    @GetMapping("/delivered-products/{userId}")
-    public ResponseEntity<String> getDeliveredProductsReport(@PathVariable UUID userId, @RequestHeader("Authorization") String token) {
-        // Fetch the user by userId
-        User user = userService.getUserById(userId);
+    @GetMapping("/ordered-products")
+    public ResponseEntity<List<Order>> getAllOrderedProducts(@RequestHeader("Authorization") String token) {
+        // Extract the token value by skipping "Bearer " and trimming any extra spaces
+        String jwt = token.substring(7).trim();
 
-        if (user == null) {
-            return ResponseEntity.status(404).body("User not found.");
-        }
-
-        // Decode the token and get the current authenticated user's ID from the token (or any other way)
-        String username = jwtService.extractUserName(token.substring(7)); // Skip "Bearer " prefix
+        // Decode the token and get the current authenticated user's ID from the token
+        String username = jwtService.extractUserName(jwt);
         UUID authenticatedUserId = userService.getUserIdByUsername(username);
 
-        // Check if the authenticated user is a SALES_MANAGER
-        if (user.getRole().equals("SALES_MANAGER")) {
-            // Ensure the authenticated user is the one requesting the report (Sales Manager can view other users' reports)
-            if (authenticatedUserId.equals(userId)) {
-                // Generate the report for delivered products for this sales manager
-                String report = salesManagerService.generateDeliveredProductsReport(userId);
+        // Fetch the role of the authenticated user (to ensure the user is a sales manager)
+        User authenticatedUser = userService.getUserById(authenticatedUserId);
 
-                if (report.equals("No delivered orders found.")) {
-                    return ResponseEntity.status(404).body(report);  // 404 if no orders found
-                }
-
-                return ResponseEntity.ok(report);  // Return the report if authorized and orders are found
-            } else {
-                return ResponseEntity.status(403).body("You are not authorized to view this report.");
-            }
-        } else {
-            return ResponseEntity.status(403).body("You are not authorized to view this report.");
+        if (authenticatedUser == null || !authenticatedUser.getRole().equals("SALES_MANAGER")) {
+            return ResponseEntity.status(403).body(null); // Forbidden if not a Sales Manager
         }
-    }
 
+        // Get all orders
+        List<Order> orders = orderService.findAll();
+
+        if (orders.isEmpty()) {
+            return ResponseEntity.status(404).body(null); // Return 404 if no orders found
+        }
+
+        return ResponseEntity.ok(orders); // Return orders if found
+    }
 }
