@@ -5,6 +5,7 @@ import edu.sabanciuniv.cs308.model.LoginRequest;
 import edu.sabanciuniv.cs308.repo.UserRepo;
 import edu.sabanciuniv.cs308.service.JwtService;
 import edu.sabanciuniv.cs308.service.UserService;
+import edu.sabanciuniv.cs308.service.SalesManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,8 @@ import java.util.UUID;
 @RequestMapping("api/auth")
 public class UserController {
     private final UserService userService;
+    @Autowired
+    private SalesManagerService salesManagerService;
     @Autowired
     private JwtService jwtService;
     @Autowired
@@ -115,4 +118,39 @@ public class UserController {
             return ResponseEntity.status(404).body("User not found.");
         }
     }
+
+    // Endpoint to get delivered products report (only for SALES_MANAGER)
+    @GetMapping("/delivered-products/{userId}")
+    public ResponseEntity<String> getDeliveredProductsReport(@PathVariable UUID userId, @RequestHeader("Authorization") String token) {
+        // Fetch the user by userId
+        User user = userService.getUserById(userId);
+
+        if (user == null) {
+            return ResponseEntity.status(404).body("User not found.");
+        }
+
+        // Decode the token and get the current authenticated user's ID from the token (or any other way)
+        String username = jwtService.extractUserName(token.substring(7)); // Skip "Bearer " prefix
+        UUID authenticatedUserId = userService.getUserIdByUsername(username);
+
+        // Check if the authenticated user is a SALES_MANAGER
+        if (user.getRole().equals("SALES_MANAGER")) {
+            // Ensure the authenticated user is the one requesting the report (Sales Manager can view other users' reports)
+            if (authenticatedUserId.equals(userId)) {
+                // Generate the report for delivered products for this sales manager
+                String report = salesManagerService.generateDeliveredProductsReport(userId);
+
+                if (report.equals("No delivered orders found.")) {
+                    return ResponseEntity.status(404).body(report);  // 404 if no orders found
+                }
+
+                return ResponseEntity.ok(report);  // Return the report if authorized and orders are found
+            } else {
+                return ResponseEntity.status(403).body("You are not authorized to view this report.");
+            }
+        } else {
+            return ResponseEntity.status(403).body("You are not authorized to view this report.");
+        }
+    }
+
 }

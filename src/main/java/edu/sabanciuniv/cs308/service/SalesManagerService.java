@@ -27,25 +27,25 @@ public class SalesManagerService {
 
     // Generate a report of all delivered products for the Sales Manager
     public String generateDeliveredProductsReport(UUID userId) {
-        // Check if the user exists and has the 'SALES_MANAGER' role
+        // Check if the user exists
         var user = userRepo.findById(userId).orElse(null);
         if (user == null) {
-            return "User not found.";
+            return "User not found."; // Return a proper error message
         }
 
         // Check if the user has the 'SALES_MANAGER' role
-        if (!user.getRole().equals("SALES_MANAGER")) {
-            return "You are not authorized to view this report.";
+        if (!user.getRole().equalsIgnoreCase("SALES_MANAGER")) {
+            return "You are not authorized to view this report."; // Only allow SALES_MANAGER to view this report
         }
 
-        // Fetch all delivered orders from the repository (for all users)
-        List<Order> deliveredOrders = viewDeliveredProducts();
+        // Fetch all delivered orders from the repository (for all users in the system)
+        List<Order> deliveredOrders = viewDeliveredProducts(); // This method should return all delivered orders
 
         if (deliveredOrders.isEmpty()) {
-            return "No delivered orders found.";
+            return "No delivered orders found."; // Return a message if no delivered orders exist
         }
 
-        // Return formatted delivered orders
+        // Return formatted delivered orders as a report string
         return deliveredOrders.stream()
                 .map(order -> String.format(
                         "Order ID: %s\nOrderer: %s\nTotal Amount: %s\nDelivery Address: %s\n\n",
@@ -54,22 +54,7 @@ public class SalesManagerService {
                 .collect(Collectors.joining());
     }
 
-    // Fetch all delivered orders from the repository
     public List<Order> viewDeliveredProducts() {
-        return orderRepo.findDeliveredOrders();  // Assume this method returns delivered orders
-    }
-
-    // Assign sales manager role to a user
-    public void assignSalesManagerRole(UUID userId) {
-        // Check if the user exists
-        var user = userRepo.findById(userId).orElse(null);
-        if (user != null) {
-            // Assign the user as a Sales Manager
-            SalesManager salesManager = new SalesManager();
-            salesManager.setUser(user);
-            salesManagerRepo.save(salesManager);  // Save the updated user with the Sales Manager role
-        } else {
-            throw new IllegalArgumentException("User not found");
-        }
+        return orderRepo.findByOrderStatus(OrderStatus.DELIVERED);
     }
 }
