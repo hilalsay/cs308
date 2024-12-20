@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ManageReviewsPage from "./ManageReviewsPage";
 import ManageOrdersPage from "./ManageOrdersPage";
+import ProductManager from "./ProductManager";
 
 const ManageProductsPage = () => {
   const [categories, setCategories] = useState([]);
@@ -34,7 +35,7 @@ const ManageProductsPage = () => {
 
   // Redirect to login page if user is not a ProductManager
   useEffect(() => {
-    if (userRole && userRole !== "ProductManager") {
+    if (userRole && userRole != "ProductManager") {
       setUserRole(null); // Set the userRole to null to render an empty div
     }
   }, [userRole]);
@@ -111,7 +112,7 @@ const ManageProductsPage = () => {
         <div className="product-management">
           <h2 className="text-2xl font-semibold mb-4">Manage Products</h2>
           {/* Product Management content goes here */}
-          <p>Product management content will go here.</p>
+          <ProductManager></ProductManager>
         </div>
       ) : view === "delivery" ? (
         <div className="delivery-management">

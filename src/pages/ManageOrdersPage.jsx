@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import OrderProductsList from "./OrderProductsList";
 
 const ManageOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   // Fetch all orders from the backend
   useEffect(() => {
@@ -104,7 +103,13 @@ const ManageOrdersPage = () => {
                 {new Date(order.createdAt).toLocaleString()}
               </p>
 
-              {/* Conditional rendering based on order status */}
+              {/* Fetch and display products for this order */}
+              <div>
+                <h4 className="font-semibold mt-4">Products:</h4>
+                {order.shop_id && <OrderProductsList shopId={order.shop_id} />}
+              </div>
+
+              {/* Handle updating order status */}
               <div className="mt-4 flex justify-end space-x-4">
                 {order.orderStatus === "PENDING" ||
                   (order.orderStatus === "PROCESSING" && (
