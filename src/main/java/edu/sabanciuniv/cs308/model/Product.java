@@ -36,9 +36,6 @@ public class Product {
     @Column
     private Integer overallRating;
 
-    @Column(nullable = false)
-    private Double popularity = 0.0; // Default value
-
     @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews; // Reviews related to this product
 

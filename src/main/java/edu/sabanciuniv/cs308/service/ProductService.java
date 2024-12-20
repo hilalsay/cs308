@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -40,6 +41,22 @@ public class ProductService {
             product.setImageData(image.getBytes());
         }
         return repo.save(product);
+    }
+
+    public Product updateProductPrice(UUID productId, BigDecimal newPrice) {
+        // Fetch the existing product
+        Product existingProduct = repo.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        // Update the price if a valid new price is provided
+        if (newPrice != null && newPrice.compareTo(BigDecimal.ZERO) >= 0) {
+            existingProduct.setPrice(newPrice);
+        } else {
+            throw new IllegalArgumentException("Invalid price value");
+        }
+
+        // Save and return the updated product
+        return repo.save(existingProduct);
     }
 
 
@@ -137,4 +154,5 @@ public class ProductService {
         }
         return products; // Return the sorted list of products
     }
+
 }

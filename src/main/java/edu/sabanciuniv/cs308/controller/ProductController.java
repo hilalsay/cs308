@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -69,6 +70,20 @@ public class ProductController {
         return ResponseEntity.ok(updatedProduct);
     }
 
+    @PutMapping("/{productId}/price")
+    public ResponseEntity<Product> updateProductPrice(
+            @PathVariable UUID productId,
+            @RequestParam BigDecimal newPrice) {
+        try {
+            System.out.println("new price = " + newPrice);
+            Product updatedProduct = service.updateProductPrice(productId, newPrice);
+            return ResponseEntity.ok(updatedProduct);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<String> deleteProduct(@PathVariable UUID productId){
