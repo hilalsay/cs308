@@ -13,6 +13,7 @@ import edu.sabanciuniv.cs308.service.JwtService;
 import edu.sabanciuniv.cs308.service.ShoppingCartService;
 import edu.sabanciuniv.cs308.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -265,6 +266,22 @@ public class ShoppingCartController {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
+    @GetMapping("/products/{shopId}")
+    public ResponseEntity<?> getCartByShopId(@PathVariable UUID shopId) {
+        try {
+            ShoppingCart cart = shoppingCartService.getCartByShopId(shopId);
+            if (cart == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Cart not found for shopId: " + shopId);
+            }
+            return ResponseEntity.ok(cart);
+        } catch (Exception e) {
+            System.out.println("Error fetching cart: "+ e);  // Log the exception for server-side debugging
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to fetch cart data: " + e.getMessage());
+        }
+    }
+
 
 
 }

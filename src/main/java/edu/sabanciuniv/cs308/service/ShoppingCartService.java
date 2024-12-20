@@ -283,6 +283,11 @@ public class ShoppingCartService {
         }
         return null;
     }
+    public ShoppingCart getCartByShopId(UUID shopId) {
+        // Fetch the shopping cart by its ID (which is the same as shopId in the Order entity)
+        return shoppingCartRepo.findById(shopId)
+                .orElseThrow(() -> new RuntimeException("ShoppingCart not found with shopId: " + shopId));
+    }
 
 }
 
