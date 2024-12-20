@@ -15,7 +15,8 @@ import java.util.UUID;
 public class SalesManager {
 
     @Id
-    @Column(name = "id", columnDefinition = "BINARY(16)")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(columnDefinition = "BINARY(16)")
     private UUID id;
 
     @OneToOne
