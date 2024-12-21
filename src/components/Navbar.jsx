@@ -123,10 +123,10 @@ const Navbar = () => {
                   )}
                   {userRole === "SALES_MANAGER" && (
                     <Link
-                      to="/orderedproducts"
+                      to="/managesales"
                       className="cursor-pointer hover:text-black"
                     >
-                      Ordered Products
+                      Manage Sales
                     </Link>
                   )}
                   <Link
