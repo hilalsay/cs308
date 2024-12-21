@@ -30,7 +30,6 @@ import Wishlist from "./pages/Wishlist";
 import ManageProductsPage from "./pages/ManageProductsPage";
 import ManageSalesPage from "./pages/ManageSalesPage"
 import RefundPage from "./pages/RefundPage";
-import CancelPage from "./pages/CancelPage";
 import DiscountPage from "./pages/DiscountPage";
 import ChangePricePage from "./pages/ChangePricePage";
 import ProductsRevenuePage from "./pages/ProductsRevenuePage";
@@ -82,7 +81,6 @@ const App = () => {
                   element={<ManageSalesPage/>}
                 />
                 <Route path="/managesales/refund" element={<RefundPage />} />
-                <Route path="/managesales/cancel" element={<CancelPage />} />
                 <Route path="/managesales/discount" element={<DiscountPage />} />
                 <Route path="/managesales/changePrice" element={<ChangePricePage />} />
                 <Route path="/managesales/productsRevenue" element={<ProductsRevenuePage />} />

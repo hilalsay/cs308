@@ -71,27 +71,49 @@ const ProductsRevenuePage = () => {
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text('Invoice for Order ID: ' + order.id, 10, 10);
-
+  
+    // Check and format the date properly
+    const orderDate = new Date(order.createdAt); // 'createdAt' field from order
+    const formattedDate = isNaN(orderDate) ? "Invalid Date" : orderDate.toLocaleDateString();
     doc.setFontSize(12);
-    doc.text(`Date: ${order.created_at}`, 10, 20);
-    doc.text(`Customer Name: ${order.user.name}`, 10, 30);
-    doc.text(`Shipping Address: ${order.shipping_address}`, 10, 40);
-
+    doc.text(`Date: ${formattedDate}`, 10, 20);
+  
+    // Handle customer name and address
+    const customerName = order.ordererName || "No name";  // 'ordererName' from order
+    doc.text(`Customer Name: ${customerName}`, 10, 30);
+  
+    const shippingAddress = order.orderAddress || "Not provided"; // 'orderAddress' from order
+    doc.text(`Shipping Address: ${shippingAddress}`, 10, 40);
+  
     let yPosition = 50;
-    order.items.forEach((item, index) => {
-      doc.text(`${index + 1}. ${item.product.name} - Quantity: ${item.quantity} - Price: $${item.price}`, 10, yPosition);
-      yPosition += 10;
-    });
-
-    doc.text(`Total: $${order.total_amount}`, 10, yPosition + 10);
-    doc.text(`Payment Method: ${order.payment_method}`, 10, yPosition + 20);
-
+  
+    // Assuming 'order.items' is available, if not, show message
+    if (order.items && Array.isArray(order.items) && order.items.length > 0) {
+      order.items.forEach((item, index) => {
+        const productName = item.product?.name || "Unknown Product";
+        const quantity = item.quantity || 0;
+        const price = item.price || 0.00;
+        doc.text(`${index + 1}. ${productName} - Quantity: ${quantity} - Price: $${price}`, 10, yPosition);
+        yPosition += 10;
+      });
+    } else {
+      doc.text("No items found for this order.", 10, yPosition);
+    }
+  
+    // Handle total amount and payment method
+    const totalAmount = order.totalAmount || 0.00; // 'totalAmount' from order
+    const paymentMethod = order.paymentMethod || "Not provided"; // 'paymentMethod' from order
+    doc.text(`Total: $${totalAmount}`, 10, yPosition + 10);
+    doc.text(`Payment Method: ${paymentMethod}`, 10, yPosition + 20);
+  
+    // Generate and download the PDF
     doc.save(`Invoice_Order_${order.id}.pdf`);
-  };
+  };  
+  
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Manage Sales</h1>
+      <h1 className="text-2xl font-bold mb-6">View Products & Revenue</h1>
 
       {/* Navigation Buttons */}
       <div className="mb-6 space-x-4">
@@ -100,12 +122,6 @@ const ProductsRevenuePage = () => {
           className="bg-blue-500 text-white px-4 py-2 rounded"
         >
           Refund Orders
-        </button>
-        <button
-          onClick={() => navigate("/managesales/cancel")} // Navigate to Cancel Orders page
-          className="bg-red-500 text-white px-4 py-2 rounded"
-        >
-          Cancel Orders
         </button>
         <button
           onClick={() => navigate("/managesales/discount")} // Navigate to Apply Discount page
