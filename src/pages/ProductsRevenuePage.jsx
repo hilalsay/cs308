@@ -1,23 +1,27 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import jsPDF from "jspdf"; // Import jsPDF for PDF generation
+import jsPDF from "jspdf";
+import OrdersByShopId from "./OrdersByShopId"; // Import the OrdersByShopId component
 
 const ProductsRevenuePage = () => {
-  const [orders, setOrders] = useState([]); // State to store orders
-  const [loading, setLoading] = useState(true); // State for loading spinner
-  const [error, setError] = useState(null); // State for error handling
-  const [startDate, setStartDate] = useState(""); // State for start date
-  const [endDate, setEndDate] = useState(""); // State for end date
-  const [filteredOrders, setFilteredOrders] = useState([]); // State for filtered orders
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState(null); // To hold the selected shop_id
+  const [showProducts, setShowProducts] = useState(null); // Track which order's products to show
   const navigate = useNavigate();
 
+  // Fetch orders on component mount
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-          navigate("/login"); // Redirect to login if no token
+          navigate("/login");
           return;
         }
 
@@ -27,123 +31,142 @@ const ProductsRevenuePage = () => {
           },
         });
 
-        setOrders(response.data); // Store the orders in the state
-        setFilteredOrders(response.data); // Set filtered orders initially to all orders
+        setOrders(response.data);
+        setFilteredOrders(response.data);
       } catch (error) {
         console.error("Failed to fetch orders:", error);
-        setError("Failed to fetch orders"); // Set error message
+        setError("Failed to fetch orders");
       } finally {
-        setLoading(false); // Stop loading spinner
+        setLoading(false);
       }
     };
 
-    fetchOrders(); // Fetch orders on component mount
+    fetchOrders();
   }, [navigate]);
 
+  // Filter orders by date range
   useEffect(() => {
     if (startDate && endDate) {
       const filtered = orders.filter((order) => {
         const orderDate = new Date(order.createdAt);
-
         if (isNaN(orderDate.getTime())) {
-            return false; // Skip invalid date
+          return false;
+        } else if (
+          startDate === endDate &&
+          orderDate.toDateString() === new Date(startDate).toDateString()
+        ) {
+          return true;
         } else if (orderDate >= new Date(startDate) && orderDate <= new Date(endDate)) {
-            return true;
+          return true;
         } else {
-            return false;
+          return false;
         }
       });
       setFilteredOrders(filtered);
     } else {
-      setFilteredOrders(orders); // If no date range is selected, show all orders
+      setFilteredOrders(orders);
     }
   }, [startDate, endDate, orders]);
+ 
 
-  if (loading) {
-    return <div>Loading...</div>; // Show spinner while loading
-  }
+  // Set the selected order's shop_id
+  const handleLoadProducts = (orderId) => {
+    setShowProducts((prevOrderId) => (prevOrderId === orderId ? null : orderId)); // Toggle product visibility
+  };
 
-  if (error) {
-    return <div className="text-red-500">{error}</div>; // Show error message
-  }
-
+  // Generate PDF invoice for an order
   const generateInvoice = (order) => {
     const doc = new jsPDF();
+
     doc.setFontSize(16);
-    doc.text('Invoice for Order ID: ' + order.id, 10, 10);
-  
-    // Check and format the date properly
-    const orderDate = new Date(order.createdAt); // 'createdAt' field from order
-    const formattedDate = isNaN(orderDate) ? "Invalid Date" : orderDate.toLocaleDateString();
+    doc.text("Invoice", 10, 10);
+
     doc.setFontSize(12);
-    doc.text(`Date: ${formattedDate}`, 10, 20);
-  
-    // Handle customer name and address
-    const customerName = order.ordererName || "No name";  // 'ordererName' from order
-    doc.text(`Customer Name: ${customerName}`, 10, 30);
-  
-    const shippingAddress = order.orderAddress || "Not provided"; // 'orderAddress' from order
-    doc.text(`Shipping Address: ${shippingAddress}`, 10, 40);
-  
-    let yPosition = 50;
-  
-    // Assuming 'order.items' is available, if not, show message
-    if (order.items && Array.isArray(order.items) && order.items.length > 0) {
+    doc.text(`Order ID: ${order.id}`, 10, 20);
+    doc.text(`Orderer Name: ${order.ordererName || "N/A"}`, 10, 30);
+    doc.text(`Order Address: ${order.orderAddress || "N/A"}`, 10, 40);
+    doc.text(`Status: ${order.orderStatus || "N/A"}`, 10, 50);
+    doc.text(`Total Amount: $${order.totalAmount.toFixed(2)}`, 10, 60);
+    doc.text(`Payment Method: ${order.paymentMethod || "N/A"}`, 10, 70);
+    doc.text(
+      `Payment Date: ${
+        order.paymentDate
+          ? new Date(order.paymentDate).toLocaleString()
+          : "N/A"
+      }`,
+      10,
+      80
+    );
+    doc.text(
+      `Created At: ${
+        order.createdAt ? new Date(order.createdAt).toLocaleString() : "N/A"
+      }`,
+      10,
+      90
+    );
+
+    let yPosition = 100;
+    if (order.items && order.items.length > 0) {
+      doc.text("Order Items:", 10, yPosition);
+      yPosition += 10;
+
       order.items.forEach((item, index) => {
-        const productName = item.product?.name || "Unknown Product";
-        const quantity = item.quantity || 0;
-        const price = item.price || 0.00;
-        doc.text(`${index + 1}. ${productName} - Quantity: ${quantity} - Price: $${price}`, 10, yPosition);
+        doc.text(
+          `${index + 1}. ${item.product.name} - ${item.quantity} x $${item.product.price}`,
+          10,
+          yPosition
+        );
         yPosition += 10;
       });
     } else {
-      doc.text("No items found for this order.", 10, yPosition);
+      doc.text("No items in this order.", 10, yPosition);
+      yPosition += 10;
     }
-  
-    // Handle total amount and payment method
-    const totalAmount = order.totalAmount || 0.00; // 'totalAmount' from order
-    const paymentMethod = order.paymentMethod || "Not provided"; // 'paymentMethod' from order
-    doc.text(`Total: $${totalAmount}`, 10, yPosition + 10);
-    doc.text(`Payment Method: ${paymentMethod}`, 10, yPosition + 20);
-  
-    // Generate and download the PDF
-    doc.save(`Invoice_Order_${order.id}.pdf`);
-  };  
-  
+
+    doc.save(`invoice_${order.id}.pdf`);
+  };
+
+  // If the page is loading, show loading state
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  // If there's an error, display the error message
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">View Products & Revenue</h1>
 
-      {/* Navigation Buttons */}
       <div className="mb-6 space-x-4">
         <button
-          onClick={() => navigate("/managesales/refund")} // Navigate to Refund Orders page
+          onClick={() => navigate("/managesales/refund")}
           className="bg-blue-500 text-white px-4 py-2 rounded"
         >
           Refund Orders
         </button>
         <button
-          onClick={() => navigate("/managesales/discount")} // Navigate to Apply Discount page
+          onClick={() => navigate("/managesales/discount")}
           className="bg-green-500 text-white px-4 py-2 rounded"
         >
           Apply Discount
         </button>
         <button
-          onClick={() => navigate("/managesales/changePrice")} // Navigate to Change Price page
+          onClick={() => navigate("/managesales/changePrice")}
           className="bg-yellow-500 text-white px-4 py-2 rounded"
         >
           Change Price
         </button>
         <button
-          onClick={() => navigate("/managesales/productsRevenue")} // Navigate to View Products & Revenue page
+          onClick={() => navigate("/managesales/productsRevenue")}
           className="bg-purple-500 text-white px-4 py-2 rounded"
         >
           View Products & Revenue
         </button>
       </div>
 
-      {/* Orders Table */}
       <div className="mb-6">
         <label className="mr-2">Start Date:</label>
         <input
@@ -173,29 +196,55 @@ const ProductsRevenuePage = () => {
               <th className="border border-gray-300 px-4 py-2">Order Status</th>
               <th className="border border-gray-300 px-4 py-2">Payment Method</th>
               <th className="border border-gray-300 px-4 py-2">Payment Date</th>
+              <th className="border border-gray-300 px-4 py-2">Products</th>
               <th className="border border-gray-300 px-4 py-2">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredOrders.map((order) => (
-              <tr key={order.id}>
-                <td className="border border-gray-300 px-4 py-2">{order.id}</td>
-                <td className="border border-gray-300 px-4 py-2">{order.user?.username || "Unknown"}</td>
-                <td className="border border-gray-300 px-4 py-2">{order.totalAmount} ₺</td>
-                <td className="border border-gray-300 px-4 py-2">{order.orderStatus}</td>
-                <td className="border border-gray-300 px-4 py-2">{order.paymentMethod}</td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {new Date(order.paymentDate).toLocaleString()}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  <button
-                    onClick={() => generateInvoice(order)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
-                  >
-                    Download Invoice
-                  </button>
-                </td>
-              </tr>
+              <React.Fragment key={order.id}>
+                <tr>
+                  <td className="border border-gray-300 px-4 py-2">{order.id}</td>
+                  <td className="border border-gray-300 px-4 py-2">{order.user?.username || "Unknown"}</td>
+                  <td className="border border-gray-300 px-4 py-2">{order.totalAmount} ₺</td>
+                  <td className="border border-gray-300 px-4 py-2">{order.orderStatus}</td>
+                  <td className="border border-gray-300 px-4 py-2">{order.paymentMethod}</td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {new Date(order.paymentDate).toLocaleString()}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <button
+                      onClick={() => handleLoadProducts(order.id)} // Toggle visibility of products for this order
+                      className="bg-blue-500 text-white px-4 py-2 rounded"
+                    >
+                      Load Products
+                    </button>
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <button
+                      onClick={() => generateInvoice(order)}
+                      className="bg-green-500 text-white px-4 py-2 rounded"
+                    >
+                      Generate Invoice
+                    </button>
+                  </td>
+                </tr>
+                {/* Display products for the selected order */}
+                {showProducts === order.id && order.items && (
+                  <tr>
+                    <td colSpan="8" className="border border-gray-300 px-4 py-2">
+                      <h3 className="font-bold mb-2">Order Items:</h3>
+                      <ul>
+                        {order.items.map((item, index) => (
+                          <li key={index}>
+                            {item.product.name} - {item.quantity} x {item.product.price} ₺
+                          </li>
+                        ))}
+                      </ul>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             ))}
           </tbody>
         </table>
