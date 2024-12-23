@@ -45,16 +45,25 @@ const ProductsRevenuePage = () => {
     if (startDate && endDate) {
       const filtered = orders.filter((order) => {
         const orderDate = new Date(order.createdAt);
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-
-        return orderDate >= start && orderDate <= end;
+        if (isNaN(orderDate.getTime())) {
+          return false;
+        } else if (
+          startDate === endDate &&
+          orderDate.toDateString() === new Date(startDate).toDateString()
+        ) {
+          return true;
+        } else if (orderDate >= new Date(startDate) && orderDate <= new Date(endDate)) {
+          return true;
+        } else {
+          return false;
+        }
       });
       setFilteredOrders(filtered);
     } else {
-      setFilteredOrders(orders); // Reset filter if no dates are selected
+      setFilteredOrders(orders);
     }
   }, [startDate, endDate, orders]);
+
 
   // Handle downloading the invoice for an order
   const handleDownloadInvoice = async (order) => {
@@ -97,67 +106,96 @@ const ProductsRevenuePage = () => {
       <h1 className="text-2xl font-bold mb-6">View Products & Revenue</h1>
 
       <div className="mb-6 space-x-4">
-        {/* Additional buttons or components can go here */}
+        <button
+          onClick={() => navigate("/managesales/refund")}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Refund Orders
+        </button>
+        <button
+          onClick={() => navigate("/managesales/discount")}
+          className="bg-green-500 text-white px-4 py-2 rounded"
+        >
+          Apply Discount
+        </button>
+        <button
+          onClick={() => navigate("/managesales/changePrice")}
+          className="bg-yellow-500 text-white px-4 py-2 rounded"
+        >
+          Change Price
+        </button>
+        <button
+          onClick={() => navigate("/managesales/productsRevenue")}
+          className="bg-purple-500 text-white px-4 py-2 rounded"
+        >
+          View Products & Revenue
+        </button>
       </div>
 
-      <div className="mb-6">
-        <label className="mr-2">Start Date:</label>
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          className="px-2 py-1 border border-gray-300"
-        />
-        <label className="mr-2 ml-4">End Date:</label>
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          className="px-2 py-1 border border-gray-300"
-        />
-      </div>
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-6">View Products & Revenue</h1>
 
-      {filteredOrders.length === 0 ? (
-        <p>No orders found for the selected date range.</p>
-      ) : (
-        <table className="min-w-full border-collapse border border-gray-300">
-          <thead>
-            <tr>
-              <th className="border border-gray-300 px-4 py-2">Order ID</th>
-              <th className="border border-gray-300 px-4 py-2">Customer Name</th>
-              <th className="border border-gray-300 px-4 py-2">Total Amount</th>
-              <th className="border border-gray-300 px-4 py-2">Order Status</th>
-              <th className="border border-gray-300 px-4 py-2">Payment Method</th>
-              <th className="border border-gray-300 px-4 py-2">Payment Date</th>
-              <th className="border border-gray-300 px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredOrders.map((order) => (
-              <tr key={order.id}>
-                <td className="border border-gray-300 px-4 py-2">{order.id}</td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {order.user?.username || "Unknown"}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">{order.totalAmount} ₺</td>
-                <td className="border border-gray-300 px-4 py-2">{order.orderStatus}</td>
-                <td className="border border-gray-300 px-4 py-2">{order.paymentMethod}</td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {new Date(order.paymentDate).toLocaleString()}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  <button
-                    onClick={() => handleDownloadInvoice(order)} // Button to download invoice
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
-                  >
-                    Download Invoice
-                  </button>
-                </td>
+        <div className="mb-6">
+          <label className="mr-2">Start Date:</label>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="px-2 py-1 border border-gray-300"
+          />
+          <label className="mr-2 ml-4">End Date:</label>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="px-2 py-1 border border-gray-300"
+          />
+        </div>
+
+        {filteredOrders.length === 0 ? (
+          <p>No orders found for the selected date range.</p>
+        ) : (
+          <table className="min-w-full border-collapse border border-gray-300">
+            <thead>
+              <tr>
+                <th className="border border-gray-300 px-4 py-2">Order ID</th>
+                <th className="border border-gray-300 px-4 py-2">Customer Name</th>
+                <th className="border border-gray-300 px-4 py-2">Total Amount</th>
+                <th className="border border-gray-300 px-4 py-2">Order Status</th>
+                <th className="border border-gray-300 px-4 py-2">Payment Method</th>
+                <th className="border border-gray-300 px-4 py-2">Payment Date</th>
+                <th className="border border-gray-300 px-4 py-2">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {filteredOrders.map((order) => (
+                <tr key={order.id}>
+                  <td className="border border-gray-300 px-4 py-2">{order.id}</td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {order.user?.username || "Unknown"}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {order.totalAmount} ₺
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">{order.orderStatus}</td>
+                  <td className="border border-gray-300 px-4 py-2">{order.paymentMethod}</td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {new Date(order.paymentDate).toLocaleString()}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <button
+                      onClick={() => handleDownloadInvoice(order)} // Button to download invoice
+                      className="bg-blue-500 text-white px-4 py-2 rounded"
+                    >
+                      Download Invoice
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 };
