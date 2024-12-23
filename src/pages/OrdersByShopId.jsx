@@ -13,7 +13,6 @@ const OrdersByShopId = ({ shopId }) => {
         const response = await axios.get(
           `http://localhost:8080/api/cart/products/${shopId}`
         );
-        // Check if the response data contains valid cart structure
         if (response.data && response.data.items) {
           setCart(response.data); // Set the shopping cart data
         } else {
@@ -29,6 +28,35 @@ const OrdersByShopId = ({ shopId }) => {
 
     fetchCart();
   }, [shopId]);
+
+  const generateInvoice = async () => {
+    try {
+      // Get token from localStorage (or wherever you store it)
+      const token = localStorage.getItem("authToken"); // Replace this with your token retrieval method
+
+      // If token exists, include it in the Authorization header
+      const config = {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        responseType: "arraybuffer", // To handle the PDF binary data
+      };
+
+      const response = await axios.get(
+        `http://localhost:8080/api/invoice/${shopId}`,
+        config
+      );
+
+      const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+
+      // Open PDF in a new tab
+      window.open(pdfUrl, "_blank");
+    } catch (err) {
+      console.error("Error generating invoice:", err);
+      setError("Failed to generate invoice");
+    }
+  };
 
   if (loading) {
     return <p>Loading products...</p>;
@@ -61,7 +89,6 @@ const OrdersByShopId = ({ shopId }) => {
             className="product-item mb-4 p-4 border rounded-lg shadow-md"
           >
             <div className="flex items-center">
-              {/* Removed the image */}
               <div>
                 <p>
                   <strong>{item.product.name}</strong>
@@ -73,6 +100,10 @@ const OrdersByShopId = ({ shopId }) => {
           </div>
         ))}
       </div>
+
+      <button onClick={generateInvoice} className="btn btn-primary mt-4">
+        Generate Invoice
+      </button>
     </div>
   );
 };
