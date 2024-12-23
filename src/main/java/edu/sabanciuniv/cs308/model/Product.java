@@ -35,7 +35,10 @@ public class Product {
     private Double averageRating;
     @Column
     private Integer overallRating;
-
+    @Column
+    private Double discountRate = 0.0;
+    @Column
+    private BigDecimal discountedPrice;
     @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews; // Reviews related to this product
 
