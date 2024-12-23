@@ -71,6 +71,21 @@ public class ProductController {
         return ResponseEntity.ok(updatedProduct);
     }
 
+    @PutMapping("/{productId}/discount")
+    public ResponseEntity<Product> updateProductDiscount(
+            @PathVariable UUID productId,
+            @RequestParam Double discountRate) {
+        try {
+            // Update product discount via the service
+            Product updatedProduct = service.updateProductDiscount(productId, discountRate);
+            return ResponseEntity.ok(updatedProduct); // Return updated product
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null); // Handle invalid discount rate
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Handle product not found
+        }
+    }
+
     @PutMapping("/{productId}/price")
     public ResponseEntity<Product> updateProductPrice(
             @PathVariable UUID productId,

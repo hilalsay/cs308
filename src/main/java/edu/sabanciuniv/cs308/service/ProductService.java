@@ -47,7 +47,7 @@ public class ProductService {
         // Fetch the existing product
         Product existingProduct = repo.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
-
+ 
         // Update the price if a valid new price is provided
         if (newPrice != null && newPrice.compareTo(BigDecimal.ZERO) >= 0) {
             existingProduct.setPrice(newPrice);
@@ -59,6 +59,27 @@ public class ProductService {
         return repo.save(existingProduct);
     }
 
+    public Product updateProductDiscount(UUID productId, Double discountRate) {
+        // Find the product by its ID
+        Product product = repo.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        // Validate discount rate (must be between 0 and 100)
+        if (discountRate == null || discountRate < 0 || discountRate > 100) {
+            throw new IllegalArgumentException("Discount rate must be between 0 and 100");
+        }
+
+        // Set the discount rate
+        product.setDiscountRate(discountRate);
+
+        // Calculate and set the discounted price
+        BigDecimal discountMultiplier = BigDecimal.valueOf(1 - (discountRate / 100));
+        BigDecimal discountedPrice = product.getPrice().multiply(discountMultiplier);
+        product.setDiscountedPrice(discountedPrice);
+
+        // Save the updated product and return it
+        return repo.save(product);
+    }
 
     public Product updateProduct(UUID productId, String productJson, MultipartFile image) throws IOException {
         // Deserialize the incoming product JSON
