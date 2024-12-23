@@ -139,7 +139,18 @@ const ProductDetails = () => {
         {/* Product Info */}
         <div className="flex-1">
           <h1 className="font-medium text-2xl mt-2">{product.name}</h1>
-          <p className="mt-5 text-3xl font-medium">${product.price}</p>
+          
+          {product.discountedPrice ? (
+          <>
+            <span className="line-through text-gray-400 mr-2">
+              ${product.price.toFixed(2)}
+            </span>
+            <span>${product.discountedPrice.toFixed(2)}</span>
+          </>
+        ) : (
+          <span>${product.price.toFixed(2)}</span>
+        )}
+
           <p className="my-5 text-gray-500 md:w-4/5">{product.description}</p>
 
           {/* Additional Product Details */}
