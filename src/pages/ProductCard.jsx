@@ -10,34 +10,32 @@ const ProductCard = ({ product }) => {
     ? `data:image/jpeg;base64,${product.imageData}` // Assuming imageData is base64 encoded
     : "https://via.placeholder.com/150"; // Placeholder if no image
 
+  const renderStars = (rating) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating - fullStars >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
-
-    const renderStars = (rating) => {
-      const fullStars = Math.floor(rating);
-      const hasHalfStar = rating - fullStars >= 0.5;
-      const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-  
-      return (
-        <div>
-          {Array.from({ length: fullStars }, (_, i) => (
-            <span
-              key={`full-${i}`}
-              style={{ color: "#FFD700", fontSize: "24px" }}
-            >
-              ★
-            </span>
-          ))}
-          {hasHalfStar && (
-            <span style={{ color: "#FFD700", fontSize: "24px" }}>☆</span>
-          )}
-          {Array.from({ length: emptyStars }, (_, i) => (
-            <span key={`empty-${i}`} style={{ color: "#ccc", fontSize: "24px" }}>
-              ★
-            </span>
-          ))}
-        </div>
-      );
-    };
+    return (
+      <div>
+        {Array.from({ length: fullStars }, (_, i) => (
+          <span
+            key={`full-${i}`}
+            style={{ color: "#FFD700", fontSize: "24px" }}
+          >
+            ★
+          </span>
+        ))}
+        {hasHalfStar && (
+          <span style={{ color: "#FFD700", fontSize: "24px" }}>☆</span>
+        )}
+        {Array.from({ length: emptyStars }, (_, i) => (
+          <span key={`empty-${i}`} style={{ color: "#ccc", fontSize: "24px" }}>
+            ★
+          </span>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="product-card bg-white shadow-md rounded-lg p-4 hover:shadow-lg transition">
@@ -58,9 +56,21 @@ const ProductCard = ({ product }) => {
         </div>
       )}
 
-
       <p className="text-sm text-gray-500">Model: {product.model}</p>
-      <p className="text-red-600 font-bold">${product.price.toFixed(2)}</p>
+
+      {/* Price display with discount logic */}
+      <div className="text-red-600 font-bold">
+        {product.discountedPrice ? (
+          <>
+            <span className="line-through text-gray-400 mr-2">
+              ${product.price.toFixed(2)}
+            </span>
+            <span>${product.discountedPrice.toFixed(2)}</span>
+          </>
+        ) : (
+          <span>${product.price.toFixed(2)}</span>
+        )}
+      </div>
 
       {/* Stock Information */}
       <p
