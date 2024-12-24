@@ -200,5 +200,17 @@ public class OrderService {
         return order.orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
     }
 
+    public Order cancelOrder (UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if((order.getOrderStatus() == OrderStatus.PENDING) || (order.getOrderStatus() == OrderStatus.PROCESSING)){
+            order.setOrderStatus(OrderStatus.CANCELED);
+        }
+        // Save and return the updated order
+        return orderRepository.save(order);
+
+    }
+
 
 }
