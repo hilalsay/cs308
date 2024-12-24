@@ -1,8 +1,7 @@
 package edu.sabanciuniv.cs308.service;
 
-import edu.sabanciuniv.cs308.model.Order;
-import edu.sabanciuniv.cs308.model.OrderStatus;
-import edu.sabanciuniv.cs308.repo.OrderRepo;
+import edu.sabanciuniv.cs308.model.*;
+import edu.sabanciuniv.cs308.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +16,19 @@ public class OrderService {
 
     @Autowired
     private OrderRepo orderRepository;
+
+
+    @Autowired
+    private SalesManagerRepo salesManagerRepo;
+
+    @Autowired
+    private RefundRequestRepo refundRequestRepo;
+    @Autowired
+    private ShoppingCartRepo shoppingCartRepo;
+    @Autowired
+    private ProductRepo productRepo;
+    @Autowired
+    private UserRepo userRepo;
 
     public List<Order> findAll() {
         return orderRepository.findAll();
@@ -83,5 +95,58 @@ public class OrderService {
         order.setCreatedAt(LocalDateTime.now());
         order.setUpdatedAt(LocalDateTime.now());
         return orderRepository.save(order); // Save the new order to the database
+    }
+    public RefundRequest requestRefund(UUID orderId, UUID productId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (order.getOrderStatus() != OrderStatus.DELIVERED) {
+            throw new RuntimeException("Refund is allowed only for delivered orders.");
+        }
+
+        LocalDateTime purchaseDate = order.getCreatedAt();
+        boolean withinTimeLimit = purchaseDate.plusDays(30).isAfter(LocalDateTime.now());
+
+        if (!withinTimeLimit) {
+            throw new RuntimeException("Refund request exceeds the 30-day limit.");
+        }
+
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+
+
+        RefundRequest refundRequest = new RefundRequest();
+        refundRequest.setOrder(order);
+        refundRequest.setProduct(product);
+        refundRequest.setRefundAmount(product.getPrice());
+        refundRequest.setPurchaseDate(purchaseDate);
+        refundRequest.setWithinTimeLimit(true);
+        refundRequest.setStatus(RefundStatus.PENDING);
+
+        return refundRequestRepo.save(refundRequest);
+    }
+
+    public RefundRequest approveRefund(UUID refundRequestId, UUID userId) {
+        RefundRequest refundRequest = refundRequestRepo.findById(refundRequestId)
+                .orElseThrow(() -> new RuntimeException("Refund request not found"));
+
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Check if the user's role is SALES_MANAGER
+        if (!"SALES_MANAGER".equals(user.getRole())) {
+            throw new RuntimeException("User is not authorized to approve refunds");
+        }
+
+        refundRequest.setStatus(RefundStatus.APPROVED);
+        refundRequest.setApprovedBy(user); // Assuming `RefundRequest` has a reference to User as `approvedBy`
+
+        return refundRequestRepo.save(refundRequest);
+    }
+
+
+    public List<RefundRequest> viewRefundRequests() {
+        return refundRequestRepo.findAllByStatus(RefundStatus.PENDING);
     }
 }

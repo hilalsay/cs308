@@ -11,6 +11,7 @@ import java.util.UUID;
 
 @Repository
 public interface ProductRepo extends JpaRepository<Product, UUID> {
+    Optional<Product> findById(UUID id);
     // Custom query to get products with stock quantity greater than 0
     List<Product> findByStockQuantityGreaterThan(Integer stockQuantity);
     @Query("SELECT p from Product p WHERE " + "LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "

@@ -2,17 +2,22 @@ package edu.sabanciuniv.cs308.model;
 
 import jakarta.persistence.*;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.NoArgsConstructor;
 
 
 import java.math.BigDecimal;
 
+
 @Data
 @Entity
+@AllArgsConstructor
+
 public class CartItem {
 
     @Id
