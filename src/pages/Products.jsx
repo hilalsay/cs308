@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ProductCard from "./ProductCard";
 import "./Products.css";
-import { AuthContext } from "../contexts/AuthContext";
 
 const Products = () => {
   const [categories, setCategories] = useState([]);
@@ -11,7 +10,6 @@ const Products = () => {
   const [sortOrder, setSortOrder] = useState("popularity");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { token } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchCategoriesAndProducts = async () => {
@@ -20,11 +18,7 @@ const Products = () => {
 
       try {
         // Fetch all categories
-        const categoryResponse = await axios.get("http://localhost:8080/api/category", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const categoryResponse = await axios.get("http://localhost:8080/api/category");
         const categories = categoryResponse.data;
         setCategories(categories);
 
@@ -32,9 +26,6 @@ const Products = () => {
         const productPromises = categories.map((category) =>
           axios
             .get("http://localhost:8080/api/category/products/sorted", {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
               params: { categoryId: category.id, sortBy: sortOrder },
             })
             .then((res) => ({ [category.id]: res.data }))
@@ -55,18 +46,13 @@ const Products = () => {
     };
 
     fetchCategoriesAndProducts();
-  }, [sortOrder, token]);
+  }, [sortOrder]);
 
-  // Filter products based on selected category
-  const filteredCategories =
-    selectedCategory === ""
-      ? categories // Show all categories if no category is selected
-      : categories.filter((category) => category.id === selectedCategory);
-
+  // If "All Categories" is selected, flatten all products into one array
   const filteredProducts =
     selectedCategory === ""
-      ? categoryProducts // Show all products if no category is selected
-      : { [selectedCategory]: categoryProducts[selectedCategory] || [] };
+      ? Object.values(categoryProducts).flat() // Flatten all products into a single array
+      : categoryProducts[selectedCategory] || [];
 
   return (
     <div>
@@ -113,7 +99,7 @@ const Products = () => {
       </div>
 
       {/* Loading State */}
-      {loading && <p className="text-gray-600">Loading categories and products...</p>}
+      {loading && <p className="text-gray-600">Loading products...</p>}
 
       {/* Error State */}
       {error && <p className="text-red-500">{error}</p>}
@@ -122,16 +108,38 @@ const Products = () => {
       <div>
         {!loading &&
           !error &&
-          filteredCategories.map((category) => (
-            <div key={category.id} className="category-section mb-8">
-              <h3 className="text-xl font-bold text-gray-700 mb-4">{category.name}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {filteredProducts[category.id] &&
-                  filteredProducts[category.id].map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
-              </div>
+          (selectedCategory === "" ? (
+            // Display all products without categorization when "All Categories" is selected
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))
+              ) : (
+                <p className="text-gray-600">No products available.</p>
+              )}
             </div>
+          ) : (
+            // Display products by category when a specific category is selected
+            categories.map((category) => {
+              if (category.id === selectedCategory) {
+                return (
+                  <div key={category.id} className="category-section mb-8">
+                    <h3 className="text-xl font-bold text-gray-700 mb-4">{category.name}</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                      {categoryProducts[category.id] && categoryProducts[category.id].length > 0 ? (
+                        categoryProducts[category.id].map((product) => (
+                          <ProductCard key={product.id} product={product} />
+                        ))
+                      ) : (
+                        <p className="text-gray-600">No products available in this category.</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })
           ))}
       </div>
     </div>
