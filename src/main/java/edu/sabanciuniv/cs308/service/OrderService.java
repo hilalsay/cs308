@@ -148,6 +148,7 @@ public class OrderService {
 
     public List<RefundRequest> viewRefundRequests() {
         return refundRequestRepo.findAllByStatus(RefundStatus.PENDING);
+    }
 
     public Order getOrderById(UUID orderId) {
         // Fetch the order by its UUID from the database
