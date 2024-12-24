@@ -44,6 +44,18 @@ public class RefundController {
         }
     }
 
+    @PutMapping("/{refundRequestId}/reject")
+    public ResponseEntity<?> rejectRefund(
+            @PathVariable UUID refundRequestId,
+            @RequestParam UUID managerId) {
+        try {
+            RefundRequest approvedRefund = orderService.rejectRefund(refundRequestId, managerId);
+            return new ResponseEntity<>(approvedRefund, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("Error=" + e.getMessage());
+        }
+    }
+
     @GetMapping
     public ResponseEntity<List<RefundRequest>> getAllRefundRequests() {
         List<RefundRequest> refundRequests = orderService.viewRefundRequests();

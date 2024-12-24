@@ -6,12 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface RefundRequestRepo extends JpaRepository<RefundRequest, UUID> {
     List<RefundRequest> findAllByStatus(RefundStatus status);
-
+    Optional<RefundRequest> findById(UUID id);
     List<RefundRequest> findAllByOrderId(UUID orderId);
     List<RefundRequest> findAllByOrderIdAndProductId(UUID orderId, UUID productId);
 
