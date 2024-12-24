@@ -160,6 +160,7 @@ const ProductsRevenuePage = () => {
               <tr>
                 <th className="border border-gray-300 px-4 py-2">Order ID</th>
                 <th className="border border-gray-300 px-4 py-2">Customer Name</th>
+                <th className="border border-gray-300 px-4 py-2">Address</th>
                 <th className="border border-gray-300 px-4 py-2">Total Amount</th>
                 <th className="border border-gray-300 px-4 py-2">Order Status</th>
                 <th className="border border-gray-300 px-4 py-2">Payment Method</th>
@@ -174,6 +175,9 @@ const ProductsRevenuePage = () => {
                   <td className="border border-gray-300 px-4 py-2">
                     {order.user?.username || "Unknown"}
                   </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                  {order.orderAddress || "Not Provided"}
+                </td>
                   <td className="border border-gray-300 px-4 py-2">
                     {order.totalAmount} ₺
                   </td>
