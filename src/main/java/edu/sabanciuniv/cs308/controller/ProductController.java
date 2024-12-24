@@ -2,6 +2,7 @@ package edu.sabanciuniv.cs308.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.sabanciuniv.cs308.model.Product;
+import edu.sabanciuniv.cs308.repo.ProductRepo;
 import edu.sabanciuniv.cs308.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

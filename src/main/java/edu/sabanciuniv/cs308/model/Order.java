@@ -55,4 +55,17 @@ public class Order {
     private String orderAddress;
 
 
+    // OrderItem ilişkisini tanımlıyoruz
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<OrderItem> items;
+
+    // getItems metodu: OrderItem listesindeki ürünleri döndüren metod
+    public CharSequence getItems() {
+        StringBuilder itemsList = new StringBuilder();
+        for (OrderItem item : items) {
+            itemsList.append(item.toString()).append("\n");
+        }
+        return itemsList.toString();
+    }
 }

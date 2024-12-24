@@ -21,6 +21,8 @@ public class InvoiceService {
     @Autowired
     private PdfService pdfService;
     @Autowired
+    private OrderService orderService;
+    @Autowired
     private EmailSender emailService;
 
     @Autowired
@@ -57,4 +59,17 @@ public class InvoiceService {
             throw new RuntimeException("User not authenticated");
         }
     }
+
+    public String generateInvoice(UUID orderId) throws Exception {
+        // Fetch the order by ID using the getOrderById method
+        Order order = orderService.getOrderById(orderId);  // Assuming orderService is injected and available
+
+        // Generate the PDF file using the PdfService
+        String pdfPath = pdfService.createPdf(order);
+
+        // Return the path to the generated PDF file
+        return pdfPath;
+    }
+
+
 }

@@ -148,5 +148,12 @@ public class OrderService {
 
     public List<RefundRequest> viewRefundRequests() {
         return refundRequestRepo.findAllByStatus(RefundStatus.PENDING);
+
+    public Order getOrderById(UUID orderId) {
+        // Fetch the order by its UUID from the database
+        Optional<Order> order = orderRepository.findById(orderId);
+
+        // If order is found, return it; otherwise, throw an exception or return null
+        return order.orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
     }
 }
