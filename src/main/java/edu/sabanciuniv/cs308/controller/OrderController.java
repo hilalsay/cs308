@@ -127,5 +127,17 @@ public class OrderController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Order not found
         }
     }
+
+    @PutMapping("/{orderId}/cancel")
+    public ResponseEntity<?> cancelOrder(@PathVariable UUID orderId) {
+        try {
+            Order updatedOrder = orderService.cancelOrder(orderId);
+            return ResponseEntity.ok(updatedOrder); // Return the updated order as response
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while canceling the order.");
+        }
+    }
 }
 
