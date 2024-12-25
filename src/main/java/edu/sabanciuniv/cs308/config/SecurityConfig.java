@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeRequests(request -> request
                         .requestMatchers("/", "/api/auth/change-role","/api/auth/login", "/api/auth/signup", "/api/auth/users", "/api/auth/users/{userId}",
-                                "/api/products", "/api/category", "/api/cart/allcarts", "/api/cart/view/{userId}",
+                                "/api/products", "/api/category", "/api/category/**", "/api/cart/allcarts", "/api/cart/view/{userId}",
                                 "/api/cart/{cartId}/confirm", "/api/cart/deleteAll", "/api/orders/**",
                                 "/api/cart/add/{userId}/{productId}/{quantity}", "/api/products/**","/api/reviews/**",
                                 "/api/pdf/**","/api/product-manager/**","/api/cart/products/{shopId}", "/api/auth/**","/api/refunds/**",
