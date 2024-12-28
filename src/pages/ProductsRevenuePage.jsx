@@ -105,33 +105,6 @@ const ProductsRevenuePage = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">View Products & Revenue</h1>
 
-      <div className="mb-6 space-x-4">
-        <button
-          onClick={() => navigate("/managesales/refund")}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Refund Orders
-        </button>
-        <button
-          onClick={() => navigate("/managesales/discount")}
-          className="bg-green-500 text-white px-4 py-2 rounded"
-        >
-          Apply Discount
-        </button>
-        <button
-          onClick={() => navigate("/managesales/changePrice")}
-          className="bg-yellow-500 text-white px-4 py-2 rounded"
-        >
-          Change Price
-        </button>
-        <button
-          onClick={() => navigate("/managesales/productsRevenue")}
-          className="bg-purple-500 text-white px-4 py-2 rounded"
-        >
-          View Products & Revenue
-        </button>
-      </div>
-
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-6">View Products & Revenue</h1>
 

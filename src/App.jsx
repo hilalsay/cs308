@@ -9,6 +9,7 @@ import Orders from "./pages/Orders";
 import Navbar from "./components/Navbar";
 import Cart from "./pages/Cart";
 import Navbar_routes from "./components/Navbar_routes";
+import Navbar_manager from "./components/Navbar_manager";
 import ProductDetails from "./pages/ProductDetails"; // Import ProductDetail component
 import Products from "./pages/Products"; // Import Product component
 import { CartProvider } from "./contexts/CartContext"; // Import CartProvider
@@ -30,7 +31,6 @@ import Wishlist from "./pages/Wishlist";
 import ManageProductsPage from "./pages/ManageProductsPage";
 import ManageSalesPage from "./pages/ManageSalesPage"
 import RefundPage from "./pages/RefundPage";
-import DiscountPage from "./pages/DiscountPage";
 import ChangePricePage from "./pages/ChangePricePage";
 import ProductsRevenuePage from "./pages/ProductsRevenuePage";
 
@@ -45,6 +45,7 @@ const App = () => {
             <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
               <Navbar />
               <Navbar_routes />
+              <Navbar_manager />
 
               <ToastContainer
                 position="top-center"
@@ -81,7 +82,6 @@ const App = () => {
                   element={<ManageSalesPage/>}
                 />
                 <Route path="/managesales/refund" element={<RefundPage />} />
-                <Route path="/managesales/discount" element={<DiscountPage />} />
                 <Route path="/managesales/changePrice" element={<ChangePricePage />} />
                 <Route path="/managesales/productsRevenue" element={<ProductsRevenuePage />} />
 
