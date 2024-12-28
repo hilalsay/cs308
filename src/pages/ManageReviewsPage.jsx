@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 const ManageReviewsPage = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   // Fetch all reviews from the backend
   useEffect(() => {
@@ -28,7 +26,11 @@ const ManageReviewsPage = () => {
   const handleApprove = async (reviewId) => {
     try {
       await axios.put(`http://localhost:8080/api/reviews/${reviewId}/approve`);
-      setReviews(reviews.filter((review) => review.reviewId !== reviewId)); // Remove the approved review from the list
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review.reviewId === reviewId ? { ...review, approved: true } : review
+        )
+      );
     } catch (err) {
       console.error("Error approving review:", err);
     }
@@ -38,7 +40,13 @@ const ManageReviewsPage = () => {
   const handleDecline = async (reviewId) => {
     try {
       await axios.put(`http://localhost:8080/api/reviews/${reviewId}/decline`);
-      setReviews(reviews.filter((review) => review.reviewId !== reviewId)); // Remove the declined review from the list
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review.reviewId === reviewId
+            ? { ...review, approved: false, comments: null }
+            : review
+        )
+      );
     } catch (err) {
       console.error("Error declining review:", err);
     }
@@ -59,57 +67,63 @@ const ManageReviewsPage = () => {
       </h1>
 
       <div className="reviews-list">
-        {reviews.filter((review) => review.comments !== null).length === 0 ? (
-          <p>No reviews available for approval.</p>
+        {reviews.length === 0 ? (
+          <p>No reviews available.</p>
         ) : (
-          reviews
-            .filter((review) => review.comments !== null) // Exclude reviews with null comments
-            .map((review) => (
-              <div
-                key={review.reviewId}
-                className="review-card mb-4 p-4 border rounded-lg shadow-md"
-              >
-                <p className="font-semibold">Review by User: {review.userId}</p>
-                <p>
-                  <strong>Product ID:</strong> {review.productId}
-                </p>
-                <p>
-                  <strong>Rating:</strong> {review.rating} / 5
-                </p>
-                <p>
-                  <strong>Comments:</strong> {review.comments}
-                </p>
-                <p>
-                  <strong>Created At:</strong>{" "}
-                  {new Date(review.createdAt).toLocaleString()}
-                </p>
-                <p>
-                  <strong>Status:</strong>{" "}
-                  {review.approved ? "Approved" : "Pending"}
-                </p>
-                <div className="mt-4 flex justify-end space-x-4">
-                  {!review.approved && (
-                    <>
-                      <button
-                        onClick={() => handleApprove(review.reviewId)}
-                        className="px-4 py-2 bg-green-500 text-white rounded-lg"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleDecline(review.reviewId)}
-                        className="px-4 py-2 bg-red-500 text-white rounded-lg"
-                      >
-                        Decline
-                      </button>
-                    </>
-                  )}
-                  {review.approved && (
-                    <p className="text-green-500">Review Approved</p>
-                  )}
-                </div>
+          reviews.map((review) => (
+            <div
+              key={review.reviewId}
+              className="review-card mb-4 p-4 border rounded-lg shadow-md"
+            >
+              <p className="font-semibold">Review by User: {review.userId}</p>
+              <p>
+                <strong>Product ID:</strong> {review.productId}
+              </p>
+              <p>
+                <strong>Rating:</strong> {review.rating} / 5
+              </p>
+              <p>
+                <strong>Comments:</strong>{" "}
+                {review.comments || (
+                  <span className="italic text-gray-500">No comments</span>
+                )}
+              </p>
+              <p>
+                <strong>Created At:</strong>{" "}
+                {new Date(review.createdAt).toLocaleString()}
+              </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                {review.approved ? "Approved" : "Pending"}
+              </p>
+              <div className="mt-4 flex justify-end space-x-4">
+                {!review.approved && review.comments && (
+                  <>
+                    <button
+                      onClick={() => handleApprove(review.reviewId)}
+                      className="px-4 py-2 bg-green-500 text-white rounded-lg"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => handleDecline(review.reviewId)}
+                      className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                    >
+                      Decline
+                    </button>
+                  </>
+                )}
+                {!review.comments && (
+                  <p className="text-red-500 italic">
+                    Actions unavailable for reviews without comments
+                  </p>
+                )}
+                {review.approved && (
+                  <p className="text-green-500">Review Approved</p>
+                )}
               </div>
-            ))
+            </div>
+          ))
         )}
       </div>
     </div>
