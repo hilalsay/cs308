@@ -8,6 +8,7 @@ const OrderCard = ({ order }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
+  const [canCancel, setCanCancel] = useState(false); // This will be a boolean to control button visibility
 
   useEffect(() => {
     const fetchOrderProducts = async () => {
@@ -39,7 +40,14 @@ const OrderCard = ({ order }) => {
     if (order?.shop_id) {
       fetchOrderProducts();
     }
-  }, [order?.shop_id, token]);
+
+    // Check if the order status is "PROCESSING" to enable the cancel button
+    if (order?.orderStatus === 'PROCESSING') {
+      setCanCancel(true); // Enable the cancel button if status is "PROCESSING"
+    } else {
+      setCanCancel(false); // Otherwise, disable it
+    }
+  }, [order?.shop_id, token, order?.orderStatus]);
 
   const orderDate = order?.createdAt
     ? new Date(order.createdAt).toLocaleString("en-US", {
@@ -53,6 +61,41 @@ const OrderCard = ({ order }) => {
   const totalPrice = order?.totalAmount ? order.totalAmount.toFixed(2) : "0.00";
   const status = order?.orderStatus || "Unknown";
 
+  const cancelOrder = async (orderId) => {
+    try {
+      // Send PUT request to cancel the order
+      const response = await axios.put(
+        `http://localhost:8080/api/orders/${orderId}/cancel`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      
+      // Handle the successful response
+      console.log("Order canceled successfully:", response.data);
+      alert("Order canceled successfully!");
+      // Optionally, you can also update the UI here after successful cancellation
+    } catch (error) {
+      // Handle error responses
+      if (error.response) {
+        console.error("Error canceling order:", error.response.data);
+        alert(`Error: ${error.response.data}`);
+      } else {
+        console.error("Error canceling order:", error.message);
+        alert(`Error: ${error.message}`);
+      }
+    }
+  };
+
+  const handleCancel = () => {
+    if (canCancel && order?.id) {
+      cancelOrder(order.id);
+    }
+  };
+
   return (
     <div
       className="order-card"
@@ -64,16 +107,37 @@ const OrderCard = ({ order }) => {
         boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
       }}
     >
-      <h3>Order ID: {order?.id || "N/A"}</h3>
-      <p>
-        <strong>Date:</strong> {orderDate}
-      </p>
-      <p>
-        <strong>Total Price:</strong> ${totalPrice}
-      </p>
-      <p>
-        <strong>Status:</strong> {status}
-      </p>
+      <div>
+        <h3>Order ID: {order?.id || "N/A"}</h3>
+        <p>
+          <strong>Date:</strong> {orderDate}
+        </p>
+        <p>
+          <strong>Total Price:</strong> ${totalPrice}
+        </p>
+        <p>
+          <strong>Status:</strong> {status}
+        </p>
+      </div>
+
+      {canCancel && (
+        <div>
+          <button
+            onClick={handleCancel}
+            disabled={!canCancel}
+            style={{
+              padding: "8px 16px",
+              border: "none",
+              backgroundColor: canCancel ? "#007BFF" : "#ccc",
+              color: "#fff",
+              borderRadius: "4px",
+              cursor: canCancel ? "pointer" : "not-allowed",
+            }}
+          >
+            Cancel Order
+          </button>
+        </div>
+      )}
 
       <h4>Products:</h4>
       {loading ? (
