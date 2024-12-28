@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 
+
 const Login = () => {
   const { login } = useContext(AuthContext);
   const location = useLocation();
@@ -14,6 +15,31 @@ const Login = () => {
   const [username, setUsername] = useState(""); // username for both login and signup
   const [taxId, setTaxId] = useState(""); // taxId for signup
   const [homeAddress, setHomeAddress] = useState(""); // homeAddress for signup
+
+  const [userRole, setUserRole] = useState(null); 
+  const { token, logout } = useContext(AuthContext);
+
+  useEffect(() => {
+    // Check if there is a token, meaning the user is logged in
+    if (token) {
+      const fetchUserProfile = async () => {
+        try {
+          const response = await axios.get("/api/auth/profile", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setUserRole(response.data.role); // Set the user role from the profile response
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+          setUserRole(null); // Handle error if fetching user profile fails
+        }
+      };
+      fetchUserProfile();
+    } else {
+      setUserRole(null); // Ensure user role is reset when token is absent
+    }
+  }, [token]);
 
   // Set the activeButton state based on the location state
   useEffect(() => {
@@ -52,42 +78,45 @@ const Login = () => {
     }
   };
 
+
+  const navigateToRolePage = (role) => {
+    if (role === "SALES_MANAGER") {
+      navigate("/managesales/refund");
+    } else if (role === "ProductManager") {
+      navigate("/managesales/refund");
+    } else {
+      navigate("/"); // Default for customers
+    }
+  };
+
+  
+  
   const onSubmitHandler = async (event) => {
     event.preventDefault();
-
-    const url =
-      activeButton === "login"
-        ? "http://localhost:8080/api/auth/login"
-        : "http://localhost:8080/api/auth/signup";
-
-    const data =
-      activeButton === "login"
-        ? { username, password }
-        : { username, email, password, taxId, homeAddress, role: "Customer" };
-
+    const url = activeButton === "login"
+      ? "http://localhost:8080/api/auth/login"
+      : "http://localhost:8080/api/auth/signup";
+  
+    const data = activeButton === "login"
+      ? { username, password }
+      : { username, email, password, taxId, homeAddress, role: "Customer" };
+  
     try {
       const response = await axios.post(url, data);
-      console.log("Response:", response.data);
-
-      // Checking response structure and managing token
       if (response.data.token) {
-        // Save token in localStorage
         localStorage.setItem("authToken", response.data.token);
-        console.log("user", response.data.user);
-        console.log("login token", response.data.token);
-
-        // Update AuthContext
-        login({
-          //userData: response.data.user, // Assuming response includes user info
-          token: response.data.token, // Save the token
-        });
-
-        // Redirect after successful login/signup
-        navigate("/"); // Redirect to the homepage or dashboard
-      } else if (
-        activeButton == "signup" &&
-        response.data == "User registered successfully!"
-      ) {
+        login({ token: response.data.token });
+  
+        const role = response.data.user?.role;
+        if (!role) {
+          const profileResponse = await axios.get("/api/auth/profile", {
+            headers: { Authorization: `Bearer ${response.data.token}` },
+          });
+          navigateToRolePage(profileResponse.data.role);
+        } else {
+          navigateToRolePage(role);
+        }
+      } else if (activeButton === "signup" && response.data === "User registered successfully!") {
         onToast("Sign up successful!");
         setActiveButton("login");
       } else {
@@ -98,6 +127,7 @@ const Login = () => {
       onToast("Wrong username or password!");
     }
   };
+  
 
   return (
     <div className="flex flex-col justify-center items-center py-20">

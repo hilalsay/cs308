@@ -72,6 +72,13 @@ const Navbar = () => {
     }
   };
 
+  const handleLogout = () => {
+    logout(); // Logout the user
+    setUserRole(null); // Reset userRole to null
+    setSearchQuery(""); // Clear the search bar query if needed
+    navigate("/"); // Redirect to the homepage or login page
+  };
+
   return (
     <div className="flex items-center justify-between py-5 font-medium">
       <div className="flex items-center gap-4">
@@ -83,23 +90,27 @@ const Navbar = () => {
         <p className="text-2xl font-bold">ShopApp</p>
       </div>
 
-      <div className="flex items-center justify-center">
-        <div className="flex items-center justify-between border border-gray-400 px-8 py-3 my-5 ms-3 rounded-full w-4/5 sm:w-3/4">
-          <input
-            className="flex-1 outline-none bg-inherit text-sm px-4 py-2"
-            type="text"
-            placeholder="Search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <img
-            src={assets.search_icon}
-            className="w-8 cursor-pointer ml-3"
-            alt="Search Icon"
-            onClick={handleSearchSubmit}
-          />
-        </div>
-      </div>
+      {userRole !== "SALES_MANAGER" && userRole !== "ProductManager" && (
+                      <div className="flex items-center justify-center">
+                      <div className="flex items-center justify-between border border-gray-400 px-8 py-3 my-5 ms-3 rounded-full w-4/5 sm:w-3/4">
+                        <input
+                          className="flex-1 outline-none bg-inherit text-sm px-4 py-2"
+                          type="text"
+                          placeholder="Search"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                        <img
+                          src={assets.search_icon}
+                          className="w-8 cursor-pointer ml-3"
+                          alt="Search Icon"
+                          onClick={handleSearchSubmit}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+      
 
       <div className="flex items-center gap-6">
         {/* Profile Icon and Dropdown Menu */}
@@ -121,34 +132,34 @@ const Navbar = () => {
                       Manage Products
                     </Link>
                   )}
-                  {userRole === "SALES_MANAGER" && (
-                    <Link
-                      to="/managesales"
-                      className="cursor-pointer hover:text-black"
-                    >
-                      Manage Sales
-                    </Link>
-                  )}
+
                   <Link
                     to="/profile"
                     className="cursor-pointer hover:text-black"
                   >
                     MyProfile
                   </Link>
-                  <Link
-                    to="/wishlist"
-                    className="cursor-pointer hover:text-black"
-                  >
-                    Wishlist
-                  </Link>
-                  <Link
-                    to="/orders"
-                    className="cursor-pointer hover:text-black"
-                  >
-                    Orders
-                  </Link>
+
+                    {userRole !== "SALES_MANAGER" && userRole !== "ProductManager" && (
+                      <Link
+                      to="/wishlist"
+                      className="cursor-pointer hover:text-black"
+                    >
+                      Wishlist
+                    </Link>
+                  )}
+
+                  {userRole !== "SALES_MANAGER" && userRole !== "ProductManager" && (
+                      <Link
+                      to="/orders"
+                      className="cursor-pointer hover:text-black"
+                    >
+                      Orders
+                    </Link>
+                  )}
+                
                   <p
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="cursor-pointer hover:text-black"
                   >
                     Logout
@@ -177,16 +188,22 @@ const Navbar = () => {
         </div>
 
         {/* Cart Icon */}
-        <Link to="/cart" className="relative" onClick={handleCartClick}>
-          <img
-            className="w-9 cursor-pointer"
-            src={assets.cart_real}
-            alt="Cart Icon"
-          />
-          <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">
-            {cartCount}
-          </p>
-        </Link>
+
+        {userRole !== "SALES_MANAGER" && userRole !== "ProductManager" && (
+                      <Link to="/cart" className="relative" onClick={handleCartClick}>
+                      <img
+                        className="w-9 cursor-pointer"
+                        src={assets.cart_real}
+                        alt="Cart Icon"
+                      />
+                      <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">
+                        {cartCount}
+                      </p>
+                    </Link>
+                  )}
+
+        
+        
 
         {/* Mobile Menu Toggle Icon */}
         <img
