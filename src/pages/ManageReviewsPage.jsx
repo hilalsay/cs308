@@ -75,7 +75,8 @@ const ManageReviewsPage = () => {
               key={review.reviewId}
               className="review-card mb-4 p-4 border rounded-lg shadow-md"
             >
-              <p className="font-semibold">Review by User: {review.userId}</p>
+              <p className="font-semibold">User ID: {review.userId}</p>
+              <p className="font-semibold">Review ID: {review.reviewId}</p>
               <p>
                 <strong>Product ID:</strong> {review.productId}
               </p>
@@ -94,7 +95,11 @@ const ManageReviewsPage = () => {
               </p>
               <p>
                 <strong>Status:</strong>{" "}
-                {review.approved ? "Approved" : "Pending"}
+                {review.comments === null
+                  ? "Not Approved"
+                  : review.approved
+                  ? "Approved"
+                  : "Pending"}
               </p>
               <div className="mt-4 flex justify-end space-x-4">
                 {!review.approved && review.comments && (
