@@ -1,9 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { AuthContext } from "../contexts/AuthContext";
+
 
 const ChangePricePage = () => {
   const navigate = useNavigate(); // Hook to navigate between pages
+  const { token, logout } = useContext(AuthContext);
+
+  useEffect ( () =>{
+    if(!token){
+      navigate("/");
+    }
+  }, [token]);
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);

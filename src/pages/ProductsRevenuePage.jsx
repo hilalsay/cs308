@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../contexts/AuthContext";
 
 const ProductsRevenuePage = () => {
   const [orders, setOrders] = useState([]);
@@ -10,6 +11,14 @@ const ProductsRevenuePage = () => {
   const [endDate, setEndDate] = useState("");
   const [filteredOrders, setFilteredOrders] = useState([]);
   const navigate = useNavigate();
+
+  const { token, logout } = useContext(AuthContext);
+
+  useEffect ( () =>{
+    if(!token){
+      navigate("/");
+    }
+  }, [token]);
 
   // Fetch orders from the API
   useEffect(() => {
