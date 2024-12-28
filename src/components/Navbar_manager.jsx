@@ -1,28 +1,31 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useContext } from "react";
 import { useNavigate,NavLink } from "react-router-dom";
 import axios from "axios";
+import { AuthContext } from "../contexts/AuthContext";
 
 const Navbar_manager = () => {
   const [userRole, setUserRole] = useState(null); // State to track user role
   const navigate = useNavigate();
+  const { token, logout } = useContext(AuthContext);
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const response = await axios.get("/api/auth/profile", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Assuming the token is stored in localStorage
-          },
-        });
-        setUserRole(response.data.role); // Set the user's role
-      } catch (error) {
-        console.error("Failed to fetch user profile", error);
-        navigate("/login"); // Redirect to login if fetching profile fails
-      }
-    };
-
-    fetchUserProfile();
-  }, [navigate]);
+    if (token) {
+      const fetchUserProfile = async () => {
+        try {
+          const response = await axios.get("/api/auth/profile", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setUserRole(response.data.role); // Set the user role from the profile response
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+          setUserRole(null); // Handle error if fetching user profile fails
+        }
+      };
+      fetchUserProfile();
+    }
+  }, [token]);
 
   if (userRole !== "SALES_MANAGER") {
     return null; // Do not render the navbar if the role is not SALES_MANAGER
