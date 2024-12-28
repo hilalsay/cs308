@@ -60,7 +60,7 @@ const ProductCard = ({ product }) => {
 
       {/* Price display with discount logic */}
       <div className="text-red-600 font-bold">
-        {product.discountedPrice ? (
+        {product.discountRate && (product.discountRate >0) ? (
           <>
             <span className="line-through text-gray-400 mr-2">
               ${product.price.toFixed(2)}

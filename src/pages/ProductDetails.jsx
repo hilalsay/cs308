@@ -140,7 +140,7 @@ const ProductDetails = () => {
         <div className="flex-1">
           <h1 className="font-medium text-2xl mt-2">{product.name}</h1>
           
-          {product.discountedPrice ? (
+          {product.discountRate && (product.discountRate >0) ? (
           <>
             <span className="line-through text-gray-400 mr-2">
               ${product.price.toFixed(2)}
