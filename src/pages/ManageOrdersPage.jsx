@@ -55,6 +55,36 @@ const ManageOrdersPage = () => {
     }
   };
 
+  // Handle downloading the invoice for an order
+  const handleDownloadInvoice = async (order) => {
+    try {
+      const response = await axios.get(`/api/invoice/${order.id}`, {
+        responseType: "blob", // Expecting a binary response (PDF file)
+      });
+
+      if (response.status === 200) {
+        // Create a link element
+        const link = document.createElement("a");
+        // Create a URL for the blob object
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        link.href = url;
+        link.setAttribute("download", `invoice_${order.id}.pdf`); // Set the download file name
+        document.body.appendChild(link);
+        link.click(); // Trigger the download
+        document.body.removeChild(link);
+      } else {
+        console.error(
+          "Failed to fetch invoice, unexpected response status:",
+          response.status
+        );
+        alert("Failed to fetch invoice");
+      }
+    } catch (error) {
+      console.error("Failed to download invoice:", error);
+      alert("Failed to download invoice");
+    }
+  };
+
   if (loading) {
     return <div>Loading orders...</div>;
   }
@@ -109,6 +139,15 @@ const ManageOrdersPage = () => {
                 {order.shop_id && <OrderProductsList shopId={order.shop_id} />}
               </div>
 
+              {/* Download Invoice */}
+              <div className="mt-2">
+                <button
+                  onClick={() => handleDownloadInvoice(order)}
+                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                  Download Invoice
+                </button>
+              </div>
               {/* Handle updating order status */}
               <div className="mt-4 flex justify-end space-x-4">
                 {order.orderStatus === "PENDING" ||
