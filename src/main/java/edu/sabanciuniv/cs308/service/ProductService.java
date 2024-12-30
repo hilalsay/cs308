@@ -3,6 +3,8 @@ package edu.sabanciuniv.cs308.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.sabanciuniv.cs308.model.Product;
 import edu.sabanciuniv.cs308.model.Review;
+import edu.sabanciuniv.cs308.model.User;
+import edu.sabanciuniv.cs308.model.Wishlist;
 import edu.sabanciuniv.cs308.repo.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -19,6 +21,15 @@ import java.util.UUID;
 public class ProductService {
     @Autowired
     private ProductRepo repo;
+
+    @Autowired
+    private edu.sabanciuniv.cs308.repository.WishlistRepo wishlistRepo;
+
+    @Autowired
+    private EmailSender emailService;
+
+    @Autowired
+    private UserService userService;
 
     public List<Product> getProducts() {
         return repo.findAll();
@@ -77,10 +88,30 @@ public class ProductService {
         BigDecimal discountedPrice = product.getPrice().multiply(discountMultiplier);
         product.setDiscountedPrice(discountedPrice);
 
+        // Notify users with the product in their wishlist
+        notifyUsersWithWishlistProduct(product);
+
         // Save the updated product and return it
         return repo.save(product);
     }
 
+    private void notifyUsersWithWishlistProduct(Product product) {
+        // Find all wishlists containing the product
+        List<Wishlist> wishlists = wishlistRepo.findAllByProductsContains(product);
+
+        for (Wishlist wishlist : wishlists) {
+            // Get user information
+            User user = wishlist.getUser();
+            String email = user.getEmail(); // Assuming User has an email field
+
+            // Prepare and send email
+            String subject = "Discount Alert: " + product.getName();
+            String body = "Good news! A product in your wishlist, " + product.getName() +
+                    ", is now available at a discounted price of " + product.getDiscountedPrice() +
+                    ". Original price was " + product.getPrice() + ". Check it out now!";
+            emailService.sendSimpleEmail(email, subject, body);
+        }
+    }
     public Product updateProduct(UUID productId, String productJson, MultipartFile image) throws IOException {
         // Deserialize the incoming product JSON
         ObjectMapper objectMapper = new ObjectMapper();

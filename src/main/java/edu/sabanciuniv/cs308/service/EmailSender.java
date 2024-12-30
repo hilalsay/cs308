@@ -84,8 +84,12 @@ public class EmailSender {
         }
     }
 
+<<<<<<< Updated upstream
     public void sendEmailForRefund(String recipientEmail, UUID refundId) {
         System.out.println(recipientEmail);
+=======
+    public void sendSimpleEmail(String recipientEmail, String subject, String body) {
+>>>>>>> Stashed changes
         final String username = "jewelryshop308@gmail.com";
         final String password = "omcm vnot cykr uvjf"; // App-specific password
 
@@ -106,14 +110,18 @@ public class EmailSender {
         });
 
         try {
+<<<<<<< Updated upstream
             RefundRequest refundRequest = refundRequestRepo.findById(refundId).get();
 
 
+=======
+>>>>>>> Stashed changes
             // Create a MimeMessage
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(username));
             message.setRecipients(
                     Message.RecipientType.TO,
+<<<<<<< Updated upstream
                     InternetAddress.parse(recipientEmail) //test gmails
             );
             message.setSubject("Your Refund Request Has Been Successfully Processed");
@@ -130,10 +138,17 @@ public class EmailSender {
 
             // Attach multipart to the message
             message.setContent(multipart);
+=======
+                    InternetAddress.parse(recipientEmail)
+            );
+            message.setSubject(subject);
+            message.setText(body);
+>>>>>>> Stashed changes
 
             // Send the message
             Transport.send(message);
 
+<<<<<<< Updated upstream
             System.out.println("Email with PDF sent successfully!");
 
         } catch (MessagingException e) {
@@ -193,6 +208,9 @@ public class EmailSender {
             Transport.send(message);
 
             System.out.println("Email with PDF sent successfully!");
+=======
+            System.out.println("Simple email sent successfully!");
+>>>>>>> Stashed changes
 
         } catch (MessagingException e) {
             e.printStackTrace();

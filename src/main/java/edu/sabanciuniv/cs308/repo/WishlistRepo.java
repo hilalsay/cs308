@@ -5,6 +5,7 @@ import edu.sabanciuniv.cs308.model.Wishlist;
 import edu.sabanciuniv.cs308.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,4 +15,6 @@ public interface WishlistRepo extends JpaRepository<Wishlist, UUID> {
 
     // Alternatively, find a wishlist by the associated user (based on your model)
     Optional<Wishlist> findByUser(User user);
+
+    List<Wishlist> findAllByProductsContains(Product product);
 }
