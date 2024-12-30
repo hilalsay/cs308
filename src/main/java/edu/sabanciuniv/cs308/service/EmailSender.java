@@ -85,8 +85,12 @@ public class EmailSender {
     }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     public void sendEmailForRefund(String recipientEmail, UUID refundId) {
         System.out.println(recipientEmail);
+=======
+    public void sendSimpleEmail(String recipientEmail, String subject, String body) {
+>>>>>>> Stashed changes
 =======
     public void sendSimpleEmail(String recipientEmail, String subject, String body) {
 >>>>>>> Stashed changes
@@ -111,9 +115,12 @@ public class EmailSender {
 
         try {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             RefundRequest refundRequest = refundRequestRepo.findById(refundId).get();
 
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
             // Create a MimeMessage
@@ -121,6 +128,7 @@ public class EmailSender {
             message.setFrom(new InternetAddress(username));
             message.setRecipients(
                     Message.RecipientType.TO,
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
                     InternetAddress.parse(recipientEmail) //test gmails
             );
@@ -139,15 +147,21 @@ public class EmailSender {
             // Attach multipart to the message
             message.setContent(multipart);
 =======
+=======
+>>>>>>> Stashed changes
                     InternetAddress.parse(recipientEmail)
             );
             message.setSubject(subject);
             message.setText(body);
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
             // Send the message
             Transport.send(message);
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
             System.out.println("Email with PDF sent successfully!");
 
@@ -208,6 +222,9 @@ public class EmailSender {
             Transport.send(message);
 
             System.out.println("Email with PDF sent successfully!");
+=======
+            System.out.println("Simple email sent successfully!");
+>>>>>>> Stashed changes
 =======
             System.out.println("Simple email sent successfully!");
 >>>>>>> Stashed changes
