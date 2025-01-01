@@ -1,7 +1,7 @@
 package edu.sabanciuniv.cs308.service;
 
-import edu.sabanciuniv.cs308.model.*;
-import edu.sabanciuniv.cs308.repo.*;
+import edu.sabanciuniv.cs308.model.RefundRequest;
+import edu.sabanciuniv.cs308.repo.RefundRequestRepo;
 import jakarta.activation.DataHandler;
 import jakarta.activation.DataSource;
 import jakarta.activation.FileDataSource;
@@ -23,14 +23,10 @@ public class EmailSender {
     @Autowired
     private RefundRequestRepo refundRequestRepo;
 
+    private final String username = "jewelryshop308@gmail.com";
+    private final String password = "omcm vnot cykr uvjf"; // App-specific password
 
-    public void sendEmailWithPdf(String recipientEmail ,String pdfFilePath) {
-        System.out.println(recipientEmail);
-        File pdfFile = new File(pdfFilePath);
-        final String username = "jewelryshop308@gmail.com";
-        final String password = "omcm vnot cykr uvjf"; // App-specific password
-
-        // Email configuration properties
+    private Session createEmailSession() {
         Properties prop = new Properties();
         prop.put("mail.smtp.host", "smtp.gmail.com");
         prop.put("mail.smtp.port", "465");
@@ -38,197 +34,84 @@ public class EmailSender {
         prop.put("mail.smtp.socketFactory.port", "465");
         prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 
-        // Create session
-        Session session = Session.getInstance(prop, new Authenticator() {
+        return Session.getInstance(prop, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(username, password);
             }
         });
+    }
 
+    public void sendEmailWithPdf(String recipientEmail, String pdfFilePath) {
         try {
-            // Create a MimeMessage
+            Session session = createEmailSession();
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(username));
-            message.setRecipients(
-                    Message.RecipientType.TO,
-                    InternetAddress.parse(recipientEmail) //test gmails
-            );
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
             message.setSubject("Thank you for shopping from us! Hope to see you again.");
 
-            // Create a multipart message
             Multipart multipart = new MimeMultipart();
 
-            // Text part
             MimeBodyPart textPart = new MimeBodyPart();
             textPart.setText("Please find your invoice in the attached PDF file.");
             multipart.addBodyPart(textPart);
 
-            // File part
             MimeBodyPart filePart = new MimeBodyPart();
-            DataSource source = new FileDataSource(pdfFile);
+            DataSource source = new FileDataSource(new File(pdfFilePath));
             filePart.setDataHandler(new DataHandler(source));
-            filePart.setFileName(pdfFile.getName());
+            filePart.setFileName(new File(pdfFilePath).getName());
             multipart.addBodyPart(filePart);
 
-            // Attach multipart to the message
             message.setContent(multipart);
 
-            // Send the message
             Transport.send(message);
-
             System.out.println("Email with PDF sent successfully!");
-
         } catch (MessagingException e) {
             e.printStackTrace();
         }
     }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     public void sendEmailForRefund(String recipientEmail, UUID refundId) {
-        System.out.println(recipientEmail);
-=======
-    public void sendSimpleEmail(String recipientEmail, String subject, String body) {
->>>>>>> Stashed changes
-=======
-    public void sendSimpleEmail(String recipientEmail, String subject, String body) {
->>>>>>> Stashed changes
-        final String username = "jewelryshop308@gmail.com";
-        final String password = "omcm vnot cykr uvjf"; // App-specific password
-
-        // Email configuration properties
-        Properties prop = new Properties();
-        prop.put("mail.smtp.host", "smtp.gmail.com");
-        prop.put("mail.smtp.port", "465");
-        prop.put("mail.smtp.auth", "true");
-        prop.put("mail.smtp.socketFactory.port", "465");
-        prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-
-        // Create session
-        Session session = Session.getInstance(prop, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(username, password);
-            }
-        });
-
         try {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-            RefundRequest refundRequest = refundRequestRepo.findById(refundId).get();
+            RefundRequest refundRequest = refundRequestRepo.findById(refundId).orElseThrow(() -> new IllegalArgumentException("Refund request not found"));
 
+            String subject = "Your Refund Request Has Been Successfully Processed";
+            String body = "Your refund request has been successfully processed and approved. A refund of "
+                    + refundRequest.getRefundAmount() + " has been credited to your original payment account for the product "
+                    + refundRequest.getProduct().getName() + ".";
 
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-            // Create a MimeMessage
-            MimeMessage message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(username));
-            message.setRecipients(
-                    Message.RecipientType.TO,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-                    InternetAddress.parse(recipientEmail) //test gmails
-            );
-            message.setSubject("Your Refund Request Has Been Successfully Processed");
-
-            // Create a multipart message
-            Multipart multipart = new MimeMultipart();
-
-            // Text part
-            MimeBodyPart textPart = new MimeBodyPart();
-            textPart.setText("Our refund request has been successfully processed and approved. A refund of " + refundRequest.getRefundAmount() + " has been credited to your original payment account for the product " + refundRequest.getProduct().getName());
-            multipart.addBodyPart(textPart);
-
-
-
-            // Attach multipart to the message
-            message.setContent(multipart);
-=======
-=======
->>>>>>> Stashed changes
-                    InternetAddress.parse(recipientEmail)
-            );
-            message.setSubject(subject);
-            message.setText(body);
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-
-            // Send the message
-            Transport.send(message);
-
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-            System.out.println("Email with PDF sent successfully!");
-
-        } catch (MessagingException e) {
+            sendSimpleEmail(recipientEmail, subject, body);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
     public void sendEmailForRefundReject(String recipientEmail, UUID refundId) {
-        System.out.println(recipientEmail);
-        final String username = "jewelryshop308@gmail.com";
-        final String password = "omcm vnot cykr uvjf"; // App-specific password
-
-        // Email configuration properties
-        Properties prop = new Properties();
-        prop.put("mail.smtp.host", "smtp.gmail.com");
-        prop.put("mail.smtp.port", "465");
-        prop.put("mail.smtp.auth", "true");
-        prop.put("mail.smtp.socketFactory.port", "465");
-        prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-
-        // Create session
-        Session session = Session.getInstance(prop, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(username, password);
-            }
-        });
-
         try {
-            RefundRequest refundRequest = refundRequestRepo.findById(refundId).get();
+            RefundRequest refundRequest = refundRequestRepo.findById(refundId).orElseThrow(() -> new IllegalArgumentException("Refund request not found"));
 
+            String subject = "Your Refund Request Has Been Rejected";
+            String body = "We have reviewed your refund request for the product "
+                    + refundRequest.getProduct().getName() + " from your order placed on "
+                    + refundRequest.getOrder().getPaymentDate() + ". Unfortunately, we are unable to process your request.";
 
-            // Create a MimeMessage
+            sendSimpleEmail(recipientEmail, subject, body);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendSimpleEmail(String recipientEmail, String subject, String body) {
+        try {
+            Session session = createEmailSession();
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(username));
-            message.setRecipients(
-                    Message.RecipientType.TO,
-                    InternetAddress.parse(recipientEmail) //test gmails
-            );
-            message.setSubject("Your Refund Request Has Been Rejected");
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
+            message.setSubject(subject);
+            message.setText(body);
 
-            // Create a multipart message
-            Multipart multipart = new MimeMultipart();
-
-            // Text part
-            MimeBodyPart textPart = new MimeBodyPart();
-            textPart.setText("We have reviewed your refund request for the product " + refundRequest.getProduct().getName() + " from your order placed on "+ refundRequest.getOrder().getPaymentDate()+". Unfortunately, we are unable to process your request");
-            multipart.addBodyPart(textPart);
-
-
-
-            // Attach multipart to the message
-            message.setContent(multipart);
-
-            // Send the message
             Transport.send(message);
-
-            System.out.println("Email with PDF sent successfully!");
-=======
             System.out.println("Simple email sent successfully!");
->>>>>>> Stashed changes
-=======
-            System.out.println("Simple email sent successfully!");
->>>>>>> Stashed changes
-
         } catch (MessagingException e) {
             e.printStackTrace();
         }
