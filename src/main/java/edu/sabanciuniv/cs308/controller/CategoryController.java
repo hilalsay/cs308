@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/category")
@@ -20,7 +21,7 @@ public class CategoryController {
     private CategoryService service;
 
     @GetMapping("/{categoryId}")
-    public ResponseEntity<List<Product>> getCategoryById(@PathVariable UUID categoryId){
+    public ResponseEntity<List<Product>> getCategoryById(@PathVariable UUID categoryId) {
         return new ResponseEntity<>(service.getCategoryById(categoryId), HttpStatus.OK);
     }
 
@@ -37,8 +38,7 @@ public class CategoryController {
 
     @PutMapping("/{categoryId}")
     public ResponseEntity<String> updateCategory(@PathVariable UUID categoryId, @RequestBody Category categoryDetails) {
-        Category category1 = null;
-        category1 = service.updateCategory(categoryId, categoryDetails);
+        Category category1 = service.updateCategory(categoryId, categoryDetails);
         if (category1 != null){
             return new ResponseEntity<>("Updated", HttpStatus.OK);
         }
@@ -48,15 +48,20 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{categoryId}")
-    public ResponseEntity<String>  deleteCategory(@PathVariable UUID categoryId) {
-        service.deleteCategory(categoryId);
+    public ResponseEntity<String> deleteCategory(@PathVariable UUID categoryId) {
+        service.markCategoryAndProductsAsDeleted(categoryId);
         return new ResponseEntity<>("Deleted", HttpStatus.OK);
     }
 
     @GetMapping
     public ResponseEntity<List<Category>> getAllCategories() {
-        return new ResponseEntity<>(service.getAllCategories(), HttpStatus.OK);
+        // Filter categories where isDeleted is false
+        List<Category> categories = service.getAllCategories().stream()
+                .filter(category -> Boolean.FALSE.equals(category.getIsDeleted())) // Ensure it's not null
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(categories, HttpStatus.OK);
     }
+
 
     @GetMapping("/products/sorted")
     public ResponseEntity<List<Product>> getSortedProductsInCategory(
@@ -65,5 +70,4 @@ public class CategoryController {
         List<Product> sortedProducts = service.getSortedProductsInCategory(categoryId, sortBy);
         return new ResponseEntity<>(sortedProducts, HttpStatus.OK);
     }
-
 }

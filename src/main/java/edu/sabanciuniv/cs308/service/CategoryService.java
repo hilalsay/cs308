@@ -4,6 +4,9 @@ import edu.sabanciuniv.cs308.model.Category;
 import edu.sabanciuniv.cs308.model.Product;
 import edu.sabanciuniv.cs308.model.Review;
 import edu.sabanciuniv.cs308.repo.CategoryRepo;
+import edu.sabanciuniv.cs308.repo.ProductRepo;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +19,16 @@ import java.util.stream.Collectors;
 public class CategoryService {
     @Autowired
     private CategoryRepo repo;
+    @Autowired
+    private ProductRepo Prepo;
 
     public List<Product> getCategoryById(UUID categoryId) {
         Category category = repo.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
-        return category.getProducts();
+        // Only return products that are not deleted
+        return category.getProducts().stream()
+                .filter(product -> !product.getIsDeleted())
+                .collect(Collectors.toList());
     }
 
     public Category addCategory(Category category) {
@@ -43,32 +51,31 @@ public class CategoryService {
     }
 
     public List<Category> getAllCategories() {
-        return repo.findAll();
+        return repo.findAll().stream()
+                .filter(category -> Boolean.FALSE.equals(category.getIsDeleted())) // Filter out deleted categories
+                .collect(Collectors.toList());
     }
 
     public List<Product> getSortedProductsInCategory(UUID categoryId, String sortBy) {
-        // Kategorideki ürünleri veri tabanından al
-        List<Product> products = repo.findProductsByCategoryId(categoryId);
+        // Fetch non-deleted products for the given category
+        List<Product> products = Prepo.findByCategoryId(categoryId).stream()
+                .filter(product -> !product.getIsDeleted()) // Only non-deleted products
+                .collect(Collectors.toList());
 
-        // Eğer ürün listesi boşsa veya kategoriye ait ürün yoksa, boş listeyi geri döndür
-        if (products == null || products.isEmpty()) {
-            return products; // Geri dönen liste null değil, boş olmalıdır.
+        // If the list is empty, return an empty list
+        if (products.isEmpty()) {
+            return products;
         }
 
-        // Sıralama kriterine göre ürünleri sırala
+        // Sort the products based on the given criteria
         if ("priceLowToHigh".equalsIgnoreCase(sortBy)) {
-            // Fiyat artan sırada
             products.sort(Comparator.comparing(Product::getPrice));
         } else if ("priceHighToLow".equalsIgnoreCase(sortBy)) {
-            // Fiyat azalan sırada
             products.sort(Comparator.comparing(Product::getPrice).reversed());
-        } // Sort by popularity (calculated score)
-        else if ("popularity".equalsIgnoreCase(sortBy)) {
-            // Sort by popularity score (higher score comes first)
+        } else if ("popularity".equalsIgnoreCase(sortBy)) {
             products.sort((p1, p2) -> Double.compare(calculatePopularityScore(p2), calculatePopularityScore(p1)));
         }
 
-        // Eğer hiçbir kriter eşleşmezse sıralama yapılmaz, ürünler mevcut sıralama ile döner.
         return products;
     }
 
@@ -89,4 +96,26 @@ public class CategoryService {
         return averageRating * ratingCount; // Popularity score formula
     }
 
+    @Transactional
+    public void markCategoryAndProductsAsDeleted(UUID categoryId) {
+        // Fetch the category
+        Category category = repo.findById(categoryId)
+                .orElseThrow(() -> new EntityNotFoundException("Category not found with ID: " + categoryId));
+
+        // Mark all products in the category as deleted
+        List<Product> products = Prepo.findByCategoryId(categoryId);
+        products.forEach(product -> product.setIsDeleted(true));
+        Prepo.saveAll(products);
+
+        // Mark the category as deleted (optional if categories have a soft delete flag)
+        category.setIsDeleted(true);
+        repo.save(category);
+    }
+
+    // Method to get all categories excluding deleted ones
+    public List<Category> getAllNonDeletedCategories() {
+        return repo.findAll().stream()
+                .filter(category -> !category.getIsDeleted())
+                .collect(Collectors.toList());
+    }
 }

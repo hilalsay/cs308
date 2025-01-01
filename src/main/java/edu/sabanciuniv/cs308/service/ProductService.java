@@ -6,6 +6,8 @@ import edu.sabanciuniv.cs308.model.Review;
 import edu.sabanciuniv.cs308.model.User;
 import edu.sabanciuniv.cs308.model.Wishlist;
 import edu.sabanciuniv.cs308.repo.ProductRepo;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -32,7 +34,7 @@ public class ProductService {
     private UserService userService;
 
     public List<Product> getProducts() {
-        return repo.findAll();
+        return repo.findByIsDeletedFalse();
     }
 
     // Method to get only products in stock
@@ -58,7 +60,7 @@ public class ProductService {
         // Fetch the existing product
         Product existingProduct = repo.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
- 
+
         // Update the price if a valid new price is provided
         if (newPrice != null && newPrice.compareTo(BigDecimal.ZERO) >= 0) {
             existingProduct.setPrice(newPrice);
@@ -112,6 +114,7 @@ public class ProductService {
             emailService.sendSimpleEmail(email, subject, body);
         }
     }
+
     public Product updateProduct(UUID productId, String productJson, MultipartFile image) throws IOException {
         // Deserialize the incoming product JSON
         ObjectMapper objectMapper = new ObjectMapper();
@@ -183,8 +186,11 @@ public class ProductService {
                 .average()
                 .orElse(0); // Calculate average or return 0 if empty
 
-        return averageRating * ratingCount; // Popularity score formula
+        double popularity = averageRating * ratingCount; // Popularity score formula
+        product.setPopularity(popularity); // Set popularity field
+        return popularity;
     }
+
 
     // Method to get products sorted based on the given sort criteria
     public List<Product> getSortedProducts(String sortBy) {
@@ -201,9 +207,22 @@ public class ProductService {
 
         // Sort by popularity (calculated score)
         else if ("popularity".equalsIgnoreCase(sortBy)) {
-          // Sort by popularity score (higher score comes first)
-            products.sort((p1, p2) -> Double.compare(calculatePopularityScore(p2), calculatePopularityScore(p1)));
+            // Sort by popularity (calculated score)
+            products.sort(Comparator.comparing(Product::getPopularity).reversed()); // Sort by popularity score (higher score comes first)
         }
         return products; // Return the sorted list of products
+    }
+
+    @Transactional
+    public void markProductAsDeleted(UUID productId) {
+        Product product = repo.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found with ID: " + productId));
+
+        product.setIsDeleted(true); // Mark as deleted
+        repo.save(product);
+    }
+
+    public List<Product> getActiveProducts() {
+        return repo.findByIsDeletedFalse(); // Get only active products (not marked as deleted)
     }
 }

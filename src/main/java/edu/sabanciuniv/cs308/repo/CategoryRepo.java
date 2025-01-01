@@ -14,4 +14,5 @@ import java.util.UUID;
 public interface CategoryRepo extends JpaRepository<Category, UUID> {
     @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId")
     List<Product> findProductsByCategoryId(@Param("categoryId") UUID categoryId);
+    public List<Category> findByIsDeletedFalse();
 }

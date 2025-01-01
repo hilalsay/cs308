@@ -16,8 +16,18 @@ public class Category {
     private UUID id;
     private String name;
     private String description;
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Product> products;
+
+    // Custom method to mark the category as deleted (soft delete)
+    public void markAsDeleted() {
+        this.isDeleted = true;
+        for (Product product : products) {
+            product.setIsDeleted(true); // Soft delete related products
+        }
+    }
 }

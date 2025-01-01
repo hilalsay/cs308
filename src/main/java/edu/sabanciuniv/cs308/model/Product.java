@@ -32,11 +32,16 @@ public class Product {
     private String imageName;
     private String imageType;
     @Column
-    private Double averageRating;
+    private Double averageRating = 0.0;
     @Column
-    private Integer overallRating;
+    private Integer overallRating = 0;
+    @Column(nullable = false)  // Ensures that popularity is not null
+    private Double popularity = 0.0;  // Set default value for popularity
+
     @Column
     private Double discountRate = 0.0;
+    @Column(name = "is_deleted")
+    private Boolean isDeleted = false;
     @Column
     private BigDecimal discountedPrice;
     @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

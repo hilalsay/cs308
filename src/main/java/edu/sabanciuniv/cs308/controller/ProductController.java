@@ -105,7 +105,7 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(@PathVariable UUID productId){
         Product product = service.getProductById(productId);
         if(product != null){
-            service.deleteProduct(productId);
+            service.markProductAsDeleted(productId);
             return new ResponseEntity<>("Deleted", HttpStatus.OK);
         }
         else{

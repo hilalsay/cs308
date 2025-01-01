@@ -90,7 +90,7 @@ class ProductServiceTest {
         UUID productId = UUID.randomUUID();
 
         // Call the method to test
-        productService.deleteProduct(productId);
+        productService.markProductAsDeleted(productId);
 
         // Verify the delete operation
         verify(productRepo, times(1)).deleteById(productId);
