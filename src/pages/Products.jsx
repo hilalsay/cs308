@@ -48,11 +48,14 @@ const Products = () => {
     fetchCategoriesAndProducts();
   }, [sortOrder]);
 
-  // If "All Categories" is selected, flatten all products into one array
+  // If "All Categories" is selected, flatten all products into one array and filter out products with price -1
   const filteredProducts =
     selectedCategory === ""
-      ? Object.values(categoryProducts).flat() // Flatten all products into a single array
-      : categoryProducts[selectedCategory] || [];
+      ? Object.values(categoryProducts)
+          .flat()
+          .filter((product) => product.price !== -1)
+      : (categoryProducts[selectedCategory] || []).filter((product) => product.price !== -1);
+
 
   return (
     <div>
