@@ -113,6 +113,9 @@ const ManageOrdersPage = () => {
                 <strong>Orderer Name:</strong> {order.ordererName}
               </p>
               <p>
+                <strong>Orderer ID:</strong> {order.user.id}
+              </p>
+              <p>
                 <strong>Order Address:</strong> {order.orderAddress}
               </p>
               <p>

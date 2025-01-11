@@ -1,8 +1,8 @@
-import React, { useEffect, useState,useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
-
+import Revenue from "./Revenue";
 const ProductsRevenuePage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,9 +13,32 @@ const ProductsRevenuePage = () => {
   const navigate = useNavigate();
 
   const { token, logout } = useContext(AuthContext);
+  const mockData = [
+    { date: "2024-12-20", totalRevenue: 2750 },
+    { date: "2024-12-21", totalRevenue: 2750 },
+    { date: "2024-12-22", totalRevenue: 2250 },
+    { date: "2024-12-23", totalRevenue: 2500 },
+    { date: "2024-12-24", totalRevenue: 3500 },
+    { date: "2024-12-25", totalRevenue: 3500 },
+    { date: "2024-12-26", totalRevenue: 3500 },
+    { date: "2024-12-27", totalRevenue: 4500 },
+    { date: "2024-12-28", totalRevenue: 2750 },
+    { date: "2024-12-29", totalRevenue: 3250 },
+    { date: "2024-12-30", totalRevenue: 2750 },
+    { date: "2024-12-31", totalRevenue: 2750 },
+    { date: "2025-01-01", totalRevenue: 3250 },
+    { date: "2025-01-02", totalRevenue: 3000 },
+    { date: "2025-01-03", totalRevenue: 3750 },
+    { date: "2025-01-04", totalRevenue: 2250 },
+    { date: "2025-01-05", totalRevenue: 3000 },
+    { date: "2025-01-06", totalRevenue: 5000 },
+    { date: "2025-01-07", totalRevenue: 3750 },
+    { date: "2025-01-08", totalRevenue: 2250 },
+    { date: "2025-01-09", totalRevenue: 5250 },
+  ];
 
-  useEffect ( () =>{
-    if(!token){
+  useEffect(() => {
+    if (!token) {
       navigate("/");
     }
   }, [token]);
@@ -61,7 +84,10 @@ const ProductsRevenuePage = () => {
           orderDate.toDateString() === new Date(startDate).toDateString()
         ) {
           return true;
-        } else if (orderDate >= new Date(startDate) && orderDate <= new Date(endDate)) {
+        } else if (
+          orderDate >= new Date(startDate) &&
+          orderDate <= new Date(endDate)
+        ) {
           return true;
         } else {
           return false;
@@ -73,31 +99,33 @@ const ProductsRevenuePage = () => {
     }
   }, [startDate, endDate, orders]);
 
-
   // Handle downloading the invoice for an order
   const handleDownloadInvoice = async (order) => {
     try {
       const response = await axios.get(`/api/invoice/${order.id}`, {
-        responseType: 'blob', // Expecting a binary response (PDF file)
+        responseType: "blob", // Expecting a binary response (PDF file)
       });
-  
+
       if (response.status === 200) {
         // Create a link element
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         // Create a URL for the blob object
         const url = window.URL.createObjectURL(new Blob([response.data]));
         link.href = url;
-        link.setAttribute('download', `invoice_${order.id}.pdf`); // Set the download file name
+        link.setAttribute("download", `invoice_${order.id}.pdf`); // Set the download file name
         document.body.appendChild(link);
         link.click(); // Trigger the download
         document.body.removeChild(link);
       } else {
-        console.error('Failed to fetch invoice, unexpected response status:', response.status);
-        alert('Failed to fetch invoice');
+        console.error(
+          "Failed to fetch invoice, unexpected response status:",
+          response.status
+        );
+        alert("Failed to fetch invoice");
       }
     } catch (error) {
-      console.error('Failed to download invoice:', error);
-      alert('Failed to download invoice');
+      console.error("Failed to download invoice:", error);
+      alert("Failed to download invoice");
     }
   };
 
@@ -114,74 +142,79 @@ const ProductsRevenuePage = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">View Products & Revenue</h1>
 
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">View Products & Revenue</h1>
+      <div className="mb-6">
+        <label className="mr-2">Start Date:</label>
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          className="px-2 py-1 border border-gray-300"
+        />
+        <label className="mr-2 ml-4">End Date:</label>
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          className="px-2 py-1 border border-gray-300"
+        />
+      </div>
+      <Revenue data={mockData} startDate={startDate} endDate={endDate} />
 
-        <div className="mb-6">
-          <label className="mr-2">Start Date:</label>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="px-2 py-1 border border-gray-300"
-          />
-          <label className="mr-2 ml-4">End Date:</label>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="px-2 py-1 border border-gray-300"
-          />
-        </div>
-
-        {filteredOrders.length === 0 ? (
-          <p>No orders found for the selected date range.</p>
-        ) : (
-          <table className="min-w-full border-collapse border border-gray-300">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 px-4 py-2">Order ID</th>
-                <th className="border border-gray-300 px-4 py-2">Customer Name</th>
-                <th className="border border-gray-300 px-4 py-2">Address</th>
-                <th className="border border-gray-300 px-4 py-2">Total Amount</th>
-                <th className="border border-gray-300 px-4 py-2">Order Status</th>
-                <th className="border border-gray-300 px-4 py-2">Payment Method</th>
-                <th className="border border-gray-300 px-4 py-2">Payment Date</th>
-                <th className="border border-gray-300 px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOrders.map((order) => (
-                <tr key={order.id}>
-                  <td className="border border-gray-300 px-4 py-2">{order.id}</td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {order.user?.username || "Unknown"}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
+      {filteredOrders.length === 0 ? (
+        <p>No orders found for the selected date range.</p>
+      ) : (
+        <table className="min-w-full border-collapse border border-gray-300">
+          <thead>
+            <tr>
+              <th className="border border-gray-300 px-4 py-2">Order ID</th>
+              <th className="border border-gray-300 px-4 py-2">
+                Customer Name
+              </th>
+              <th className="border border-gray-300 px-4 py-2">Address</th>
+              <th className="border border-gray-300 px-4 py-2">Total Amount</th>
+              <th className="border border-gray-300 px-4 py-2">Order Status</th>
+              <th className="border border-gray-300 px-4 py-2">
+                Payment Method
+              </th>
+              <th className="border border-gray-300 px-4 py-2">Payment Date</th>
+              <th className="border border-gray-300 px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredOrders.map((order) => (
+              <tr key={order.id}>
+                <td className="border border-gray-300 px-4 py-2">{order.id}</td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {order.user?.username || "Unknown"}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
                   {order.orderAddress || "Not Provided"}
                 </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {order.totalAmount} ₺
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">{order.orderStatus}</td>
-                  <td className="border border-gray-300 px-4 py-2">{order.paymentMethod}</td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {new Date(order.paymentDate).toLocaleString()}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    <button
-                      onClick={() => handleDownloadInvoice(order)} // Button to download invoice
-                      className="bg-blue-500 text-white px-4 py-2 rounded"
-                    >
-                      Download Invoice
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+                <td className="border border-gray-300 px-4 py-2">
+                  {order.totalAmount} ₺
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {order.orderStatus}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {order.paymentMethod}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {new Date(order.paymentDate).toLocaleString()}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  <button
+                    onClick={() => handleDownloadInvoice(order)} // Button to download invoice
+                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                  >
+                    Download Invoice
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };

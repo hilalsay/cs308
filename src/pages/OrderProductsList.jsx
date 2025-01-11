@@ -69,6 +69,7 @@ const OrderProductsList = ({ shopId }) => {
               <div>
                 <p>
                   <strong>{item.product.name}</strong>
+                  <p>Product ID: {item.product.id}</p>
                 </p>
                 <p>Quantity: {item.quantity}</p>
                 <p>Price: ${item.product.price?.toFixed(2)}</p>

@@ -119,7 +119,7 @@ const ProductDetails = () => {
       <div className="flex gap-12 sm:gap-12 flex-col sm:flex-row">
         {/* Product Image */}
         <div className="flex-1 flex flex-col-reverse gap-3 sm:flex-row">
-          <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-scroll justify-between sm:justify-normal sm:w-[18.7%] w-full">
+          <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-scroll justify-between sm:justify-normal sm:w-[98.7%] w-full">
             {image ? (
               <img
                 src={image}
@@ -139,17 +139,17 @@ const ProductDetails = () => {
         {/* Product Info */}
         <div className="flex-1">
           <h1 className="font-medium text-2xl mt-2">{product.name}</h1>
-          
-          {product.discountRate && (product.discountRate >0) ? (
-          <>
-            <span className="line-through text-gray-400 mr-2">
-              ${product.price.toFixed(2)}
-            </span>
-            <span>${product.discountedPrice.toFixed(2)}</span>
-          </>
-        ) : (
-          <span>${product.price.toFixed(2)}</span>
-        )}
+
+          {product.discountRate && product.discountRate > 0 ? (
+            <>
+              <span className="line-through text-gray-400 mr-2">
+                ${product.price.toFixed(2)}
+              </span>
+              <span>${product.discountedPrice.toFixed(2)}</span>
+            </>
+          ) : (
+            <span>${product.price.toFixed(2)}</span>
+          )}
 
           <p className="my-5 text-gray-500 md:w-4/5">{product.description}</p>
 
