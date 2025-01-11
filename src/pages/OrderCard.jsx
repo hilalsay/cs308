@@ -126,50 +126,48 @@ const OrderCard = ({ order }) => {
 
   const requestRefund = async (orderId, productId) => {
     try {
-      const token = localStorage.getItem("token"); // Retrieve the token for authorization
       if (!token) {
-        throw new Error("User is not authenticated");
+        alert("You must be logged in to request a refund.");
+        return;
       }
   
-      // Make the POST request
       const response = await axios.post(
-        "http://localhost:8080/api/request", // Replace with your actual base URL
-        null, // No request body
+        `http://localhost:8080/api/refunds/request?orderId=${orderId}&productId=${productId}`, // Send orderId and productId as query params
+        {}, // Empty body since it's using query params
         {
-          params: { // Pass orderId and productId as request parameters
-            orderId,
-            productId,
-          },
           headers: {
-            Authorization: `Bearer ${token}`, // Add the token to headers
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
   
-      // Handle the successful response
-      console.log("Refund requested successfully:", response.data);
       alert("Refund request submitted successfully!");
-      return response.data; // Return the response data if needed
     } catch (error) {
-      // Handle errors
       console.error("Error requesting refund:", error.response?.data || error.message);
-      alert(`Failed to request refund: ${error.response?.data || error.message}`);
-      throw error; // Re-throw if needed for further handling
+      alert(`Failed to request refund: ${error.response?.data?.message || error.message}`);
     }
   };
+  
+  
+  
+  
 
 
-  const handleRefundRequest = async () => {
-    const orderId = "some-order-id"; // Replace with the actual order ID
-    const productId = "some-product-id"; // Replace with the actual product ID
+  const handleRefundRequest = async (orderId, productId) => {
+    if (!isLessThanMonthOld(order?.createdAt)) {
+      alert("Refund requests are only allowed within 30 days of delivery.");
+      return;
+    }
   
     try {
-      const result = await requestRefund(orderId, productId);
-      console.log("Refund request result:", result);
+      await requestRefund(orderId, productId);
+      console.log("Refund request submitted successfully.");
     } catch (error) {
       console.error("Refund request failed:", error);
     }
   };
+  
 
   return (
     <div
@@ -264,24 +262,24 @@ const OrderCard = ({ order }) => {
       </div>
 
       {/* Refund Button */}
-      {canRefund && (
+      {canRefund && isLessThanMonthOld(order?.createdAt) && (
         <button
-          onClick={() => requestRefund(order?.id, product.product?.id)}
+          onClick={() => handleRefundRequest(order?.id, product.product?.id)}
           style={{
-            padding: "8px 8px",
+            padding: "8px 12px",
             border: "none",
             backgroundColor: "#007BFF",
             color: "#fff",
             borderRadius: "4px",
             cursor: "pointer",
-            display: "inline-block",  // Ensures the button size is only as large as its content
-            textAlign: "center", // Centers the text inside the button
-            marginTop: "8px", // Adds some spacing if needed
+            marginTop: "8px",
           }}
         >
           Request Refund
         </button>
       )}
+
+
 
       <ReviewCard
         productId={product.product?.id}
