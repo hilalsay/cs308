@@ -86,6 +86,19 @@ public class ProductController {
         }
     }
 
+    @PutMapping("/{productId}/remove-discount")
+    public ResponseEntity<Product> removeProductDiscount(@PathVariable UUID productId) {
+        try {
+            // Remove product discount via the service
+            Product updatedProduct = service.removeProductDiscount(productId);
+            return ResponseEntity.ok(updatedProduct); // Return updated product
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(null); // Handle case where product has no discount to remove
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Handle product not found
+        }
+    }
+
     @PutMapping("/{productId}/price")
     public ResponseEntity<Product> updateProductPrice(
             @PathVariable UUID productId,

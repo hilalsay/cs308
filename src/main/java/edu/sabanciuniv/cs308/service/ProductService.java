@@ -88,10 +88,33 @@ public class ProductService {
         // Calculate and set the discounted price
         BigDecimal discountMultiplier = BigDecimal.valueOf(1 - (discountRate / 100));
         BigDecimal discountedPrice = product.getPrice().multiply(discountMultiplier);
-        product.setDiscountedPrice(discountedPrice);
+        product.setOldPrice(product.getPrice());
+        product.setPrice(discountedPrice);
+
 
         // Notify users with the product in their wishlist
         notifyUsersWithWishlistProduct(product);
+
+        // Save the updated product and return it
+        return repo.save(product);
+    }
+
+    public Product removeProductDiscount(UUID productId) {
+        // Find the product by its ID
+        Product product = repo.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        // Check if the product has an old price
+        if (product.getOldPrice() == null) {
+            throw new IllegalStateException("Product does not have a discount to remove");
+        }
+
+        // Restore the old price as the current price
+        product.setPrice(product.getOldPrice());
+
+        // Clear the old price and discount rate
+        product.setOldPrice(null);
+        product.setDiscountRate(null);
 
         // Save the updated product and return it
         return repo.save(product);
@@ -109,8 +132,8 @@ public class ProductService {
             // Prepare and send email
             String subject = "Discount Alert: " + product.getName();
             String body = "Good news! A product in your wishlist, " + product.getName() +
-                    ", is now available at a discounted price of " + product.getDiscountedPrice() +
-                    ". Original price was " + product.getPrice() + ". Check it out now!";
+                    ", is now available at a discounted price of " + product.getPrice() +
+                    ". Original price was " + product.getOldPrice() + ". Check it out now!";
             emailService.sendSimpleEmail(email, subject, body);
         }
     }
