@@ -55,39 +55,42 @@ const ChangePricePage = () => {
   };
 
   const updateProductPriceAndDiscount = async (productId, newPrice, discountRate) => {
-    console.log('editing product: ', newPrice, ' ', discountRate);
-    if (
-      newPrice !== null &&
-      newPrice !== undefined &&
-      newPrice !== '' &&
-      discountRate !== null &&
-      discountRate !== undefined &&
-      discountRate !== ''
-    ) {
+    console.log('Editing product: ', newPrice, ' ', discountRate);
+  
+    if (newPrice !== null && newPrice !== undefined && newPrice !== '') {
       try {
         setLoading(true); // Set loading state to true when the update starts
-
-        const [priceResponse, discountResponse] = await Promise.all([
-          axios.put(
-            `http://localhost:8080/api/products/${productId}/price`,
-            null, // No body for price update
-            { params: { newPrice: newPrice } }
-          ),
-          axios.put(
-            `http://localhost:8080/api/products/${productId}/discount`,
-            null, // No body for discount update
-            { params: { discountRate: discountRate } }
-          ),
-        ]);
-
+  
+        // Update price if provided
+        const priceResponse = await axios.put(
+          `http://localhost:8080/api/products/${productId}/price`,
+          null,
+          { params: { newPrice: newPrice } }
+        );
         console.log('Price updated successfully:', priceResponse.data);
-        console.log('Discount updated successfully:', discountResponse.data);
-
+  
+        // Handle discount update or removal
+        let discountResponse;
+        if (discountRate !== null && discountRate !== undefined && discountRate !== '') {
+          discountResponse = await axios.put(
+            `http://localhost:8080/api/products/${productId}/discount`,
+            null,
+            { params: { discountRate: discountRate } }
+          );
+          console.log('Discount updated successfully:', discountResponse.data);
+        } else {
+          discountResponse = await axios.put(
+            `http://localhost:8080/api/products/${productId}/remove-discount`,
+            null
+          );
+          console.log('Discount removed successfully:', discountResponse.data);
+        }
+  
         setLoading(false); // Reset loading state once the update is completed
-
+  
         return {
           priceResponse: priceResponse.data,
-          discountResponse: discountResponse.data,
+          discountResponse: discountResponse ? discountResponse.data : null,
         };
       } catch (error) {
         setLoading(false); // Reset loading state in case of error
@@ -99,8 +102,8 @@ const ChangePricePage = () => {
         throw error; // Rethrow to handle errors in calling code
       }
     } else {
-      console.log('input null');
-      alert('Product input empty.');
+      console.log('Input is null');
+      alert('Product input is empty.');
     }
   };
 
