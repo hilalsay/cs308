@@ -15,10 +15,22 @@ public class RevenueController {
     @Autowired
     private RevenueService revenueService;
 
+    /**
+     * Endpoint to get total revenue for a specific date or all days.
+     *
+     * @param date The date for which revenue is calculated (optional).
+     * @return The total revenue for the specified date or for all days.
+     */
     @GetMapping("/total")
-    public Revenue getTotalRevenueByDate(@RequestParam("date") String date) {
-        LocalDate localDate = LocalDate.parse(date);
-        return revenueService.calculateTotalRevenueByDate(localDate);
+    public Object getTotalRevenueByDate(@RequestParam(value = "date", required = false) String date) {
+        if (date != null) {
+            // If a date parameter is provided, calculate revenue for that specific date.
+            LocalDate localDate = LocalDate.parse(date);
+            return revenueService.calculateTotalRevenueByDate(localDate);
+        } else {
+            // If no date parameter is provided, calculate revenue for all days.
+            return revenueService.calculateTotalRevenueForAllDays();
+        }
     }
 
     /**

@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -107,5 +109,32 @@ public class RevenueService {
         // Return the total revenue in the required JSON format
         return String.format("{\"date\": \"%s\", \"totalRevenue\": %.2f}",
                 date.format(DateTimeFormatter.ISO_LOCAL_DATE), totalRevenue.doubleValue());
+    }
+
+    /**
+     * Calculates the total revenue for all orders.
+     *
+     * @return Total revenue for all orders as a BigDecimal.
+     */
+    public List<Map<String, Object>> calculateTotalRevenueForAllDays() {
+        List<Order> orders = orderRepo.findAll();
+
+        // Her gün için toplam gelirleri hesapla
+        Map<LocalDate, BigDecimal> revenueMap = orders.stream()
+                .filter(order -> order.getCreatedAt() != null) // Null createdAt'ları filtrele
+                .collect(Collectors.groupingBy(
+                        order -> order.getOrderDate(), // OrderDate kullanarak gruplama yap
+                        Collectors.reducing(BigDecimal.ZERO, Order::getTotalAmount, BigDecimal::add) // Her grup için toplam geliri hesapla
+                ));
+
+        // Map'i istediğiniz formata dönüştür
+        return revenueMap.entrySet().stream()
+                .map(entry -> {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("date", entry.getKey().toString()); // LocalDate'yi string formatına çevir
+                    result.put("totalRevenue", entry.getValue()); // Toplam gelir
+                    return result;
+                })
+                .collect(Collectors.toList());
     }
 }
