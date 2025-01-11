@@ -76,28 +76,18 @@ const ProductsRevenuePage = () => {
   useEffect(() => {
     if (startDate && endDate) {
       const filtered = orders.filter((order) => {
-        const orderDate = new Date(order.createdAt);
-        if (isNaN(orderDate.getTime())) {
-          return false;
-        } else if (
-          startDate === endDate &&
-          orderDate.toDateString() === new Date(startDate).toDateString()
-        ) {
-          return true;
-        } else if (
-          orderDate >= new Date(startDate) &&
-          orderDate <= new Date(endDate)
-        ) {
-          return true;
-        } else {
-          return false;
-        }
+        const orderDate = new Date(order.createdAt).setHours(0, 0, 0, 0); 
+        const start = new Date(startDate).setHours(0, 0, 0, 0); // start date
+        const end = new Date(endDate).setHours(0, 0, 0, 0); // end date
+  
+        return orderDate >= start && orderDate <= end;
       });
       setFilteredOrders(filtered);
     } else {
-      setFilteredOrders(orders);
+      setFilteredOrders(orders); // show every order if there is not any selected date range
     }
   }, [startDate, endDate, orders]);
+  
 
   // Handle downloading the invoice for an order
   const handleDownloadInvoice = async (order) => {
