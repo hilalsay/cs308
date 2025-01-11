@@ -2,7 +2,9 @@ package edu.sabanciuniv.cs308.controller;
 
 import edu.sabanciuniv.cs308.model.RefundStatus;
 import edu.sabanciuniv.cs308.model.RefundRequest;
+import edu.sabanciuniv.cs308.service.JwtService;
 import edu.sabanciuniv.cs308.service.OrderService;
+import edu.sabanciuniv.cs308.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +18,12 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/refunds")
 public class RefundController {
-
+    @Autowired
+    private UserService userService;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private JwtService jwtService;
 
     @PostMapping("/request")
     public ResponseEntity<?> requestRefund(
@@ -35,8 +40,13 @@ public class RefundController {
     @PutMapping("/{refundRequestId}/approve")
     public ResponseEntity<?> approveRefund(
             @PathVariable UUID refundRequestId,
-            @RequestParam UUID managerId) {
+            @RequestHeader("Authorization") String token) {
         try {
+            String jwt = token.substring(7).trim();
+
+            // Decode the token and get the current authenticated user's ID from the token
+            String username = jwtService.extractUserName(jwt);
+            UUID managerId = userService.getUserIdByUsername(username);
             RefundRequest approvedRefund = orderService.approveRefund(refundRequestId, managerId);
             return new ResponseEntity<>(approvedRefund, HttpStatus.OK);
         } catch (RuntimeException e) {
@@ -47,8 +57,13 @@ public class RefundController {
     @PutMapping("/{refundRequestId}/reject")
     public ResponseEntity<?> rejectRefund(
             @PathVariable UUID refundRequestId,
-            @RequestParam UUID managerId) {
+            @RequestHeader("Authorization") String token) {
         try {
+            String jwt = token.substring(7).trim();
+
+            // Decode the token and get the current authenticated user's ID from the token
+            String username = jwtService.extractUserName(jwt);
+            UUID managerId = userService.getUserIdByUsername(username);
             RefundRequest approvedRefund = orderService.rejectRefund(refundRequestId, managerId);
             return new ResponseEntity<>(approvedRefund, HttpStatus.OK);
         } catch (RuntimeException e) {
