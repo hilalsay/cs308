@@ -51,7 +51,11 @@ public class CartItem {
     public CartItem(Product product, Integer quantity, ShoppingCart shoppingCart) {
         this.product = product;
         this.quantity = quantity;
-        this.price = product.getPrice(); // Set price to the product's price
+        if (product.getDiscountedPrice() != null && product.getDiscountedPrice().compareTo(BigDecimal.ZERO) > 0) {
+            this.price = product.getDiscountedPrice(); // Use discounted price if it is not null and greater than 0
+        } else {
+            this.price = product.getPrice(); // Otherwise, use the normal price
+        }
         this.shoppingCart = shoppingCart;
         this.createdAt = LocalDateTime.now();
         this.modifiedAt = LocalDateTime.now();

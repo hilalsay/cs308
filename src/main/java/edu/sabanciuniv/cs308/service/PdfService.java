@@ -90,8 +90,15 @@ public class PdfService {
                 for (CartItem item : cartItems) {
                     table.addCell(item.getProduct().getName());  // Assuming Product has Name
                     table.addCell(String.valueOf(item.getQuantity()));
-                    table.addCell(String.valueOf(item.getProduct().getPrice()));  // Assuming Product has Price
-                    BigDecimal price = item.getProduct().getPrice(); // Get the product price as BigDecimal
+                    BigDecimal price;
+                    if (item.getProduct().getDiscountedPrice() != null && item.getProduct().getDiscountedPrice().compareTo(BigDecimal.ZERO) > 0) {
+                        price = item.getProduct().getDiscountedPrice();  // Use discounted price if available
+                    } else {
+                        price = item.getProduct().getPrice();  // Otherwise, use normal price
+                    }
+
+                    table.addCell(String.valueOf(price));  // Add the determined price to the cell
+
                     int quantity = item.getQuantity(); // Get the quantity as int
 
                     // Convert int quantity to BigDecimal

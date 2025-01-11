@@ -183,9 +183,18 @@ public class ShoppingCartService {
     // Updates the total price of a shopping cart
     private void updateCartTotal(ShoppingCart cart) {
         cart.setTotal(cart.getItems().stream()
-                .map(item -> item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .map(item -> {
+                    BigDecimal price;
+                    if (item.getProduct().getDiscountedPrice() != null && item.getProduct().getDiscountedPrice().compareTo(BigDecimal.ZERO) > 0) {
+                        price = item.getProduct().getDiscountedPrice(); // Use discounted price if available
+                    } else {
+                        price = item.getProduct().getPrice(); // Otherwise, use normal price
+                    }
+                    return price.multiply(BigDecimal.valueOf(item.getQuantity())); // Multiply by quantity
+                })
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
     }
+
 
     // Retrieves all shopping carts
     public List<ShoppingCart> getAllCarts() {
