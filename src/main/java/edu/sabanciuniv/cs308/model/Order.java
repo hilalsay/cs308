@@ -54,4 +54,8 @@ public class Order {
     @Column(nullable = false)
     private String orderAddress;
 
+    public int calculateTotalOrderRevenue() {
+        return this.totalAmount != null ? this.totalAmount.intValue() : 0;
+    }
+
 }
