@@ -43,7 +43,7 @@ public class Product {
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
     @Column
-    private BigDecimal oldPrice;
+    private BigDecimal discountedPrice;
     @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews; // Reviews related to this product
 

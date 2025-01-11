@@ -88,8 +88,7 @@ public class ProductService {
         // Calculate and set the discounted price
         BigDecimal discountMultiplier = BigDecimal.valueOf(1 - (discountRate / 100));
         BigDecimal discountedPrice = product.getPrice().multiply(discountMultiplier);
-        product.setOldPrice(product.getPrice());
-        product.setPrice(discountedPrice);
+        product.setDiscountedPrice(discountedPrice);
 
 
         // Notify users with the product in their wishlist
@@ -105,15 +104,12 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         // Check if the product has an old price
-        if (product.getOldPrice() == null) {
+        if (product.getDiscountedPrice() == null) {
             throw new IllegalStateException("Product does not have a discount to remove");
         }
 
-        // Restore the old price as the current price
-        product.setPrice(product.getOldPrice());
-
         // Clear the old price and discount rate
-        product.setOldPrice(null);
+        product.setDiscountedPrice(null);
         product.setDiscountRate(null);
 
         // Save the updated product and return it
@@ -132,8 +128,8 @@ public class ProductService {
             // Prepare and send email
             String subject = "Discount Alert: " + product.getName();
             String body = "Good news! A product in your wishlist, " + product.getName() +
-                    ", is now available at a discounted price of " + product.getPrice() +
-                    ". Original price was " + product.getOldPrice() + ". Check it out now!";
+                    ", is now available at a discounted price of " + product.getDiscountedPrice() +
+                    ". Original price was " + product.getPrice() + ". Check it out now!";
             emailService.sendSimpleEmail(email, subject, body);
         }
     }
