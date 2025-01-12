@@ -126,11 +126,14 @@ public class ProductService {
             String email = user.getEmail(); // Assuming User has an email field
 
             // Prepare and send email
-            String subject = "Discount Alert: " + product.getName();
-            String body = "Good news! A product in your wishlist, " + product.getName() +
-                    ", is now available at a discounted price of " + product.getDiscountedPrice() +
-                    ". Original price was " + product.getPrice() + ". Check it out now!";
-            emailService.sendSimpleEmail(email, subject, body);
+            if (product.getDiscountedPrice().compareTo(product.getPrice()) != 0) {
+                // Prepare and send email
+                String subject = "Discount Alert: " + product.getName();
+                String body = "Good news! A product in your wishlist, " + product.getName() +
+                        ", is now available at a discounted price of " + product.getDiscountedPrice() +
+                        ". Original price was " + product.getPrice() + ". Check it out now!";
+                emailService.sendSimpleEmail(email, subject, body);
+            }
         }
     }
 
