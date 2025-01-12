@@ -62,10 +62,6 @@ const Navbar_routes = () => {
           <p>Bracelets</p>
           <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
-        <NavLink to="/earrings" className="flex flex-col items-center gap-1">
-          <p>Earrings</p>
-          <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
-        </NavLink>
       </ul>
 
       <hr className="w-full mt-3 px-10 py-0 border-none h-[1.5px] bg-gray-200" />
