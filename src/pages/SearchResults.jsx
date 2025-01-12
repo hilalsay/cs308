@@ -12,14 +12,16 @@ const SearchResultsPage = () => {
   const { sort, setSortBy, sortedResults } = useSort();
   const [sortOrder, setSortOrder] = useState("popularity"); // Default to popularity
 
+  // Filter out products with price -1 before sorting
+  const filteredSearchResults = searchResults.filter(
+    (product) => product.price !== -1
+  );
+
   // Trigger sorting whenever sortOrder changes
   useEffect(() => {
     setSortBy(sortOrder); // Update the global sortBy state
-    sort(searchResults, sortOrder); // Sort search results
-  }, [sortOrder, searchResults, setSortBy, sort]);
-
-
-
+    sort(filteredSearchResults, sortOrder); // Sort search results
+  }, [sortOrder, filteredSearchResults, setSortBy, sort]);
 
   return (
     <div>
@@ -48,8 +50,8 @@ const SearchResultsPage = () => {
 
       {/* Product Display */}
       <div className="product-container">
-        {searchResults.length > 0 ? (
-          searchResults.map((product) => (
+        {filteredSearchResults.length > 0 ? (
+          filteredSearchResults.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))
         ) : (

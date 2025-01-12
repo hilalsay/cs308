@@ -23,9 +23,13 @@ const Earrings = () => {
           (cat) => cat.name === "Earrings"
         );
 
-        // Set the necklace products if the category is found
+        // Set the earrings products if the category is found
         if (EarringsCategory) {
-          setSortedProducts(EarringsCategory.products); // Initialize sorted products
+          // Filter out products with price -1
+          const validProducts = EarringsCategory.products.filter(
+            (product) => product.price !== -1
+          );
+          setSortedProducts(validProducts); // Initialize sorted products
         } else {
           setError("Earrings category not found");
         }
@@ -42,7 +46,6 @@ const Earrings = () => {
     setSortBy(sortOrder); // Update the global sortBy state
     sort(sortedProducts, sortOrder); // Sort search results
   }, [sortOrder, sortedProducts, setSortBy, sort]);
-
 
   if (loading) return <div>Loading Earrings...</div>;
   if (error) return <div>{error}</div>;
@@ -65,10 +68,9 @@ const Earrings = () => {
         </select>
       </div>
 
-
       <div className="product-container">
-        {sortedProducts.length > 0 ? (
-          sortedProducts.map((product) => (
+        {sortedResults.length > 0 ? (
+          sortedResults.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))
         ) : (

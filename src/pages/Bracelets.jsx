@@ -5,13 +5,11 @@ import "./Products.css";
 import { useSort } from "../contexts/SortContext";
 
 const Bracelets = () => {
-  const [necklaceProducts, setNecklaceProducts] = useState([]);
   const [sortedProducts, setSortedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { sort, setSortBy, sortedResults } = useSort();
   const [sortOrder, setSortOrder] = useState("popularity"); // Default to popularity
-
 
   useEffect(() => {
     // Fetch categories and filter for "Bracelets" products
@@ -25,10 +23,13 @@ const Bracelets = () => {
           (cat) => cat.name === "Bracelets"
         );
 
-        // Set the necklace products if the category is found
+        // Set the bracelet products if the category is found
         if (BraceletsCategory) {
-          setNecklaceProducts(BraceletsCategory.products);
-          setSortedProducts(BraceletsCategory.products); // Initialize sorted products
+          // Filter out products with price -1
+          const validProducts = BraceletsCategory.products.filter(
+            (product) => product.price !== -1
+          );
+          setSortedProducts(validProducts); // Initialize sorted products
         } else {
           setError("Bracelets category not found");
         }
@@ -40,14 +41,11 @@ const Bracelets = () => {
       .finally(() => setLoading(false));
   }, []);
 
-
   // Trigger sorting whenever sortOrder changes
   useEffect(() => {
     setSortBy(sortOrder); // Update the global sortBy state
     sort(sortedProducts, sortOrder); // Sort search results
   }, [sortOrder, sortedProducts, setSortBy, sort]);
-
-
 
   if (loading) return <div>Loading Bracelets...</div>;
   if (error) return <div>{error}</div>;
@@ -71,8 +69,8 @@ const Bracelets = () => {
       </div>
 
       <div className="product-container">
-        {sortedProducts.length > 0 ? (
-          sortedProducts.map((product) => (
+        {sortedResults.length > 0 ? (
+          sortedResults.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))
         ) : (
