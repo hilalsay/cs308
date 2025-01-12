@@ -250,13 +250,6 @@ const Navbar = () => {
           >
             Bracelets
           </NavLink>
-          <NavLink
-            onClick={() => setVisible(false)}
-            className="py-2 pl-6 border"
-            to="/earrings"
-          >
-            Earrings
-          </NavLink>
         </div>
       </div>
     </div>

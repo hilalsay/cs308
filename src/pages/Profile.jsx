@@ -73,12 +73,12 @@ const MyProfile = () => {
           <p>{userProfile.username}</p>
         </div>
         <div className="form-group">
-          <label className="block font-medium mb-1">Email:</label>
-          <p>{userProfile.email}</p>
+          <label className="block font-medium mb-1">User ID:</label>
+          <p>{userProfile.id}</p>
         </div>
         <div className="form-group">
-          <label className="block font-medium mb-1">Role:</label>
-          <p>{userProfile.role}</p>
+          <label className="block font-medium mb-1">Email:</label>
+          <p>{userProfile.email}</p>
         </div>
         <div className="form-group">
           <label className="block font-medium mb-1">Address:</label>
