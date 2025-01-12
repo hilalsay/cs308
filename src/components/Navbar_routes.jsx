@@ -8,7 +8,7 @@ it usually indicates there was only one main "group" of items within that flex c
 Since justify-between needs at least two elements to space apart, it doesn’t add any space if only one group is present. */
 
 const Navbar_routes = () => {
-  const [userRole, setUserRole] = useState(null); 
+  const [userRole, setUserRole] = useState(null);
   const { token, logout } = useContext(AuthContext);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const Navbar_routes = () => {
           <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
 
-        <NavLink to="/collection" className="flex flex-col items-center gap-1">
+        <NavLink to="/products" className="flex flex-col items-center gap-1">
           <p>Products</p>
           <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
