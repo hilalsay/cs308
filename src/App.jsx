@@ -18,7 +18,6 @@ import { BrowserRouter as Router } from "react-router-dom";
 import Necklaces from "./pages/Necklaces";
 import Rings from "./pages/Rings";
 import Bracelets from "./pages/Bracelets";
-import Earrings from "./pages/Earrings";
 import Checkout from "./pages/CheckPage";
 import SearchResults from "./pages/SearchResults";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -29,7 +28,7 @@ import { SortProvider } from "./contexts/SortContext";
 import MyProfile from "./pages/Profile";
 import Wishlist from "./pages/Wishlist";
 import ManageProductsPage from "./pages/ManageProductsPage";
-import ManageSalesPage from "./pages/ManageSalesPage"
+import ManageSalesPage from "./pages/ManageSalesPage";
 import RefundPage from "./pages/RefundPage";
 import ChangePricePage from "./pages/ChangePricePage";
 import ProductsRevenuePage from "./pages/ProductsRevenuePage";
@@ -55,7 +54,7 @@ const App = () => {
 
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/collection" element={<Collection />} />
+                <Route path="/products" element={<Products />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/cart" element={<Cart />} />
@@ -67,7 +66,6 @@ const App = () => {
                 <Route path="/necklaces" element={<Necklaces />} />
                 <Route path="/rings" element={<Rings />} />
                 <Route path="/bracelets" element={<Bracelets />} />
-                <Route path="/earrings" element={<Earrings />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/search" element={<SearchResults />} />
                 <Route path="/invoice" element={<Invoice />} />
@@ -77,14 +75,16 @@ const App = () => {
                   path="/manageproducts"
                   element={<ManageProductsPage />}
                 />
-                <Route
-                  path="/managesales"
-                  element={<ManageSalesPage/>}
-                />
+                <Route path="/managesales" element={<ManageSalesPage />} />
                 <Route path="/managesales/refund" element={<RefundPage />} />
-                <Route path="/managesales/changePrice" element={<ChangePricePage />} />
-                <Route path="/managesales/productsRevenue" element={<ProductsRevenuePage />} />
-
+                <Route
+                  path="/managesales/changePrice"
+                  element={<ChangePricePage />}
+                />
+                <Route
+                  path="/managesales/productsRevenue"
+                  element={<ProductsRevenuePage />}
+                />
               </Routes>
             </div>
           </CartProvider>

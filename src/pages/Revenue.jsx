@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { filter } from "lodash";
 import RevenueBarChart from "./RevenueBarChart";
 const Revenue = ({ startDate, endDate }) => {
   const [revenueData, setRevenueData] = useState([]);

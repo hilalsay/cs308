@@ -18,7 +18,9 @@ const Products = () => {
 
       try {
         // Fetch all categories
-        const categoryResponse = await axios.get("http://localhost:8080/api/category");
+        const categoryResponse = await axios.get(
+          "http://localhost:8080/api/category"
+        );
         const categories = categoryResponse.data;
         setCategories(categories);
 
@@ -54,12 +56,15 @@ const Products = () => {
       ? Object.values(categoryProducts)
           .flat()
           .filter((product) => product.price !== -1)
-      : (categoryProducts[selectedCategory] || []).filter((product) => product.price !== -1);
-
+      : (categoryProducts[selectedCategory] || []).filter(
+          (product) => product.price !== -1
+        );
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Jewelry Collection</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        Jewelry Collection
+      </h2>
 
       {/* Filters Container */}
       <div className="filters-container flex flex-col md:flex-row gap-4 mb-6">
@@ -128,14 +133,25 @@ const Products = () => {
               if (category.id === selectedCategory) {
                 return (
                   <div key={category.id} className="category-section mb-8">
-                    <h3 className="text-xl font-bold text-gray-700 mb-4">{category.name}</h3>
+                    <h3 className="text-xl font-bold text-gray-700 mb-4">
+                      {category.name}
+                    </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                      {categoryProducts[category.id] && categoryProducts[category.id].length > 0 ? (
-                        categoryProducts[category.id].map((product) => (
-                          <ProductCard key={product.id} product={product} />
-                        ))
+                      {categoryProducts[category.id] &&
+                      categoryProducts[category.id].length > 0 ? (
+                        categoryProducts[category.id].map((product) => {
+                          // Only render products with price >= 0
+                          if (product.price >= 0) {
+                            return (
+                              <ProductCard key={product.id} product={product} />
+                            );
+                          }
+                          return null; // Skip product with price < 0
+                        })
                       ) : (
-                        <p className="text-gray-600">No products available in this category.</p>
+                        <p className="text-gray-600">
+                          No products available in this category.
+                        </p>
                       )}
                     </div>
                   </div>
