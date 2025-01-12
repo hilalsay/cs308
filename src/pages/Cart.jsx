@@ -10,25 +10,21 @@ const Cart = () => {
   const { token } = useContext(AuthContext);
   //const { isLoggedIn } = useContext(AuthContext);
 
-
   const navigate = useNavigate();
-
-  
 
   // Calculate total price
   const calculateTotal = (items) => {
     return items.reduce((sum, item) => sum + item.price * item.quantity, 0); // Use item.quantity
   };
-  
+
   const totalPrice = calculateTotal(cartItems);
-  
 
   return (
     <div className="border-t pt-14">
       <div className="text-4xl mb-5 ">
         <h1>Jewelry Cart</h1>
       </div>
-      
+
       {cartItems.length === 0 ? (
         <p>Your cart is empty.</p>
       ) : (
@@ -98,7 +94,6 @@ const CartItem = ({ item, removeFromCart }) => {
     </div>
   );
 };
-
 
 export default Cart;
 

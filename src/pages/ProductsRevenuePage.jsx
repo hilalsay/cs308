@@ -76,10 +76,10 @@ const ProductsRevenuePage = () => {
   useEffect(() => {
     if (startDate && endDate) {
       const filtered = orders.filter((order) => {
-        const orderDate = new Date(order.createdAt).setHours(0, 0, 0, 0); 
+        const orderDate = new Date(order.createdAt).setHours(0, 0, 0, 0);
         const start = new Date(startDate).setHours(0, 0, 0, 0); // start date
         const end = new Date(endDate).setHours(0, 0, 0, 0); // end date
-  
+
         return orderDate >= start && orderDate <= end;
       });
       setFilteredOrders(filtered);
@@ -87,7 +87,6 @@ const ProductsRevenuePage = () => {
       setFilteredOrders(orders); // show every order if there is not any selected date range
     }
   }, [startDate, endDate, orders]);
-  
 
   // Handle downloading the invoice for an order
   const handleDownloadInvoice = async (order) => {
@@ -148,7 +147,7 @@ const ProductsRevenuePage = () => {
           className="px-2 py-1 border border-gray-300"
         />
       </div>
-      <Revenue data={mockData} startDate={startDate} endDate={endDate} />
+      <Revenue startDate={startDate} endDate={endDate} />
 
       {filteredOrders.length === 0 ? (
         <p>No orders found for the selected date range.</p>
