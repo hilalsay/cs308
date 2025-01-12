@@ -25,7 +25,7 @@ public class ProductService {
     private ProductRepo repo;
 
     @Autowired
-    private edu.sabanciuniv.cs308.repository.WishlistRepo wishlistRepo;
+    private edu.sabanciuniv.cs308.repo.WishlistRepo wishlistRepo;
 
     @Autowired
     private EmailSender emailService;
