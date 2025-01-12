@@ -10,6 +10,7 @@ import Navbar from "./components/Navbar";
 import Cart from "./pages/Cart";
 import Navbar_routes from "./components/Navbar_routes";
 import Navbar_manager from "./components/Navbar_manager";
+import Navbar_ProductManager from "./components/Navbar_ProductManager";
 import ProductDetails from "./pages/ProductDetails"; // Import ProductDetail component
 import Products from "./pages/Products"; // Import Product component
 import { CartProvider } from "./contexts/CartContext"; // Import CartProvider
@@ -28,10 +29,14 @@ import { SortProvider } from "./contexts/SortContext";
 import MyProfile from "./pages/Profile";
 import Wishlist from "./pages/Wishlist";
 import ManageProductsPage from "./pages/ManageProductsPage";
-import ManageSalesPage from "./pages/ManageSalesPage";
+import ManageSalesPage from "./pages/ManageSalesPage"
 import RefundPage from "./pages/RefundPage";
 import ChangePricePage from "./pages/ChangePricePage";
 import ProductsRevenuePage from "./pages/ProductsRevenuePage";
+import CategoryPage from "./pages/CategoryPage";
+import ProductManager from "./pages/ProductManager";
+import ManageOrdersPage from "./pages/ManageOrdersPage";
+import ManageReviewsPage from "./pages/ManageReviewsPage";
 
 const App = () => {
   return (
@@ -45,6 +50,7 @@ const App = () => {
               <Navbar />
               <Navbar_routes />
               <Navbar_manager />
+              <Navbar_ProductManager />
 
               <ToastContainer
                 position="top-center"
@@ -54,7 +60,7 @@ const App = () => {
 
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/products" element={<Products />} />
+                <Route path="/collection" element={<Collection />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/cart" element={<Cart />} />
@@ -75,16 +81,18 @@ const App = () => {
                   path="/manageproducts"
                   element={<ManageProductsPage />}
                 />
-                <Route path="/managesales" element={<ManageSalesPage />} />
+                <Route path="/manageproducts/categories" element={<CategoryPage />} />
+                <Route path="/manageproducts/products" element={<ProductManager />} />
+                <Route path="/manageproducts/delivery" element={<ManageOrdersPage />} />
+                <Route path="/manageproducts/comments" element={<ManageReviewsPage />} />
+                <Route
+                  path="/managesales"
+                  element={<ManageSalesPage/>}
+                />
                 <Route path="/managesales/refund" element={<RefundPage />} />
-                <Route
-                  path="/managesales/changePrice"
-                  element={<ChangePricePage />}
-                />
-                <Route
-                  path="/managesales/productsRevenue"
-                  element={<ProductsRevenuePage />}
-                />
+                <Route path="/managesales/changePrice" element={<ChangePricePage />} />
+                <Route path="/managesales/productsRevenue" element={<ProductsRevenuePage />} />
+
               </Routes>
             </div>
           </CartProvider>
