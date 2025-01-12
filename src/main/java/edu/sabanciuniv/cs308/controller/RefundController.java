@@ -78,7 +78,7 @@ public class RefundController {
 
     @GetMapping("/pending")
     public ResponseEntity<List<RefundRequest>> getPendingRefundRequests() {
-        List<RefundRequest> refundRequests = orderService.viewPendingRefundRequests();
+        List<RefundRequest> refundRequests = orderService.viewRefundRequests();
         return new ResponseEntity<>(refundRequests, HttpStatus.OK);
     }
 
