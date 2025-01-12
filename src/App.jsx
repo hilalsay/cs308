@@ -18,7 +18,6 @@ import { BrowserRouter as Router } from "react-router-dom";
 import Necklaces from "./pages/Necklaces";
 import Rings from "./pages/Rings";
 import Bracelets from "./pages/Bracelets";
-import Earrings from "./pages/Earrings";
 import Checkout from "./pages/CheckPage";
 import SearchResults from "./pages/SearchResults";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -67,7 +66,6 @@ const App = () => {
                 <Route path="/necklaces" element={<Necklaces />} />
                 <Route path="/rings" element={<Rings />} />
                 <Route path="/bracelets" element={<Bracelets />} />
-                <Route path="/earrings" element={<Earrings />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/search" element={<SearchResults />} />
                 <Route path="/invoice" element={<Invoice />} />
