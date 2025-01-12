@@ -7,7 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,5 +55,13 @@ public class Order {
 
     @Column(nullable = false)
     private String orderAddress;
+
+    public int calculateTotalOrderRevenue() {
+        return this.totalAmount != null ? this.totalAmount.intValue() : 0;
+    }
+
+    public LocalDate getOrderDate() {
+        return this.createdAt != null ? this.createdAt.toLocalDate() : null;
+    }
 
 }

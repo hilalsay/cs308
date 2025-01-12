@@ -51,7 +51,7 @@ public class SecurityConfig {
                                 "/api/cart/{cartId}/confirm", "/api/cart/deleteAll", "/api/orders/**",
                                 "/api/cart/add/{userId}/{productId}/{quantity}", "/api/products/**","/api/reviews/**",
                                 "/api/pdf/**","/api/product-manager/**","/api/cart/products/{shopId}", "/api/auth/**","/api/refunds/**",
-                                "/api/pdf/**","/api/product-manager/**","/api/cart/products/{shopId}", "/api/auth/**", "/api/invoice/**")
+                                "/api/pdf/**","/api/product-manager/**","/api/cart/products/{shopId}", "/api/auth/**", "/api/invoice/**", "/api/revenue/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())

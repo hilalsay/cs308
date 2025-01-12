@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,7 +24,6 @@ public class OrderService {
 
     @Autowired
     private SalesManagerRepo salesManagerRepo;
-
     @Autowired
     private RefundRequestRepo refundRequestRepo;
     @Autowired
@@ -187,10 +189,28 @@ public class OrderService {
         return refundRequestRepo.save(refundRequest);
     }
 
-
     public List<RefundRequest> viewRefundRequests() {
         return refundRequestRepo.findAllByStatus(RefundStatus.PENDING);
     }
+
+    public List<RefundRequest> viewTheRefundRequests(UUID orderId,UUID productId) {
+        return refundRequestRepo.findByOrderIdAndProductId(orderId,productId);
+    }
+
+    public List<RefundRequest> viewAllRefundRequests() {
+        // Create a new list to store all refund requests
+        List<RefundRequest> allRefundRequests = new ArrayList<>();
+
+        // Add all refund requests with different statuses to the list
+        allRefundRequests.addAll(refundRequestRepo.findAllByStatus(RefundStatus.PENDING));
+        allRefundRequests.addAll(refundRequestRepo.findAllByStatus(RefundStatus.REJECTED));
+        allRefundRequests.addAll(refundRequestRepo.findAllByStatus(RefundStatus.APPROVED));
+
+        // Return the combined list of refund requests
+        return allRefundRequests;
+    }
+
+
 
     public Order getOrderById(UUID orderId) {
         // Fetch the order by its UUID from the database
@@ -211,6 +231,4 @@ public class OrderService {
         return orderRepository.save(order);
 
     }
-
-
 }
