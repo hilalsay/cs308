@@ -3,15 +3,20 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import ReviewCard from "./ReviewCard";
 
-const OrderCard = ({ order }) => {
+const OrderCard = ({ order, onOrderStatusChange }) => {  // Add onOrderStatusChange prop
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
   const [canCancel, setCanCancel] = useState(false);
   const [canRefund, setCanRefund] = useState(false);
-  const [orderStatus, setOrderStatus] = useState(order?.orderStatus);
+  const [localOrderStatus, setLocalOrderStatus] = useState(order?.orderStatus);
   const [refundStatuses, setRefundStatuses] = useState({});
+
+  useEffect(() => {
+    // Update local status when order prop changes
+    setLocalOrderStatus(order?.orderStatus);
+  }, [order?.orderStatus]);
 
   useEffect(() => {
     const fetchOrderProducts = async () => {
@@ -71,7 +76,8 @@ const OrderCard = ({ order }) => {
       fetchOrderProducts();
     }
 
-    if (order?.orderStatus === 'PROCESSING') {
+    // Update cancel and refund buttons based on localOrderStatus
+    if (localOrderStatus === 'PROCESSING') {
       setCanCancel(true);
     } else {
       setCanCancel(false);
@@ -79,13 +85,13 @@ const OrderCard = ({ order }) => {
 
     const lessThanMonthOld = isLessThanMonthOld(order?.createdAt);
 
-    if (order?.orderStatus === 'DELIVERED' && lessThanMonthOld <= 30) {
+    if (localOrderStatus === 'DELIVERED' && lessThanMonthOld <= 30) {
       setCanRefund(true);
     } else {
       setCanRefund(false);
     }
 
-  }, [order?.shop_id, token, order?.orderStatus, order?.createdAt, order?.id]);
+  }, [order?.shop_id, token, localOrderStatus, order?.createdAt, order?.id]);
 
   const isLessThanMonthOld = (orderDate) => {
     const orderDateObject = new Date(orderDate);
@@ -104,7 +110,6 @@ const OrderCard = ({ order }) => {
       })
     : "Unknown";
   const totalPrice = order?.totalAmount ? order.totalAmount.toFixed(2) : "0.00";
-  const status = order?.orderStatus || "Unknown";
 
   const cancelOrder = async (orderId) => {
     try {
@@ -118,8 +123,13 @@ const OrderCard = ({ order }) => {
         }
       );
       
-      console.log("Order canceled successfully:", response.data);
-      setOrderStatus("CANCELED");
+      // Update both local state and parent component
+      const newStatus = "CANCELED";
+      setLocalOrderStatus(newStatus);
+      if (onOrderStatusChange) {
+        onOrderStatusChange(orderId, newStatus);
+      }
+      
       alert("Order canceled successfully!");
     } catch (error) {
       if (error.response) {
@@ -156,10 +166,9 @@ const OrderCard = ({ order }) => {
         }
       );
   
-      // Update the refund status for this product
       setRefundStatuses(prev => ({
         ...prev,
-        [productId]: "PENDING" // Assuming the initial status after request is PENDING
+        [productId]: "PENDING"
       }));
   
       alert("Refund request submitted successfully!");
@@ -204,7 +213,7 @@ const OrderCard = ({ order }) => {
             <strong>Total Price:</strong> ${totalPrice}
           </p>
           <p>
-            <strong>Status:</strong> {status}
+            <strong>Status:</strong> {localOrderStatus || "Unknown"}
           </p>
         </div>
 
@@ -294,7 +303,7 @@ const OrderCard = ({ order }) => {
               <ReviewCard
                 productId={product.product?.id}
                 orderId={order?.id}
-                orderStatus={status}
+                orderStatus={localOrderStatus}
                 token={token}
               />
             </div>
