@@ -91,26 +91,24 @@ const Navbar = () => {
       </div>
 
       {userRole !== "SALES_MANAGER" && userRole !== "ProductManager" && (
-                      <div className="flex items-center justify-center">
-                      <div className="flex items-center justify-between border border-gray-400 px-8 py-3 my-5 ms-3 rounded-full w-4/5 sm:w-3/4">
-                        <input
-                          className="flex-1 outline-none bg-inherit text-sm px-4 py-2"
-                          type="text"
-                          placeholder="Search"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                        <img
-                          src={assets.search_icon}
-                          className="w-8 cursor-pointer ml-3"
-                          alt="Search Icon"
-                          onClick={handleSearchSubmit}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-      
+        <div className="flex items-center justify-center">
+          <div className="flex items-center justify-between border border-gray-400 px-8 py-3 my-5 ms-3 rounded-full w-4/5 sm:w-3/4">
+            <input
+              className="flex-1 outline-none bg-inherit text-sm px-4 py-2"
+              type="text"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <img
+              src={assets.search_icon}
+              className="w-8 cursor-pointer ml-3"
+              alt="Search Icon"
+              onClick={handleSearchSubmit}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center gap-6">
         {/* Profile Icon and Dropdown Menu */}
@@ -124,15 +122,6 @@ const Navbar = () => {
             <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
               {token ? (
                 <>
-                  {userRole === "ProductManager" && (
-                    <Link
-                      to="/manageproducts"
-                      className="cursor-pointer hover:text-black"
-                    >
-                      Manage Products
-                    </Link>
-                  )}
-
                   <Link
                     to="/profile"
                     className="cursor-pointer hover:text-black"
@@ -140,24 +129,26 @@ const Navbar = () => {
                     MyProfile
                   </Link>
 
-                    {userRole !== "SALES_MANAGER" && userRole !== "ProductManager" && (
+                  {userRole !== "SALES_MANAGER" &&
+                    userRole !== "ProductManager" && (
                       <Link
-                      to="/wishlist"
-                      className="cursor-pointer hover:text-black"
-                    >
-                      Wishlist
-                    </Link>
-                  )}
+                        to="/wishlist"
+                        className="cursor-pointer hover:text-black"
+                      >
+                        Wishlist
+                      </Link>
+                    )}
 
-                  {userRole !== "SALES_MANAGER" && userRole !== "ProductManager" && (
+                  {userRole !== "SALES_MANAGER" &&
+                    userRole !== "ProductManager" && (
                       <Link
-                      to="/orders"
-                      className="cursor-pointer hover:text-black"
-                    >
-                      Orders
-                    </Link>
-                  )}
-                
+                        to="/orders"
+                        className="cursor-pointer hover:text-black"
+                      >
+                        Orders
+                      </Link>
+                    )}
+
                   <p
                     onClick={handleLogout}
                     className="cursor-pointer hover:text-black"
@@ -190,20 +181,17 @@ const Navbar = () => {
         {/* Cart Icon */}
 
         {userRole !== "SALES_MANAGER" && userRole !== "ProductManager" && (
-                      <Link to="/cart" className="relative" onClick={handleCartClick}>
-                      <img
-                        className="w-9 cursor-pointer"
-                        src={assets.cart_real}
-                        alt="Cart Icon"
-                      />
-                      <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">
-                        {cartCount}
-                      </p>
-                    </Link>
-                  )}
-
-        
-        
+          <Link to="/cart" className="relative" onClick={handleCartClick}>
+            <img
+              className="w-9 cursor-pointer"
+              src={assets.cart_real}
+              alt="Cart Icon"
+            />
+            <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">
+              {cartCount}
+            </p>
+          </Link>
+        )}
 
         {/* Mobile Menu Toggle Icon */}
         <img

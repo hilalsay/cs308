@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 
-
 const Login = () => {
   const { login } = useContext(AuthContext);
   const location = useLocation();
@@ -16,7 +15,7 @@ const Login = () => {
   const [taxId, setTaxId] = useState(""); // taxId for signup
   const [homeAddress, setHomeAddress] = useState(""); // homeAddress for signup
 
-  const [userRole, setUserRole] = useState(null); 
+  const [userRole, setUserRole] = useState(null);
   const { token, logout } = useContext(AuthContext);
 
   useEffect(() => {
@@ -83,7 +82,7 @@ const Login = () => {
     if (role === "SALES_MANAGER") {
       navigate("/managesales/refund");
     } else if (role === "ProductManager") {
-      navigate("/managesales/refund");
+      navigate("/manageproducts/categories");
     } else {
       navigate("/"); // Default for customers
     }

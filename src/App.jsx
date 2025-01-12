@@ -10,6 +10,7 @@ import Navbar from "./components/Navbar";
 import Cart from "./pages/Cart";
 import Navbar_routes from "./components/Navbar_routes";
 import Navbar_manager from "./components/Navbar_manager";
+import Navbar_ProductManager from "./components/Navbar_ProductManager";
 import ProductDetails from "./pages/ProductDetails"; // Import ProductDetail component
 import Products from "./pages/Products"; // Import Product component
 import { CartProvider } from "./contexts/CartContext"; // Import CartProvider
@@ -33,6 +34,10 @@ import ManageSalesPage from "./pages/ManageSalesPage"
 import RefundPage from "./pages/RefundPage";
 import ChangePricePage from "./pages/ChangePricePage";
 import ProductsRevenuePage from "./pages/ProductsRevenuePage";
+import CategoryPage from "./pages/CategoryPage";
+import ProductManager from "./pages/ProductManager";
+import ManageOrdersPage from "./pages/ManageOrdersPage";
+import ManageReviewsPage from "./pages/ManageReviewsPage";
 
 const App = () => {
   return (
@@ -46,6 +51,7 @@ const App = () => {
               <Navbar />
               <Navbar_routes />
               <Navbar_manager />
+              <Navbar_ProductManager />
 
               <ToastContainer
                 position="top-center"
@@ -77,6 +83,10 @@ const App = () => {
                   path="/manageproducts"
                   element={<ManageProductsPage />}
                 />
+                <Route path="/manageproducts/categories" element={<CategoryPage />} />
+                <Route path="/manageproducts/products" element={<ProductManager />} />
+                <Route path="/manageproducts/delivery" element={<ManageOrdersPage />} />
+                <Route path="/manageproducts/comments" element={<ManageReviewsPage />} />
                 <Route
                   path="/managesales"
                   element={<ManageSalesPage/>}
