@@ -41,24 +41,32 @@ const Navbar_manager = () => {
 
   return (
     <div className="flex flex-col justify-center items-center  py-0 font medium">
-        <ul className="hidden justify-center sm:flex gap-8 text-lg text-gray-1000">
-        <NavLink to="/managesales/refund" className="flex flex-col items-center gap-1">
-            <p>Refund</p>
-            <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
+      <ul className="hidden justify-center sm:flex gap-8 text-lg text-gray-1000">
+        <NavLink
+          to="/managesales/refund"
+          className="flex flex-col items-center gap-1"
+        >
+          <p>Refund</p>
+          <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
 
-        <NavLink to="/managesales/changePrice" className="flex flex-col items-center gap-1">
-            <p>Price & Discount</p>
-            <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
+        <NavLink
+          to="/managesales/changePrice"
+          className="flex flex-col items-center gap-1"
+        >
+          <p>Price & Discount</p>
+          <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
-        <NavLink to="/managesales/productsRevenue" className="flex flex-col items-center gap-1">
-            <p>Products & Revenue</p>
-            <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
+        <NavLink
+          to="/managesales/productsRevenue"
+          className="flex flex-col items-center gap-1"
+        >
+          <p>Orders & Revenue</p>
+          <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
-        
-        </ul>
+      </ul>
 
-        <hr className="w-full mt-3 px-10 py-0 border-none h-[1.5px] bg-gray-200" />
+      <hr className="w-full mt-3 px-10 py-0 border-none h-[1.5px] bg-gray-200" />
     </div>
   );
 };

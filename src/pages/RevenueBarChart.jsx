@@ -22,7 +22,7 @@ const RevenueBarChart = ({ data, startDate, endDate }) => {
     ),
     datasets: [
       {
-        label: "Total Revenue (₺)",
+        label: "Total Revenue ($)",
         data: filteredData.map((item) => item.totalRevenue),
         backgroundColor: "rgba(75, 192, 192, 0.6)",
         borderColor: "rgba(75, 192, 192, 1)",
@@ -64,7 +64,7 @@ const RevenueBarChart = ({ data, startDate, endDate }) => {
         beginAtZero: true,
         title: {
           display: true,
-          text: "Revenue (₺)",
+          text: "Revenue ($)",
         },
       },
     },

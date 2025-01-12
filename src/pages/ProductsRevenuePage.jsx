@@ -13,29 +13,6 @@ const ProductsRevenuePage = () => {
   const navigate = useNavigate();
 
   const { token, logout } = useContext(AuthContext);
-  const mockData = [
-    { date: "2024-12-20", totalRevenue: 2750 },
-    { date: "2024-12-21", totalRevenue: 2750 },
-    { date: "2024-12-22", totalRevenue: 2250 },
-    { date: "2024-12-23", totalRevenue: 2500 },
-    { date: "2024-12-24", totalRevenue: 3500 },
-    { date: "2024-12-25", totalRevenue: 3500 },
-    { date: "2024-12-26", totalRevenue: 3500 },
-    { date: "2024-12-27", totalRevenue: 4500 },
-    { date: "2024-12-28", totalRevenue: 2750 },
-    { date: "2024-12-29", totalRevenue: 3250 },
-    { date: "2024-12-30", totalRevenue: 2750 },
-    { date: "2024-12-31", totalRevenue: 2750 },
-    { date: "2025-01-01", totalRevenue: 3250 },
-    { date: "2025-01-02", totalRevenue: 3000 },
-    { date: "2025-01-03", totalRevenue: 3750 },
-    { date: "2025-01-04", totalRevenue: 2250 },
-    { date: "2025-01-05", totalRevenue: 3000 },
-    { date: "2025-01-06", totalRevenue: 5000 },
-    { date: "2025-01-07", totalRevenue: 3750 },
-    { date: "2025-01-08", totalRevenue: 2250 },
-    { date: "2025-01-09", totalRevenue: 5250 },
-  ];
 
   useEffect(() => {
     if (!token) {
@@ -129,7 +106,7 @@ const ProductsRevenuePage = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">View Products & Revenue</h1>
+      <h1 className="text-2xl font-bold mb-6">View Orders & Revenue</h1>
 
       <div className="mb-6">
         <label className="mr-2">Start Date:</label>
@@ -148,7 +125,7 @@ const ProductsRevenuePage = () => {
         />
       </div>
       <Revenue startDate={startDate} endDate={endDate} />
-
+      <h2 className="text-xl font-bold mb-4">Orders Chart</h2>
       {filteredOrders.length === 0 ? (
         <p>No orders found for the selected date range.</p>
       ) : (
@@ -180,7 +157,7 @@ const ProductsRevenuePage = () => {
                   {order.orderAddress || "Not Provided"}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
-                  {order.totalAmount} ₺
+                  {order.totalAmount} $
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
                   {order.orderStatus}
