@@ -1,9 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const CategoryPage = ({ categories = [], setCategories }) => {
+const CategoryPage = () => {
+  const [categories, setCategories] = useState([]); // State for categories
   const [newCategory, setNewCategory] = useState({ name: "", description: "" });
   const [loading, setLoading] = useState(false);
 
+  // Fetch categories from the backend when the component mounts
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch("/api/category");
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Add a new category
   const handleAddCategory = async () => {
     if (!newCategory.name.trim() || !newCategory.description.trim()) {
       alert("Both name and description are required.");
@@ -20,7 +43,7 @@ const CategoryPage = ({ categories = [], setCategories }) => {
         throw new Error("Failed to add category");
       }
       const data = await response.json();
-      setCategories([...categories, data]);
+      setCategories([...categories, data]); // Add the new category to the list
       setNewCategory({ name: "", description: "" });
     } catch (error) {
       alert(error.message);
@@ -29,6 +52,7 @@ const CategoryPage = ({ categories = [], setCategories }) => {
     }
   };
 
+  // Delete a category
   const handleDeleteCategory = async (categoryId) => {
     if (!window.confirm("Are you sure you want to delete this category?")) {
       return;
@@ -55,6 +79,7 @@ const CategoryPage = ({ categories = [], setCategories }) => {
         Categories
       </h2>
 
+      {/* Add New Category Form */}
       <div className="mb-6">
         <input
           type="text"
@@ -84,6 +109,7 @@ const CategoryPage = ({ categories = [], setCategories }) => {
         </button>
       </div>
 
+      {/* Display Existing Categories */}
       <h3 className="text-2xl font-semibold text-gray-800 mb-4">
         Existing Categories
       </h3>
