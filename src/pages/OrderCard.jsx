@@ -89,7 +89,6 @@ const OrderCard = ({ order }) => {
 
   const cancelOrder = async (orderId) => {
     try {
-      // Send PUT request to cancel the order
       const response = await axios.put(
         `http://localhost:8080/api/orders/${orderId}/cancel`,
         {},
@@ -99,14 +98,15 @@ const OrderCard = ({ order }) => {
           },
         }
       );
-      
+  
       // Handle the successful response
       console.log("Order canceled successfully:", response.data);
+  
+      // Update the UI by setting the order status to "CANCELED"
       setOrderStatus("CANCELED");
+      setCanCancel(false); // Disable the cancel button after cancellation
       alert("Order canceled successfully!");
-      // Optionally, you can also update the UI here after successful cancellation
     } catch (error) {
-      // Handle error responses
       if (error.response) {
         console.error("Error canceling order:", error.response.data);
         alert(`Error: ${error.response.data}`);
@@ -116,6 +116,7 @@ const OrderCard = ({ order }) => {
       }
     }
   };
+  
 
   const handleCancel = () => {
     if (canCancel && order?.id) {
@@ -192,7 +193,7 @@ const OrderCard = ({ order }) => {
           <strong>Total Price:</strong> ${totalPrice}
         </p>
         <p>
-          <strong>Status:</strong> {status}
+        <strong>Status:</strong> {orderStatus || "Unknown"}
         </p>
 
         </div>
