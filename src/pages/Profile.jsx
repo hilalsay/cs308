@@ -13,7 +13,7 @@ const MyProfile = () => {
 
   // Fetch user profile and reviews from the backend
   useEffect(() => {
-    if (!token) {
+    if (!localStorage.getItem("token")) {
       alert("You must be logged in to view your profile.");
       navigate("/login"); // Redirect to login page if no token
       return;
@@ -26,7 +26,7 @@ const MyProfile = () => {
           "http://localhost:8080/api/auth/profile",
           {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }
         );
@@ -37,7 +37,7 @@ const MyProfile = () => {
           "http://localhost:8080/api/reviews/user",
           {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }
         );
