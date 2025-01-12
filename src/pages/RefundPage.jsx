@@ -4,7 +4,7 @@ import axios from "axios";
 import { AuthContext } from "../contexts/AuthContext";
 
 const RefundPage = () => {
-  const { token, logout } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
   const [refundRequests, setRefundRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,73 +19,62 @@ const RefundPage = () => {
 
   // Fetch refund requests
   useEffect(() => {
-    if (!token) {
-      navigate("/");
-    } else {
+    if (token) {
       fetchRefundRequests();
     }
   }, [token]);
 
   const fetchRefundRequests = async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
     try {
       const response = await axios.get("http://localhost:8080/api/refunds", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the JWT token
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      console.log("Fetched refund requests:", response.data); // Check the response
       setRefundRequests(response.data);
     } catch (err) {
       console.error("Error fetching refund requests:", err);
       setError("Error fetching refund requests.");
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
   // Approve refund request
   const approveRefund = async (refundRequestId) => {
-    const token = localStorage.getItem("token");
-    const managerId = "manager-id"; // Replace with actual manager ID
-    console.log("Using token:", token); // Log token to verify it's correct
     try {
       const response = await axios.put(
         `http://localhost:8080/api/refunds/${refundRequestId}/approve`,
         null,
         {
-          params: { managerId },
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
       console.log("Refund approved:", response.data);
-      fetchRefundRequests(); // Reload the refund requests after approving
+      fetchRefundRequests();
     } catch (err) {
       console.error("Error approving refund:", err);
-      if (err.response) {
-        console.error("Response Error:", err.response.data); // Log error details
-      }
       setError("Error approving refund.");
     }
   };
-  
 
   // Reject refund request
   const rejectRefund = async (refundRequestId) => {
-    const managerId = "manager-id"; // Replace with actual manager ID (could come from context or user data)
     try {
       const response = await axios.put(
         `http://localhost:8080/api/refunds/${refundRequestId}/reject`,
         null,
         {
-          params: { managerId },
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
       console.log("Refund rejected:", response.data);
-      fetchRefundRequests(); // Reload the refund requests after rejecting
+      fetchRefundRequests();
     } catch (err) {
       console.error("Error rejecting refund:", err);
       setError("Error rejecting refund.");
@@ -123,23 +112,25 @@ const RefundPage = () => {
                 <strong>Buyer Name:</strong> {request.order.user.username}
               </p>
               <p>
-                <strong>Status:</strong> {request.status || "Pending"}
+                <strong>Status:</strong> {request.status}
               </p>
 
-              <div className="mt-4 flex space-x-4">
-                <button
-                  onClick={() => approveRefund(request.id)}
-                  className="px-4 py-2 bg-green-500 text-white rounded-md"
-                >
-                  Approve
-                </button>
-                <button
-                  onClick={() => rejectRefund(request.id)}
-                  className="px-4 py-2 bg-red-500 text-white rounded-md"
-                >
-                  Reject
-                </button>
-              </div>
+              {request.status === "PENDING" && (
+                <div className="mt-4 flex space-x-4">
+                  <button
+                    onClick={() => approveRefund(request.id)}
+                    className="px-4 py-2 bg-green-500 text-white rounded-md"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => rejectRefund(request.id)}
+                    className="px-4 py-2 bg-red-500 text-white rounded-md"
+                  >
+                    Reject
+                  </button>
+                </div>
+              )}
             </li>
           ))}
         </ul>
