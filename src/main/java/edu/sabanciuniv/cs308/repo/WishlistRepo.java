@@ -1,4 +1,4 @@
-package edu.sabanciuniv.cs308.repository;
+package edu.sabanciuniv.cs308.repo;
 
 import edu.sabanciuniv.cs308.model.Product;
 import edu.sabanciuniv.cs308.model.Wishlist;

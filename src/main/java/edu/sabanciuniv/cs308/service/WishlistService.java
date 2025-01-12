@@ -13,7 +13,7 @@ import java.util.UUID;
 public class WishlistService {
 
     @Autowired
-    private edu.sabanciuniv.cs308.repository.WishlistRepo wishlistRepository;
+    private edu.sabanciuniv.cs308.repo.WishlistRepo wishlistRepository;
 
     @Autowired
     private ProductService productService; // Assume this service retrieves products
@@ -31,16 +31,26 @@ public class WishlistService {
         if (product == null) {
             throw new RuntimeException("Product not found");
         }
-
         Wishlist wishlist = getWishlistByUserId(userId);
         if (wishlist == null) {
             wishlist = new Wishlist();
             User user = userService.getUserById(userId);
-            wishlist.setUser(user); // Setting the user object
+            if (user == null) {
+                throw new RuntimeException("User not found");
+            }
+            wishlist.setUser(user);
         }
-        wishlist.getProducts().add(product);
-        return wishlistRepository.save(wishlist);
+
+        // Add product only if not already present
+        if (!wishlist.getProducts().contains(product)) {
+            wishlist.getProducts().add(product);
+            return wishlistRepository.save(wishlist);
+        }
+
+        // No change, return existing wishlist
+        return wishlist;
     }
+
 
     public Wishlist removeProductFromWishlist(UUID userId, UUID productId) {
         Wishlist wishlist = getWishlistByUserId(userId);
