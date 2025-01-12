@@ -5,12 +5,14 @@ import "./Products.css";
 
 const Products = () => {
   const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
   const [categoryProducts, setCategoryProducts] = useState({});
   const [selectedCategory, setSelectedCategory] = useState(""); // State for selected category
-  const [sortOrder, setSortOrder] = useState("popularity");
+  const [sortOrder, setSortOrder] = useState("popularity"); // Sort state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Fetch categories and products
   useEffect(() => {
     const fetchCategoriesAndProducts = async () => {
       setLoading(true);
@@ -22,21 +24,18 @@ const Products = () => {
         const categories = categoryResponse.data;
         setCategories(categories);
 
-        // Fetch products for each category
-        const productPromises = categories.map((category) =>
-          axios
-            .get("http://localhost:8080/api/category/products/sorted", {
-              params: { categoryId: category.id, sortBy: sortOrder },
-            })
-            .then((res) => ({ [category.id]: res.data }))
-        );
+        // Fetch all products (without sorting)
+        const productResponse = await axios.get("http://localhost:8080/api/products");
+        const allProducts = productResponse.data;
+        setProducts(allProducts);
 
-        const productsByCategory = await Promise.all(productPromises);
-        const productsMap = productsByCategory.reduce(
-          (acc, cur) => ({ ...acc, ...cur }),
-          {}
-        );
-        setCategoryProducts(productsMap);
+        // Organize products by category
+        const productsByCategory = categories.reduce((acc, category) => {
+          acc[category.id] = allProducts.filter((product) => product.categoryId === category.id);
+          return acc;
+        }, {});
+        setCategoryProducts(productsByCategory);
+
       } catch (err) {
         setError("Failed to fetch products. Please try again later.");
         console.error("Error fetching categories and products:", err);
@@ -46,16 +45,29 @@ const Products = () => {
     };
 
     fetchCategoriesAndProducts();
-  }, [sortOrder]);
+  }, []); // Fetch categories and products once
 
   // If "All Categories" is selected, flatten all products into one array and filter out products with price -1
   const filteredProducts =
     selectedCategory === ""
-      ? Object.values(categoryProducts)
-          .flat()
-          .filter((product) => product.price !== -1)
-      : (categoryProducts[selectedCategory] || []).filter((product) => product.price !== -1);
+      ? products.filter((product) => product.price !== -1)
+      : (categoryProducts[selectedCategory] || []).filter(
+          (product) => product.price !== -1
+        );
 
+  // Sort the products based on the selected sort order
+  const sortProducts = (products) => {
+    if (sortOrder === "popularity") {
+      return products.sort((a, b) => b.overallRating - a.overallRating);
+    } else if (sortOrder === "lowToHigh") {
+      return products.sort((a, b) => a.price - b.price);
+    } else if (sortOrder === "highToLow") {
+      return products.sort((a, b) => b.price - a.price);
+    }
+    return products;
+  };
+
+  const sortedFilteredProducts = sortProducts(filteredProducts);
 
   return (
     <div>
@@ -107,15 +119,15 @@ const Products = () => {
       {/* Error State */}
       {error && <p className="text-red-500">{error}</p>}
 
-      {/* Render Filtered Products */}
+      {/* Render Filtered and Sorted Products */}
       <div>
         {!loading &&
           !error &&
           (selectedCategory === "" ? (
             // Display all products without categorization when "All Categories" is selected
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map((product) => (
+              {sortedFilteredProducts.length > 0 ? (
+                sortedFilteredProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))
               ) : (
