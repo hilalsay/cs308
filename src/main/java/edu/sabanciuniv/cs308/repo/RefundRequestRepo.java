@@ -12,9 +12,10 @@ import java.util.UUID;
 @Repository
 public interface RefundRequestRepo extends JpaRepository<RefundRequest, UUID> {
     List<RefundRequest> findAllByStatus(RefundStatus status);
+
     Optional<RefundRequest> findById(UUID id);
     List<RefundRequest> findAllByOrderId(UUID orderId);
-    List<RefundRequest> findAllByOrderIdAndProductId(UUID orderId, UUID productId);
+    List<RefundRequest> findByOrderIdAndProductId(UUID orderId, UUID productId);
 
 
 }

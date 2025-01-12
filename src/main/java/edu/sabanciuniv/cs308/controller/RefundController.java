@@ -2,6 +2,7 @@ package edu.sabanciuniv.cs308.controller;
 
 import edu.sabanciuniv.cs308.model.RefundStatus;
 import edu.sabanciuniv.cs308.model.RefundRequest;
+import edu.sabanciuniv.cs308.repo.RefundRequestRepo;
 import edu.sabanciuniv.cs308.service.JwtService;
 import edu.sabanciuniv.cs308.service.OrderService;
 import edu.sabanciuniv.cs308.service.UserService;
@@ -24,6 +25,10 @@ public class RefundController {
     private OrderService orderService;
     @Autowired
     private JwtService jwtService;
+
+
+    @Autowired
+    private RefundRequestRepo refundRequestRepo;
 
     @PostMapping("/request")
     public ResponseEntity<?> requestRefund(
@@ -71,10 +76,37 @@ public class RefundController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<List<RefundRequest>> getAllRefundRequests() {
-        List<RefundRequest> refundRequests = orderService.viewRefundRequests();
+    @GetMapping("/pending")
+    public ResponseEntity<List<RefundRequest>> getPendingRefundRequests() {
+        List<RefundRequest> refundRequests = orderService.viewPendingRefundRequests();
         return new ResponseEntity<>(refundRequests, HttpStatus.OK);
     }
+
+    @GetMapping
+    public ResponseEntity<List<RefundRequest>> getAllRefundRequests() {
+        List<RefundRequest> refundRequests = orderService.viewAllRefundRequests();
+        return new ResponseEntity<>(refundRequests, HttpStatus.OK);
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<?> getRefundStatus(
+            @RequestParam UUID orderId,
+            @RequestParam UUID productId) {
+        try {
+            // Fetch refund requests that match the criteria
+            List<RefundRequest> refundRequests = orderService.viewTheRefundRequests(orderId, productId);
+
+            // Check if the list is empty
+            if (refundRequests.isEmpty()) {
+                return ResponseEntity.ok("NONE");
+            }
+
+            // Return the status of the single request
+            return ResponseEntity.ok(refundRequests.get(0).getStatus());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+
 }
 

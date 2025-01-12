@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -188,9 +189,28 @@ public class OrderService {
     }
 
 
-    public List<RefundRequest> viewRefundRequests() {
+    public List<RefundRequest> viewPendingRefundRequests() {
         return refundRequestRepo.findAllByStatus(RefundStatus.PENDING);
     }
+
+    public List<RefundRequest> viewTheRefundRequests(UUID orderId,UUID productId) {
+        return refundRequestRepo.findByOrderIdAndProductId(orderId,productId);
+    }
+
+    public List<RefundRequest> viewAllRefundRequests() {
+        // Create a new list to store all refund requests
+        List<RefundRequest> allRefundRequests = new ArrayList<>();
+
+        // Add all refund requests with different statuses to the list
+        allRefundRequests.addAll(refundRequestRepo.findAllByStatus(RefundStatus.PENDING));
+        allRefundRequests.addAll(refundRequestRepo.findAllByStatus(RefundStatus.REJECTED));
+        allRefundRequests.addAll(refundRequestRepo.findAllByStatus(RefundStatus.APPROVED));
+
+        // Return the combined list of refund requests
+        return allRefundRequests;
+    }
+
+
 
     public Order getOrderById(UUID orderId) {
         // Fetch the order by its UUID from the database
