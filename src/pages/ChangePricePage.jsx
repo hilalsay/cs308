@@ -351,3 +351,4 @@ const ChangePricePage = () => {
 };
 
 export default ChangePricePage;
+

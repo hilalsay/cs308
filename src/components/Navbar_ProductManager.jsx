@@ -3,13 +3,12 @@ import { useNavigate, NavLink } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../contexts/AuthContext";
 
-const Navbar_manager = () => {
+const Navbar_ProductManager = () => {
   const [userRole, setUserRole] = useState(null); // State to track user role
   const navigate = useNavigate();
   const { token, logout } = useContext(AuthContext);
 
   useEffect(() => {
-    // Check if there is a token, meaning the user is logged in
     if (token) {
       const fetchUserProfile = async () => {
         try {
@@ -18,20 +17,20 @@ const Navbar_manager = () => {
               Authorization: `Bearer ${token}`,
             },
           });
-          setUserRole(response.data.role); // Set the user role from the profile response
+          setUserRole(response.data.role); // Set the user role from the response
         } catch (error) {
           console.error("Error fetching user profile:", error);
-          setUserRole(null); // Handle error if fetching user profile fails
+          setUserRole(null); // Handle errors and reset role
         }
       };
       fetchUserProfile();
     } else {
-      setUserRole(null); // Ensure user role is reset when token is absent
+      setUserRole(null); // Reset role when no token
     }
   }, [token]);
 
-  // If the user is not logged in or does not have SALES_MANAGER role, return null (no navbar)
-  if (userRole !== "SALES_MANAGER") {
+  // Render nothing if the user is not a Product Manager
+  if (userRole !== "ProductManager") {
     return null;
   }
 
@@ -40,28 +39,37 @@ const Navbar_manager = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center  py-0 font medium">
-      <ul className="hidden justify-center sm:flex gap-8 text-lg text-gray-1000">
+    <div className="flex flex-col justify-center items-center py-0 font-medium">
+      <ul className="hidden sm:flex justify-center gap-8 text-lg text-gray-1000">
         <NavLink
-          to="/managesales/refund"
+          to="/manageproducts/categories"
           className="flex flex-col items-center gap-1"
         >
-          <p>Refund</p>
+          <p>Categories</p>
           <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
 
         <NavLink
-          to="/managesales/changePrice"
+          to="/manageproducts/products"
           className="flex flex-col items-center gap-1"
         >
-          <p>Price & Discount</p>
+          <p>Products</p>
           <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
+
         <NavLink
-          to="/managesales/productsRevenue"
+          to="/manageproducts/delivery"
           className="flex flex-col items-center gap-1"
         >
-          <p>Orders & Revenue</p>
+          <p>Delivery</p>
+          <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
+        </NavLink>
+
+        <NavLink
+          to="/manageproducts/comments"
+          className="flex flex-col items-center gap-1"
+        >
+          <p>Comments</p>
           <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
       </ul>
@@ -71,4 +79,4 @@ const Navbar_manager = () => {
   );
 };
 
-export default Navbar_manager;
+export default Navbar_ProductManager;

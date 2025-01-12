@@ -3,40 +3,19 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import Revenue from "./Revenue";
+
 const ProductsRevenuePage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(""); // Default start date
+  const [endDate, setEndDate] = useState(""); // Default end date
   const [filteredOrders, setFilteredOrders] = useState([]);
   const navigate = useNavigate();
 
-  const { token, logout } = useContext(AuthContext);
-  const mockData = [
-    { date: "2024-12-20", totalRevenue: 2750 },
-    { date: "2024-12-21", totalRevenue: 2750 },
-    { date: "2024-12-22", totalRevenue: 2250 },
-    { date: "2024-12-23", totalRevenue: 2500 },
-    { date: "2024-12-24", totalRevenue: 3500 },
-    { date: "2024-12-25", totalRevenue: 3500 },
-    { date: "2024-12-26", totalRevenue: 3500 },
-    { date: "2024-12-27", totalRevenue: 4500 },
-    { date: "2024-12-28", totalRevenue: 2750 },
-    { date: "2024-12-29", totalRevenue: 3250 },
-    { date: "2024-12-30", totalRevenue: 2750 },
-    { date: "2024-12-31", totalRevenue: 2750 },
-    { date: "2025-01-01", totalRevenue: 3250 },
-    { date: "2025-01-02", totalRevenue: 3000 },
-    { date: "2025-01-03", totalRevenue: 3750 },
-    { date: "2025-01-04", totalRevenue: 2250 },
-    { date: "2025-01-05", totalRevenue: 3000 },
-    { date: "2025-01-06", totalRevenue: 5000 },
-    { date: "2025-01-07", totalRevenue: 3750 },
-    { date: "2025-01-08", totalRevenue: 2250 },
-    { date: "2025-01-09", totalRevenue: 5250 },
-  ];
+  const { token } = useContext(AuthContext);
 
+  // Redirect to login if no token
   useEffect(() => {
     if (!token) {
       navigate("/");
@@ -59,8 +38,13 @@ const ProductsRevenuePage = () => {
           },
         });
 
-        setOrders(response.data);
-        setFilteredOrders(response.data); // Initially, display all orders
+        // Sort orders in reverse chronological order (newest first)
+        const sortedOrders = response.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        setOrders(sortedOrders);
+        setFilteredOrders(sortedOrders); // Initially, display all orders
       } catch (error) {
         console.error("Failed to fetch orders:", error);
         setError("Failed to fetch orders");
@@ -74,37 +58,36 @@ const ProductsRevenuePage = () => {
 
   // Filter orders based on selected start and end dates
   useEffect(() => {
-    if (startDate && endDate) {
-      const filtered = orders.filter((order) => {
-        const orderDate = new Date(order.createdAt).setHours(0, 0, 0, 0); 
-        const start = new Date(startDate).setHours(0, 0, 0, 0); // start date
-        const end = new Date(endDate).setHours(0, 0, 0, 0); // end date
-  
-        return orderDate >= start && orderDate <= end;
-      });
-      setFilteredOrders(filtered);
-    } else {
-      setFilteredOrders(orders); // show every order if there is not any selected date range
-    }
+    const minDate = new Date(-8640000000000000); // Default: Minimum date
+    const maxDate = new Date(8640000000000000); // Default: Maximum date
+
+    const filtered = orders.filter((order) => {
+      const orderDate = new Date(order.createdAt).setHours(0, 0, 0, 0);
+      const start = startDate
+        ? new Date(startDate).setHours(0, 0, 0, 0)
+        : minDate;
+      const end = endDate ? new Date(endDate).setHours(0, 0, 0, 0) : maxDate;
+
+      return orderDate >= start && orderDate <= end;
+    });
+
+    setFilteredOrders(filtered);
   }, [startDate, endDate, orders]);
-  
 
   // Handle downloading the invoice for an order
   const handleDownloadInvoice = async (order) => {
     try {
       const response = await axios.get(`/api/invoice/${order.id}`, {
-        responseType: "blob", // Expecting a binary response (PDF file)
+        responseType: "blob",
       });
 
       if (response.status === 200) {
-        // Create a link element
         const link = document.createElement("a");
-        // Create a URL for the blob object
         const url = window.URL.createObjectURL(new Blob([response.data]));
         link.href = url;
-        link.setAttribute("download", `invoice_${order.id}.pdf`); // Set the download file name
+        link.setAttribute("download", `invoice_${order.id}.pdf`);
         document.body.appendChild(link);
-        link.click(); // Trigger the download
+        link.click();
         document.body.removeChild(link);
       } else {
         console.error(
@@ -130,7 +113,7 @@ const ProductsRevenuePage = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">View Products & Revenue</h1>
+      <h1 className="text-2xl font-bold mb-6">View Orders & Revenue</h1>
 
       <div className="mb-6">
         <label className="mr-2">Start Date:</label>
@@ -148,8 +131,8 @@ const ProductsRevenuePage = () => {
           className="px-2 py-1 border border-gray-300"
         />
       </div>
-      <Revenue data={mockData} startDate={startDate} endDate={endDate} />
-
+      <Revenue startDate={startDate} endDate={endDate} />
+      <h2 className="text-xl font-bold mb-4">Orders Chart</h2>
       {filteredOrders.length === 0 ? (
         <p>No orders found for the selected date range.</p>
       ) : (
@@ -181,7 +164,7 @@ const ProductsRevenuePage = () => {
                   {order.orderAddress || "Not Provided"}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
-                  {order.totalAmount} ₺
+                  {order.totalAmount} $
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
                   {order.orderStatus}
@@ -194,7 +177,7 @@ const ProductsRevenuePage = () => {
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
                   <button
-                    onClick={() => handleDownloadInvoice(order)} // Button to download invoice
+                    onClick={() => handleDownloadInvoice(order)}
                     className="bg-blue-500 text-white px-4 py-2 rounded"
                   >
                     Download Invoice

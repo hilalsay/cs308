@@ -50,7 +50,7 @@ const ProductCard = ({ product }) => {
       </Link>
 
       {product.averageRating !== null && (
-        <div className="my-4"> 
+        <div className="my-4">
           <strong>Rating:</strong> {product.averageRating.toFixed(1)} / 5{" "}
           {renderStars(product.averageRating)}
         </div>
@@ -60,7 +60,7 @@ const ProductCard = ({ product }) => {
 
       {/* Price display with discount logic */}
       <div className="text-red-600 font-bold">
-        {product.discountRate && (product.discountRate >0) ? (
+        {product.discountRate && product.discountRate > 0 ? (
           <>
             <span className="line-through text-gray-400 mr-2">
               ${product.price.toFixed(2)}

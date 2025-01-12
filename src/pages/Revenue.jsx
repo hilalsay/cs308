@@ -1,70 +1,53 @@
-import React from "react";
-import { Line } from "react-chartjs-2";
-import "chart.js/auto";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import RevenueBarChart from "./RevenueBarChart";
+const Revenue = ({ startDate, endDate }) => {
+  const [revenueData, setRevenueData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-const Revenue = ({ data, startDate, endDate }) => {
-  // Filter data based on the date range
-  const filteredData = data.filter((item) => {
-    const itemDate = new Date(item.date);
-    const start = startDate ? new Date(startDate) : new Date(-8640000000000000); // Default: Minimum date
-    const end = endDate ? new Date(endDate) : new Date(8640000000000000); // Default: Maximum date
-    return itemDate >= start && itemDate <= end;
-  });
+  useEffect(() => {
+    const fetchRevenueData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-  // Prepare chart data
-  const chartData = {
-    labels: filteredData.map((item) =>
-      new Date(item.date).toLocaleDateString("en-US")
-    ),
-    datasets: [
-      {
-        label: "Total Revenue (₺)",
-        data: filteredData.map((item) => item.totalRevenue),
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 1,
-        type: "bar", // Bar chart for the bars
-      },
-      {
-        label: "Revenue Trend Line",
-        data: filteredData.map((item) => item.totalRevenue),
-        borderColor: "rgba(255, 0, 0, 1)", // Red line
-        backgroundColor: "rgba(255, 0, 0, 0.1)", // Light red for the area under the line (optional)
-        borderWidth: 2,
-        fill: false, // Don't fill the area under the line
-        tension: 0.4, // Smoothing the line curve
-        type: "line", // Line chart for the trend
-      },
-      {
-        label: "Loss-Profit",
-        data: filteredData.map((item) => item.totalRevenue * 0.5), // 50% of revenue
-        borderColor: "rgba(0, 255, 0, 1)", // Green line
-        backgroundColor: "rgba(0, 255, 0, 0.1)", // Light green for the area under the line (optional)
-        borderWidth: 2,
-        fill: false, // Don't fill the area under the line
-        tension: 0.4, // Smoothing the line curve
-        type: "line", // Line chart for the trend
-      },
-    ],
-  };
+        // Fetch revenue data from the backend API
+        const response = await axios.get(
+          "http://localhost:8080/api/revenue/total"
+        );
 
-  const options = {
-    responsive: true,
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  };
+        setRevenueData(response.data);
+      } catch (err) {
+        console.error("Error fetching revenue data:", err);
+        setError("Failed to fetch revenue data. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRevenueData();
+  }, []);
+
+  if (loading) {
+    return <div>Loading revenue data...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
+
+  if (revenueData.length === 0) {
+    return <div>No revenue data available.</div>;
+  }
 
   return (
     <div className="mt-6">
-      <h2 className="text-xl font-bold mb-4">Revenue and Profit/Loss Chart</h2>
-      {filteredData.length > 0 ? (
-        <Line data={chartData} options={options} />
-      ) : (
-        <p>No data available for the selected date range.</p>
-      )}
+      <RevenueBarChart
+        data={revenueData}
+        startDate={startDate}
+        endDate={endDate}
+      />
     </div>
   );
 };

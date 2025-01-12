@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ProductCard from "./ProductCard";
 import "./Products.css";
-import { useSort } from "../contexts/SortContext";
+import { useSort, SortProvider } from "../contexts/SortContext";
 
 const Necklaces = () => {
   const [sortedProducts, setSortedProducts] = useState([]);
@@ -25,7 +25,11 @@ const Necklaces = () => {
 
         // Set the necklace products if the category is found
         if (necklacesCategory) {
-          setSortedProducts(necklacesCategory.products); // Initialize sorted products
+          // Filter out products with price -1
+          const validProducts = necklacesCategory.products.filter(
+            (product) => product.price !== -1
+          );
+          setSortedProducts(validProducts); // Initialize sorted products
         } else {
           setError("Necklaces category not found");
         }
@@ -37,8 +41,8 @@ const Necklaces = () => {
       .finally(() => setLoading(false));
   }, []);
 
-   // Trigger sorting whenever sortOrder changes
-   useEffect(() => {
+  // Trigger sorting whenever sortOrder changes
+  useEffect(() => {
     setSortBy(sortOrder); // Update the global sortBy state
     sort(sortedProducts, sortOrder); // Sort search results
   }, [sortOrder, sortedProducts, setSortBy, sort]);
@@ -58,16 +62,15 @@ const Necklaces = () => {
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value)}
         >
-          <option value="">Default</option>
+          <option value="popularity">Popularity</option>
           <option value="lowToHigh">Price: Low to High</option>
           <option value="highToLow">Price: High to Low</option>
-          <option value="popularity">Popularity</option>
         </select>
       </div>
 
       <div className="product-container">
-        {sortedProducts.length > 0 ? (
-          sortedProducts.map((product) => (
+        {sortedResults.length > 0 ? (
+          sortedResults.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))
         ) : (

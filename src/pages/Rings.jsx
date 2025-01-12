@@ -17,15 +17,19 @@ const Rings = () => {
       .get("http://localhost:8080/api/category")
       .then((response) => {
         const categories = response.data;
-
+  
         // Find the "Rings" category and extract its products
         const RingsCategory = categories.find(
           (cat) => cat.name === "Rings"
         );
-
+  
         // Set the necklace products if the category is found
         if (RingsCategory) {
-          setSortedProducts(RingsCategory.products); // Initialize sorted products
+          // Filter out products with price -1
+          const filteredProducts = RingsCategory.products.filter(
+            (product) => product.price !== -1
+          );
+          setSortedProducts(filteredProducts); // Initialize sorted products
         } else {
           setError("Rings category not found");
         }
@@ -36,6 +40,7 @@ const Rings = () => {
       })
       .finally(() => setLoading(false));
   }, []);
+    
 
   // Trigger sorting whenever sortOrder changes
   useEffect(() => {
