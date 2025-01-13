@@ -216,7 +216,7 @@ public class ProductService {
 
     // Method to get products sorted based on the given sort criteria
     public List<Product> getSortedProducts(String sortBy) {
-        List<Product> products = repo.findAll(); // Get all products from the repository
+        List<Product> products = repo.findActiveProducts(); // Get all products from the repository
 
         // Sort by price in ascending order
         if ("priceLowToHigh".equalsIgnoreCase(sortBy)) {
