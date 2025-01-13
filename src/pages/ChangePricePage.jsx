@@ -335,12 +335,12 @@ const ChangePricePage = () => {
               <p className="text-gray-700">Price: {product.discountRate && product.discountRate > 0 ? (
           <>
             <span className="line-through text-gray-400 mr-2">
-              ${product.price.toFixed(2)}
+              ${product.price}
             </span>
-            <span>${product.discountedPrice.toFixed(2)}</span>
+            <span>${product.discountedPrice}</span>
           </>
         ) : (
-          <span>${product.price.toFixed(2)}</span>
+          <span>${product.price}</span>
         )}</p>
               <div className="flex justify-end mt-4 space-x-2">
                 <button
