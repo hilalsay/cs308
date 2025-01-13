@@ -101,58 +101,10 @@ const ChangePricePage = () => {
     } else {
       console.log('input null');
       alert('Product input empty.');
-    }const updateProductPriceAndDiscount = async (productId, newPrice, discountRate) => {
-      console.log('Editing product: ', newPrice, ' ', discountRate);
+    }
     
-      if (newPrice !== null && newPrice !== undefined && newPrice !== '') {
-        try {
-          setLoading(true); // Set loading state to true when the update starts
     
-          // Update price if provided
-          const priceResponse = await axios.put(
-            `http://localhost:8080/api/products/${productId}/price`,
-            null,
-            { params: { newPrice: newPrice } }
-          );
-          console.log('Price updated successfully:', priceResponse.data);
     
-          // Handle discount update or removal
-          let discountResponse;
-          if (discountRate !== null && discountRate !== undefined && discountRate !== '') {
-            discountResponse = await axios.put(
-              `http://localhost:8080/api/products/${productId}/discount`,
-              null,
-              { params: { discountRate: discountRate } }
-            );
-            console.log('Discount updated successfully:', discountResponse.data);
-          } else {
-            discountResponse = await axios.put(
-              `http://localhost:8080/api/products/${productId}/remove-discount`,
-              null
-            );
-            console.log('Discount removed successfully:', discountResponse.data);
-          }
-    
-          setLoading(false); // Reset loading state once the update is completed
-    
-          return {
-            priceResponse: priceResponse.data,
-            discountResponse: discountResponse ? discountResponse.data : null,
-          };
-        } catch (error) {
-          setLoading(false); // Reset loading state in case of error
-          if (error.response) {
-            console.error('Error updating product:', error.response.data);
-          } else {
-            console.error('Error updating product:', error.message);
-          }
-          throw error; // Rethrow to handle errors in calling code
-        }
-      } else {
-        console.log('Input is null');
-        alert('Product input is empty.');
-      }
-    };
   };
 
   const handleSubmit = async (e) => {
@@ -161,20 +113,43 @@ const ChangePricePage = () => {
       alert('Please select a product to edit.');
       return;
     }
-
+  
     try {
-      const updatedData = await updateProductPriceAndDiscount(
+      const updatedProduct = await updateProductPriceAndDiscount(
         editingProductId,
         formData.price,
         formData.discountRate
       );
-      console.log('Updated data:', updatedData);
-      fetchProducts(); // Refresh the product list
+  
+      // Dynamically update the products list
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === editingProductId
+            ? {
+                ...product,
+                price: formData.price,
+                discountRate: formData.discountRate,
+                discountedPrice: calculateDiscountedPrice(formData.price, formData.discountRate),
+              }
+            : product
+        )
+      );
+      
+  
+      console.log('Updated product:', updatedProduct);
+  
       resetForm(); // Clear the form
     } catch (error) {
       alert('Failed to update the product. Check the console for details.');
     }
   };
+
+  const calculateDiscountedPrice = (price, discountRate) => {
+    if (!discountRate) return price;
+    return (price - (price * discountRate) / 100);
+  };
+  
+  
 
   const handleEdit = (product) => {
     if (loading) return; // Prevent editing if a product is being updated
@@ -190,6 +165,7 @@ const ChangePricePage = () => {
       distributorInformation: product.distributorInformation || '',
       categoryId: product.category?.id || '',
       discountRate: product.discountRate !== null ? product.discountRate : '', // Handle null gracefully
+      discountedPrice: product.discountedPrice || '',
     });
   };
 
@@ -204,6 +180,7 @@ const ChangePricePage = () => {
       distributorInformation: '',
       categoryId: '',
       discountRate: '',
+      discountedPrice: '',
     });
     setEditingProductId(null);
   };
@@ -332,16 +309,20 @@ const ChangePricePage = () => {
             >
               <h3 className="font-bold text-lg">{product.name}</h3>
               <p className="text-gray-700">Model: {product.model}</p>
-              <p className="text-gray-700">Price: {product.discountRate && product.discountRate > 0 ? (
-          <>
-            <span className="line-through text-gray-400 mr-2">
-              ${product.price}
-            </span>
-            <span>${product.discountedPrice}</span>
-          </>
-        ) : (
-          <span>${product.price}</span>
-        )}</p>
+              <p className="text-gray-700">
+                Price: 
+                {product.discountRate && product.discountRate > 0 ? (
+                  <>
+                    <span className="line-through text-gray-400 mr-2">
+                      ${product.price}
+                    </span>
+                    <span>${product.discountedPrice}</span>
+                  </>
+                ) : (
+                  <span>${product.price}</span>
+                )}
+              </p>
+
               <div className="flex justify-end mt-4 space-x-2">
                 <button
                   onClick={() => handleEdit(product)}
