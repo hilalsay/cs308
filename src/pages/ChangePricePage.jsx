@@ -332,7 +332,16 @@ const ChangePricePage = () => {
             >
               <h3 className="font-bold text-lg">{product.name}</h3>
               <p className="text-gray-700">Model: {product.model}</p>
-              <p className="text-gray-700">Price: ${product.price}</p>
+              <p className="text-gray-700">Price: {product.discountRate && product.discountRate > 0 ? (
+          <>
+            <span className="line-through text-gray-400 mr-2">
+              ${product.price.toFixed(2)}
+            </span>
+            <span>${product.discountedPrice.toFixed(2)}</span>
+          </>
+        ) : (
+          <span>${product.price.toFixed(2)}</span>
+        )}</p>
               <div className="flex justify-end mt-4 space-x-2">
                 <button
                   onClick={() => handleEdit(product)}
