@@ -8,13 +8,12 @@ import { AuthContext } from "../contexts/AuthContext";
 const Cart = () => {
   const { cartItems, removeFromCart } = useCart();
   const { token } = useContext(AuthContext);
-  //const { isLoggedIn } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
   // Calculate total price
   const calculateTotal = (items) => {
-    return items.reduce((sum, item) => sum + item.price * item.quantity, 0); // Use item.quantity
+    return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
 
   const totalPrice = calculateTotal(cartItems);
@@ -47,6 +46,7 @@ const Cart = () => {
                   navigate("/login");
                 }
               }}
+              className="px-6 py-3 bg-blue-500 text-white font-medium rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition duration-300"
             >
               Checkout
             </button>
@@ -60,8 +60,8 @@ const Cart = () => {
 const CartItem = ({ item, removeFromCart }) => {
   // Construct the image URL or use a placeholder
   const imageUrl = item.product.imageData
-    ? `data:image/jpeg;base64,${item.product.imageData}` // Convert base64 string to an image URL
-    : "https://via.placeholder.com/150"; // Fallback placeholder image
+    ? `data:image/jpeg;base64,${item.product.imageData}`
+    : "https://via.placeholder.com/150";
 
   return (
     <div className="py-4 border-t border-b text-gray-700 grid grid-cols-[1fr_4fr_0.5fr_0.5fr] sm:grid-cols-[1fr_4fr_2fr_0.5fr] items-center gap-8">
@@ -96,5 +96,3 @@ const CartItem = ({ item, removeFromCart }) => {
 };
 
 export default Cart;
-
-//flex items-start gap-6
