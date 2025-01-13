@@ -65,7 +65,7 @@ public class InvoiceService {
         Order order = orderService.getOrderById(orderId);  // Assuming orderService is injected and available
 
         // Generate the PDF file using the PdfService
-        String pdfPath = pdfService.createPdf(order);
+        String pdfPath = pdfService.createPdfOrder(order);
 
         // Return the path to the generated PDF file
         return pdfPath;
