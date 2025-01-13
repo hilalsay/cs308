@@ -4,11 +4,11 @@ const CategoryPage = () => {
   const [categories, setCategories] = useState([]); // State for categories
   const [newCategory, setNewCategory] = useState({ name: "", description: "" });
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true); // State for initial page load
 
   // Fetch categories from the backend when the component mounts
   useEffect(() => {
     const fetchCategories = async () => {
-      setLoading(true);
       try {
         const response = await fetch("/api/category");
         if (!response.ok) {
@@ -19,7 +19,7 @@ const CategoryPage = () => {
       } catch (error) {
         console.error("Error fetching categories:", error.message);
       } finally {
-        setLoading(false);
+        setPageLoading(false); // Mark the page as loaded
       }
     };
 
@@ -113,7 +113,9 @@ const CategoryPage = () => {
       <h3 className="text-2xl font-semibold text-gray-800 mb-4">
         Existing Categories
       </h3>
-      {categories.length > 0 ? (
+      {pageLoading ? (
+        <p className="text-gray-600 text-center">Loading Categories...</p>
+      ) : categories.length > 0 ? (
         <ul className="space-y-4">
           {categories.map((category) => (
             <li
