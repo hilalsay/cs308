@@ -6,22 +6,34 @@ const ManageOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(0); // Current page
+  const [size, setSize] = useState(10); // Records per page
+  const [totalPages, setTotalPages] = useState(0); // Total number of pages
 
-  // Fetch all orders from the backend
+  // Fetch orders with pagination
   useEffect(() => {
     const fetchOrders = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        const response = await axios.get("http://localhost:8080/api/orders");
-        setOrders(response.data);
-        setLoading(false);
+        const response = await axios.get(
+          "http://localhost:8080/api/orders/paged",
+          {
+            params: { page, size },
+          }
+        );
+
+        setOrders(response.data.content); // Set orders from paginated content
+        setTotalPages(response.data.totalPages); // Set total pages from response
       } catch (err) {
         setError("Failed to fetch orders");
+      } finally {
         setLoading(false);
       }
     };
 
     fetchOrders();
-  }, []);
+  }, [page, size]); // Re-fetch when page or size changes
 
   // Handle status update to "in-transit"
   const handleInTransit = async (orderId) => {
@@ -63,14 +75,12 @@ const ManageOrdersPage = () => {
       });
 
       if (response.status === 200) {
-        // Create a link element
         const link = document.createElement("a");
-        // Create a URL for the blob object
         const url = window.URL.createObjectURL(new Blob([response.data]));
         link.href = url;
-        link.setAttribute("download", `invoice_${order.id}.pdf`); // Set the download file name
+        link.setAttribute("download", `invoice_${order.id}.pdf`);
         document.body.appendChild(link);
-        link.click(); // Trigger the download
+        link.click();
         document.body.removeChild(link);
       } else {
         console.error(
@@ -136,13 +146,11 @@ const ManageOrdersPage = () => {
                 {new Date(order.createdAt).toLocaleString()}
               </p>
 
-              {/* Fetch and display products for this order */}
               <div>
                 <h4 className="font-semibold mt-4">Products:</h4>
                 {order.shop_id && <OrderProductsList shopId={order.shop_id} />}
               </div>
 
-              {/* Download Invoice */}
               <div className="mt-2">
                 <button
                   onClick={() => handleDownloadInvoice(order)}
@@ -151,7 +159,7 @@ const ManageOrdersPage = () => {
                   Download Invoice
                 </button>
               </div>
-              {/* Handle updating order status */}
+
               <div className="mt-4 flex justify-end space-x-4">
                 {order.orderStatus === "PENDING" ||
                   (order.orderStatus === "PROCESSING" && (
@@ -179,6 +187,27 @@ const ManageOrdersPage = () => {
             </div>
           ))
         )}
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="pagination-controls mt-6 flex justify-center space-x-4">
+        <button
+          onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+          disabled={page === 0}
+          className="px-4 py-2 bg-gray-500 text-white rounded-lg disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span>
+          Page {page + 1} of {totalPages}
+        </span>
+        <button
+          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages - 1))}
+          disabled={page === totalPages - 1}
+          className="px-4 py-2 bg-gray-500 text-white rounded-lg disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
     </div>
   );
