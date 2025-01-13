@@ -7,7 +7,7 @@ const ManageOrdersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(0); // Current page
-  const [size, setSize] = useState(10); // Records per page
+  const [size, setSize] = useState(5); // Records per page
   const [totalPages, setTotalPages] = useState(0); // Total number of pages
 
   // Fetch orders with pagination
