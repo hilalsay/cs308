@@ -27,6 +27,7 @@ const ChangePricePage = () => {
     categoryId: '',
     image: null,
     discountRate: '',
+    discountedPrice: '',
   });
   const [editingProductId, setEditingProductId] = useState(null);
   const [loading, setLoading] = useState(false); // Track loading state

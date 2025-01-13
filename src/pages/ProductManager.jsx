@@ -15,6 +15,8 @@ const ProductManager = () => {
     distributorInformation: "",
     categoryId: "",
     image: null,
+    discountRate: '',
+    discountedPrice: '',
   });
   const [editingProductId, setEditingProductId] = useState(null);
 
@@ -65,6 +67,8 @@ const ProductManager = () => {
         warrantyStatus: formData.warrantyStatus,
         distributorInformation: formData.distributorInformation,
         category: { id: formData.categoryId },
+        discountRate: product.discountRate !== null ? product.discountRate : '', // Handle null gracefully
+        discountedPrice: product.discountedPrice || '',
       })
     );
     if (formData.image) data.append("image", formData.image);
@@ -244,7 +248,19 @@ const ProductManager = () => {
           >
             <h3 className="font-bold text-lg">{product.name}</h3>
             <p className="text-gray-700">Model: {product.model}</p>
-            <p className="text-gray-700">Price: ${product.price}</p>
+            <p className="text-gray-700">
+                Price: 
+                {product.discountRate && product.discountRate > 0 ? (
+                  <>
+                    <span className="line-through text-gray-400 mr-2">
+                      ${product.price}
+                    </span>
+                    <span>${product.discountedPrice}</span>
+                  </>
+                ) : (
+                  <span>${product.price}</span>
+                )}
+              </p>
             <div className="flex justify-end mt-4 space-x-2">
               <button
                 onClick={() => handleEdit(product)}
