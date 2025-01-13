@@ -8,6 +8,10 @@ import edu.sabanciuniv.cs308.service.JwtService;
 import edu.sabanciuniv.cs308.service.OrderService;
 import edu.sabanciuniv.cs308.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +39,28 @@ public class OrderController {
         List<Order> orders = orderService.findAll();
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
+    @GetMapping("/paged")
+    public ResponseEntity<Page<Order>> getAllOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        try {
+            // Determine sort direction
+            Sort.Direction direction = sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+            // Create Pageable with sort
+            Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+            // Fetch paginated and sorted orders
+            Page<Order> ordersPage = orderService.findAllPaginated(pageable);
+            return new ResponseEntity<>(ordersPage, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @GetMapping("/user/orders")
     public ResponseEntity<?> getOrdersByUser(@RequestHeader("Authorization") String token) {

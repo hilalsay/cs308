@@ -3,6 +3,8 @@ package edu.sabanciuniv.cs308.service;
 import edu.sabanciuniv.cs308.model.*;
 import edu.sabanciuniv.cs308.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -38,7 +40,9 @@ public class OrderService {
     public List<Order> findAll() {
         return orderRepository.findAll();
     }
-
+    public Page<Order> findAllPaginated(Pageable pageable) {
+        return orderRepository.findAll(pageable);
+    }
     public Optional<Order> findById(UUID id) {
         return orderRepository.findById(id);
     }
