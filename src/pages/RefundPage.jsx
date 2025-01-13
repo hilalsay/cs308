@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../contexts/AuthContext";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const RefundPage = () => {
   const { token } = useContext(AuthContext);
@@ -44,7 +46,7 @@ const RefundPage = () => {
   // Approve refund request
   const approveRefund = async (refundRequestId) => {
     try {
-      const response = await axios.put(
+      await axios.put(
         `http://localhost:8080/api/refunds/${refundRequestId}/approve`,
         null,
         {
@@ -53,8 +55,8 @@ const RefundPage = () => {
           },
         }
       );
-      console.log("Refund approved:", response.data);
-      fetchRefundRequests();
+      updateRefundStatus(refundRequestId, "APPROVED");
+      toast.success("Refund approved successfully!");
     } catch (err) {
       console.error("Error approving refund:", err);
       setError("Error approving refund.");
@@ -64,7 +66,7 @@ const RefundPage = () => {
   // Reject refund request
   const rejectRefund = async (refundRequestId) => {
     try {
-      const response = await axios.put(
+      await axios.put(
         `http://localhost:8080/api/refunds/${refundRequestId}/reject`,
         null,
         {
@@ -73,17 +75,28 @@ const RefundPage = () => {
           },
         }
       );
-      console.log("Refund rejected:", response.data);
-      fetchRefundRequests();
+      updateRefundStatus(refundRequestId, "REJECTED");
+      toast.error("Refund rejected successfully!");
     } catch (err) {
       console.error("Error rejecting refund:", err);
       setError("Error rejecting refund.");
     }
   };
 
+  // Update refund request status locally
+  const updateRefundStatus = (refundRequestId, newStatus) => {
+    setRefundRequests((prevRequests) =>
+      prevRequests.map((request) =>
+        request.id === refundRequestId ? { ...request, status: newStatus } : request
+      )
+    );
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Refund Management</h1>
+
+      <ToastContainer />
 
       {loading ? (
         <p>Loading refund requests...</p>

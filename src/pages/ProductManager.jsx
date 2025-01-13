@@ -15,6 +15,8 @@ const ProductManager = () => {
     distributorInformation: "",
     categoryId: "",
     image: null,
+    discountRate: '',
+    discountedPrice: '',
   });
   const [editingProductId, setEditingProductId] = useState(null);
 
@@ -53,23 +55,22 @@ const ProductManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = new FormData();
-    const productData = {
-      name: formData.name,
-      model: formData.model,
-      serialNumber: formData.serialNumber,
-      description: formData.description,
-      stockQuantity: formData.stockQuantity,
-      price: editingProductId ? formData.price : -1, // Default price on add
-      warrantyStatus: formData.warrantyStatus,
-      distributorInformation: formData.distributorInformation,
-    };
-
-    // Only include category if a new one is selected
-    if (formData.categoryId) {
-      productData.category = { id: formData.categoryId };
-    }
-
-    data.append("product", JSON.stringify(productData));
+    data.append(
+      "product",
+      JSON.stringify({
+        name: formData.name,
+        model: formData.model,
+        serialNumber: formData.serialNumber,
+        description: formData.description,
+        stockQuantity: formData.stockQuantity,
+        price: editingProductId ? formData.price : -1, // Default price on add
+        warrantyStatus: formData.warrantyStatus,
+        distributorInformation: formData.distributorInformation,
+        category: { id: formData.categoryId },
+        discountRate: product.discountRate !== null ? product.discountRate : '', // Handle null gracefully
+        discountedPrice: product.discountedPrice || '',
+      })
+    );
     if (formData.image) data.append("image", formData.image);
 
     try {
@@ -111,7 +112,7 @@ const ProductManager = () => {
       price: product.price || -1, // Keep existing price during edit
       warrantyStatus: product.warrantyStatus || "",
       distributorInformation: product.distributorInformation || "",
-      categoryId: product.category?.id || "", // Populate with existing category ID
+      categoryId: product.category?.id || "",
       image: null,
     });
   };
@@ -212,6 +213,7 @@ const ProductManager = () => {
             name="categoryId"
             value={formData.categoryId}
             onChange={handleInputChange}
+            required
             className="input-field"
           >
             <option value="">Select Category</option>
@@ -246,7 +248,19 @@ const ProductManager = () => {
           >
             <h3 className="font-bold text-lg">{product.name}</h3>
             <p className="text-gray-700">Model: {product.model}</p>
-            <p className="text-gray-700">Price: ${product.price}</p>
+            <p className="text-gray-700">
+                Price: 
+                {product.discountRate && product.discountRate > 0 ? (
+                  <>
+                    <span className="line-through text-gray-400 mr-2">
+                      ${product.price}
+                    </span>
+                    <span>${product.discountedPrice}</span>
+                  </>
+                ) : (
+                  <span>${product.price}</span>
+                )}
+              </p>
             <div className="flex justify-end mt-4 space-x-2">
               <button
                 onClick={() => handleEdit(product)}
