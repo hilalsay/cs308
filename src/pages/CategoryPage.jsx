@@ -3,7 +3,8 @@ import React, { useState, useEffect } from "react";
 const CategoryPage = () => {
   const [categories, setCategories] = useState([]); // State for categories
   const [newCategory, setNewCategory] = useState({ name: "", description: "" });
-  const [loading, setLoading] = useState(false);
+  const [addLoading, setAddLoading] = useState(false); // Loading state for adding categories
+  const [deleteLoadingId, setDeleteLoadingId] = useState(null); // ID of the category being deleted
   const [pageLoading, setPageLoading] = useState(true); // State for initial page load
 
   // Fetch categories from the backend when the component mounts
@@ -32,7 +33,7 @@ const CategoryPage = () => {
       alert("Both name and description are required.");
       return;
     }
-    setLoading(true);
+    setAddLoading(true);
     try {
       const response = await fetch("/api/category", {
         method: "POST",
@@ -48,7 +49,7 @@ const CategoryPage = () => {
     } catch (error) {
       alert(error.message);
     } finally {
-      setLoading(false);
+      setAddLoading(false);
     }
   };
 
@@ -57,7 +58,7 @@ const CategoryPage = () => {
     if (!window.confirm("Are you sure you want to delete this category?")) {
       return;
     }
-    setLoading(true);
+    setDeleteLoadingId(categoryId);
     try {
       const response = await fetch(`/api/category/${categoryId}`, {
         method: "DELETE",
@@ -65,11 +66,13 @@ const CategoryPage = () => {
       if (!response.ok) {
         throw new Error("Failed to delete category");
       }
-      setCategories(categories.filter((category) => category.id !== categoryId));
+      setCategories(
+        categories.filter((category) => category.id !== categoryId)
+      );
     } catch (error) {
       alert(error.message);
     } finally {
-      setLoading(false);
+      setDeleteLoadingId(null);
     }
   };
 
@@ -100,12 +103,12 @@ const CategoryPage = () => {
         ></textarea>
         <button
           onClick={handleAddCategory}
-          disabled={loading}
+          disabled={addLoading}
           className={`w-full p-3 ${
-            loading ? "bg-gray-300" : "bg-blue-500"
+            addLoading ? "bg-gray-300" : "bg-blue-500"
           } text-white rounded-lg hover:bg-blue-600 focus:outline-none`}
         >
-          {loading ? "Adding..." : "Add Category"}
+          {addLoading ? "Adding..." : "Add Category"}
         </button>
       </div>
 
@@ -130,10 +133,12 @@ const CategoryPage = () => {
               </div>
               <button
                 onClick={() => handleDeleteCategory(category.id)}
-                disabled={loading}
-                className="ml-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 focus:outline-none"
+                disabled={deleteLoadingId === category.id}
+                className={`ml-4 ${
+                  deleteLoadingId === category.id ? "bg-gray-300" : "bg-red-500"
+                } text-white px-4 py-2 rounded-lg hover:bg-red-600 focus:outline-none`}
               >
-                {loading ? "Deleting..." : "Delete"}
+                {deleteLoadingId === category.id ? "Deleting..." : "Delete"}
               </button>
             </li>
           ))}
