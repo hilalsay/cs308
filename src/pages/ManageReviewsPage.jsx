@@ -11,7 +11,11 @@ const ManageReviewsPage = () => {
     const fetchReviews = async () => {
       try {
         const response = await axios.get("http://localhost:8080/api/reviews");
-        setReviews(response.data);
+        setReviews(
+          response.data.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          )
+        );
         setLoading(false);
       } catch (err) {
         setError("Failed to fetch reviews");

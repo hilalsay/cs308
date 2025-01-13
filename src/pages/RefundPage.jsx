@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../contexts/AuthContext";
 import { toast, ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 const RefundPage = () => {
   const { token } = useContext(AuthContext);
@@ -87,7 +87,9 @@ const RefundPage = () => {
   const updateRefundStatus = (refundRequestId, newStatus) => {
     setRefundRequests((prevRequests) =>
       prevRequests.map((request) =>
-        request.id === refundRequestId ? { ...request, status: newStatus } : request
+        request.id === refundRequestId
+          ? { ...request, status: newStatus }
+          : request
       )
     );
   };
@@ -110,6 +112,9 @@ const RefundPage = () => {
               className="border border-gray-300 p-4 rounded-md shadow-sm"
             >
               <p>
+                <strong>Refund Request ID:</strong> {request.id}
+              </p>
+              <p>
                 <strong>Order ID:</strong> {request.order.id}
               </p>
               <p>
@@ -119,7 +124,8 @@ const RefundPage = () => {
                 <strong>Product Name:</strong> {request.product.name}
               </p>
               <p>
-                <strong>Product Serial Number:</strong> {request.product.serialNumber}
+                <strong>Product Serial Number:</strong>{" "}
+                {request.product.serialNumber}
               </p>
               <p>
                 <strong>Buyer Name:</strong> {request.order.user.username}

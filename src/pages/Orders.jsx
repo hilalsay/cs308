@@ -35,7 +35,9 @@ const Orders = () => {
 
         const text = await response.text(); // Get the raw text response
         const data = text ? JSON.parse(text) : []; // Parse only if text is not empty
-        setOrders(data);
+        setOrders(
+          data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        );
         //console.log("orders: ",orders);
       } catch (err) {
         console.error("Error fetching orders:", err);
@@ -59,7 +61,7 @@ const Orders = () => {
       ) : (
         <div className="order-list">
           {orders.map((order) => (
-            <OrderCard key={order.id} order={order}  />
+            <OrderCard key={order.id} order={order} />
           ))}
         </div>
       )}
